@@ -89,6 +89,7 @@ def test_control_plane_contains_only_approved_af_103_modules() -> None:
         Path("domain/session.py"),
         Path("migrations/env.py"),
         Path("migrations/versions/0001_initial_domain_model.py"),
+        Path("migrations/versions/0002_normalize_check_names.py"),
     }
     actual_relative_files = {
         path.relative_to(control_plane)
