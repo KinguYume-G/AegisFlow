@@ -8,11 +8,11 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 
 ## 当前阶段
 
-**M1：AF-107 Planner Agent Contract Implementation**
+**M1：AF-108 Clarification HITL Interface Implementation**
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-AF-101–AF-106 与插入的治理任务 CI-001 均已通过 Human Review/Merge 并标记为 `status:verified`；pytest/coverage、Core 镜像构建、PostgreSQL migration 验证与 main Branch Protection 门禁已经生效。AF-104–AF-110 Design Bundle v4 已通过 PR #84 Human Review/Merge；AF-107 已获批并进入实施，当前仅实现确定性 Planner 契约，不启动 AF-108。
+AF-101–AF-107 与插入的治理任务 CI-001 均已通过 Human Review/Merge 并标记为 `status:verified`；pytest/coverage、Core 镜像构建、PostgreSQL migration 验证与 main Branch Protection 门禁已经生效。AF-104–AF-110 Design Bundle v4 已通过 PR #84 Human Review/Merge；AF-108 已获批并进入实施，当前仅实现进程内 Clarification HITL 契约，不启动 AF-109。
 
 ## 不可改变的定位
 
@@ -94,7 +94,8 @@ AF-101–AF-106 与插入的治理任务 CI-001 均已通过 Human Review/Merge 
 - [x] AF-104 实现 PR 完成 CI、Human Review 与 Human Merge
 - [x] AF-105 实现 PR 完成 CI、Human Review 与 Human Merge
 - [x] AF-106 实现 PR 完成 CI、Human Review 与 Human Merge
-- [ ] AF-107 实现 PR 完成 CI、Human Review 与 Human Merge
+- [x] AF-107 实现 PR 完成 CI、Human Review 与 Human Merge
+- [ ] AF-108 实现 PR 完成 CI、Human Review 与 Human Merge
 
 ## 真实性规则
 

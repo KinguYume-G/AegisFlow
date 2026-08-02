@@ -47,5 +47,6 @@ def test_clarifier_and_contract_are_framework_independent() -> None:
         assert _imports(source_file).isdisjoint(PROHIBITED_IMPORT_ROOTS)
 
 
-def test_af_108_hitl_module_is_not_created_early() -> None:
-    assert not PACKAGE_ROOT.joinpath("clarifier", "hitl.py").exists()
+def test_af_108_hitl_module_is_scoped_to_clarifier() -> None:
+    assert PACKAGE_ROOT.joinpath("clarifier", "hitl.py").is_file()
+    assert not PACKAGE_ROOT.joinpath("hitl.py").exists()

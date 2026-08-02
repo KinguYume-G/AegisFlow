@@ -90,7 +90,7 @@
 | AF-105.md | AI流程 | Clarifier Agent Contract Design Note（**Approved v4**，固定五规则与结构化 resolve） |
 | AF-106.md | AI流程 | Context Agent Retrieval Contract Design Note（**Approved v4**，受限 root 与确定性检索） |
 | AF-107.md | AI流程 | Planner Agent Contract Design Note（**Approved v4**，稳定能力枚举与固定四任务算法） |
-| AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Draft v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
+| AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Approved v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
 | AF-109.md | AI流程 | Langfuse Tracing Design Note（**Draft v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
 | AF-110.md | AI流程 | Gate 1A E2E Design Note（**Draft v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
 
@@ -106,11 +106,11 @@
 | AF-105.md | 质量 | Clarifier 配套 Test Plan（**Approved v4**） |
 | AF-106.md | 质量 | Context 配套 Test Plan（**Approved v4**） |
 | AF-107.md | 质量 | Planner 配套 Test Plan（**Approved v4**） |
-| AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Draft v4**） |
+| AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Approved v4**） |
 | AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Draft v4**，mock CI + 人工真实 smoke） |
 | AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Draft v4**） |
 
-## src/aegisflow_core/（AF-101–AF-107 模块化单体与 DeliveryPack 契约）
+## src/aegisflow_core/（AF-101–AF-108 模块化单体与 DeliveryPack 契约）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -141,6 +141,7 @@
 | packs/delivery/clarifier/ports.py | 代码边界 | ClarificationReasoner 显式注入端口 |
 | packs/delivery/clarifier/fakes.py | 代码 | 无外部调用的五规则确定性 Reasoner |
 | packs/delivery/clarifier/agent.py | 代码 | Clarifier 委派、完整答案校验与结构化 resolve |
+| packs/delivery/clarifier/hitl.py | 代码/可靠性/安全 | AF-108 进程内 HITL Gateway、run 隔离、replay 幂等与原子回答转换 |
 | packs/delivery/context/__init__.py | 代码边界 | Context Agent 子包标记 |
 | packs/delivery/context/ports.py | 代码边界 | ContextRetriever 显式注入端口 |
 | packs/delivery/context/fakes.py | 代码/安全 | 受限 root、256 KiB/200 文件上限与确定性本地检索 |
@@ -152,7 +153,7 @@
 | packs/delivery/planner/fakes.py | 代码/安全 | 固定四任务、L1/L3 风险与诚实预算的确定性 Reasoner |
 | packs/delivery/planner/agent.py | 代码 | Clarifier 充分性门禁、Planner 委派与异常传播 |
 
-## tests/（AF-101–AF-107 测试）
+## tests/（AF-101–AF-108 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -175,6 +176,7 @@
 | packs/delivery/clarifier/test_agent.py | 质量 | 显式 Reasoner 注入、异常传播、答案完成/缺失与不重入测试 |
 | packs/delivery/clarifier/test_boundaries.py | 质量/架构 | Clarifier 禁止外部框架依赖且不提前创建 AF-108 HITL |
 | packs/delivery/clarifier/test_contracts.py | 质量/Schema | Question/Clarification 长度、唯一性与状态不变量测试 |
+| packs/delivery/clarifier/test_hitl.py | 质量/可靠性/安全 | AF-108 状态机、run 隔离、并发提交、幂等与输入边界测试 |
 | packs/delivery/clarifier/test_reasoner.py | 质量/安全 | 中英文五规则、固定问题顺序与完整需求测试 |
 | packs/delivery/context/__init__.py | 质量 | Context 测试包标记 |
 | packs/delivery/context/test_agent.py | 质量 | ContextRetriever 显式注入与异常传播测试 |

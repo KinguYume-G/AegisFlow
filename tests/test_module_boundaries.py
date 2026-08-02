@@ -70,6 +70,7 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "agent.py",
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "fakes.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "hitl.py",
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "ports.py",
         PACKAGE_ROOT / "packs" / "delivery" / "context" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "context" / "agent.py",
