@@ -1,7 +1,7 @@
 # Engineering System Manifest
 
-- Repository files: 105
-- Active project files: 98
+- Repository files: 108
+- Active project files: 101
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
@@ -30,6 +30,7 @@
 - `.github/ISSUE_TEMPLATE/feature.yml`
 - `.github/ISSUE_TEMPLATE/security.yml`
 - `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github/workflows/ci.yml`
 - `AGENTS.md`
 - `CONTRIBUTING.md`
 - `Dockerfile`
@@ -76,8 +77,10 @@
 - `docs/25_PHASE0_EXIT_REVIEW.md`
 - `docs/design-notes/AF-101.md`
 - `docs/design-notes/AF-102.md`
+- `docs/design-notes/CI-001.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
+- `docs/test-plans/CI-001.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`

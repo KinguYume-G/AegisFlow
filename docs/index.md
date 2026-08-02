@@ -4,12 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：M1 — AF-102 Docker Compose Foundation
-- **实现状态**：Phase 0 与 AF-101 已完成并验证；AF-102 正按获批 Design Note、Test Plan 与九项修正实现
+- **阶段**：M1 — CI-001 Foundational CI（AF-103 开工门）
+- **实现状态**：Phase 0、AF-101、AF-102 已完成并验证；CI-001 已获批准并实施中
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **当前 Issue**：AF-102；依赖 AF-101 已满足，设计与测试计划已由 Project Owner 批准
-- **范围边界**：仅本地 Core/PostgreSQL/Redis Compose、镜像构建和健康检查；不修改应用代码、不引入 CI、不开始 AF-103
+- **当前 Issue**：CI-001（GitHub #79，非 canonical 75 条基线）；依赖 AF-102 已满足
+- **范围边界**：仅 GitHub Actions pytest/coverage、Core 镜像构建与 Branch Protection readiness；不修改应用代码、不开始 AF-103
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -59,8 +59,10 @@
 - [`25_PHASE0_EXIT_REVIEW.md`](25_PHASE0_EXIT_REVIEW.md)：Phase 0 独立验收审查，逐项核对 AF-000–AF-008 与退出条件
 - [`design-notes/AF-101.md`](design-notes/AF-101.md)：AF-101 应用骨架 Design Note（Approved）
 - [`design-notes/AF-102.md`](design-notes/AF-102.md)：AF-102 Docker Compose 基础设施 Design Note（Approved）
+- [`design-notes/CI-001.md`](design-notes/CI-001.md)：CI-001 基础 CI Design Note（Approved；非 canonical 治理插入，见 `20_DECISION_LOG.md`）
 - [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
 - [`test-plans/AF-102.md`](test-plans/AF-102.md)：AF-102 配套 Test Plan（Approved，含真实执行证据）
+- [`test-plans/CI-001.md`](test-plans/CI-001.md)：CI-001 配套 Test Plan（Approved；红灯/绿灯证据待实现填写）
 
 ### 开发与协作
 

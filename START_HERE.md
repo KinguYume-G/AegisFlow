@@ -9,9 +9,9 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** is a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. / AegisFlow 是面向可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制的生产级 Agent Control Plane。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- The repository has exited **Phase 0** and entered **M1**; AF-101 is verified and AF-102 is the current approved work. / 仓库已经退出 Phase 0 并进入 M1；AF-101 已验证，当前获批工作为 AF-102。
+- The repository is in **M1**; AF-101 and AF-102 are verified, and CI-001 is the governance gate before AF-103. / 仓库处于 M1；AF-101 与 AF-102 已验证，CI-001 是 AF-103 前的治理开工门。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
-- GitHub import and M0 verification are complete. AF-101 has been human-merged and verified; AF-102's Design Note, Test Plan, and nine corrections are approved. / GitHub 导入与 M0 验证已完成；AF-101 已人工合并并验证，AF-102 的 Design Note、Test Plan 与九项修正已获批准。
+- GitHub import and M0 verification are complete. AF-101 and AF-102 have been human-merged and verified; CI-001 is approved and in progress. / GitHub 导入与 M0 验证已完成；AF-101 与 AF-102 已人工合并并验证，CI-001 已批准并实施中。
 
 ## Authoritative Reading Order / 权威阅读顺序
 
@@ -99,15 +99,15 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0 and AF-101 are complete. The project is now in **M1 / AF-102**. / Phase 0 与 AF-101 均已完成；项目当前处于 **M1 / AF-102**。
+Phase 0, AF-101, and AF-102 are complete. The project is now in **M1 / CI-001**, before AF-103. / Phase 0、AF-101 与 AF-102 均已完成；项目当前处于 AF-103 前的 **M1 / CI-001**。
 
 Current work / 当前工作：
 
-- Implement only the approved AF-102 local Docker Compose foundation for Core, PostgreSQL, and Redis / 仅实现已批准的 AF-102 本地 Core、PostgreSQL、Redis Compose 基础；
-- Do not modify application code, connect clients, add migrations, introduce CI, or start AF-103 / 不修改应用代码、不接入客户端、不加迁移、不引入 CI、不开始 AF-103；
-- Require Human Review and Human Merge before AF-102 is complete / AF-102 必须经 Human Review 与 Human Merge 后才算完成。
+- Implement only the approved CI-001 workflow and protected-main readiness / 仅实现获批的 CI-001 workflow 与 main 保护准备；
+- Do not modify application code, add migrations, deploy, or start AF-103 / 不修改应用代码、不加迁移、不部署、不开始 AF-103；
+- Require red/green Actions evidence, explicit protection approval, Human Review, and Human Merge / 必须具备 Actions 红绿灯证据、保护规则明确授权及 Human Review/Merge。
 
-Only the explicitly approved AF-102 infrastructure scope is authorized; all unreviewed business capability remains prohibited. / 当前只授权明确批准的 AF-102 基础设施范围，其他未经评审的业务能力仍禁止实现。
+Only the explicitly approved CI-001 governance scope is authorized; all unreviewed business capability remains prohibited. / 当前只授权明确批准的 CI-001 治理范围，其他未经评审的业务能力仍禁止实现。
 
 ## Pull Request Exit Criteria / PR 退出标准
 
