@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 189
-- Active project files: 182
+- Repository files: 191
+- Active project files: 184
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 45
-- Test files: 38
+- Application source files: 46
+- Test files: 39
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -155,6 +155,7 @@
 - `src/aegisflow_core/packs/delivery/clarifier/__init__.py`
 - `src/aegisflow_core/packs/delivery/clarifier/agent.py`
 - `src/aegisflow_core/packs/delivery/clarifier/fakes.py`
+- `src/aegisflow_core/packs/delivery/clarifier/hitl.py`
 - `src/aegisflow_core/packs/delivery/clarifier/ports.py`
 - `src/aegisflow_core/packs/delivery/context/__init__.py`
 - `src/aegisflow_core/packs/delivery/context/agent.py`
@@ -184,6 +185,7 @@
 - `tests/packs/delivery/clarifier/test_agent.py`
 - `tests/packs/delivery/clarifier/test_boundaries.py`
 - `tests/packs/delivery/clarifier/test_contracts.py`
+- `tests/packs/delivery/clarifier/test_hitl.py`
 - `tests/packs/delivery/clarifier/test_reasoner.py`
 - `tests/packs/delivery/context/__init__.py`
 - `tests/packs/delivery/context/test_agent.py`
