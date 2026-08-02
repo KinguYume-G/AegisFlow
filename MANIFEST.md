@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 166
-- Active project files: 159
+- Repository files: 178
+- Active project files: 171
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 34
-- Test files: 26
+- Application source files: 39
+- Test files: 33
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -147,12 +147,17 @@
 - `src/aegisflow_core/packs/delivery/__init__.py`
 - `src/aegisflow_core/packs/delivery/contracts/__init__.py`
 - `src/aegisflow_core/packs/delivery/contracts/clarification.py`
+- `src/aegisflow_core/packs/delivery/contracts/context_package.py`
 - `src/aegisflow_core/packs/delivery/contracts/determinism.py`
 - `src/aegisflow_core/packs/delivery/contracts/normalized_request.py`
 - `src/aegisflow_core/packs/delivery/clarifier/__init__.py`
 - `src/aegisflow_core/packs/delivery/clarifier/agent.py`
 - `src/aegisflow_core/packs/delivery/clarifier/fakes.py`
 - `src/aegisflow_core/packs/delivery/clarifier/ports.py`
+- `src/aegisflow_core/packs/delivery/context/__init__.py`
+- `src/aegisflow_core/packs/delivery/context/agent.py`
+- `src/aegisflow_core/packs/delivery/context/fakes.py`
+- `src/aegisflow_core/packs/delivery/context/ports.py`
 - `src/aegisflow_core/packs/delivery/intake/__init__.py`
 - `src/aegisflow_core/packs/delivery/intake/agent.py`
 - `src/aegisflow_core/runtime/__init__.py`
@@ -165,6 +170,8 @@
 - `tests/domain/test_migration_config.py`
 - `tests/domain/test_models.py`
 - `tests/domain/test_session.py`
+- `tests/fixtures/context/retrieval_contract.md`
+- `tests/fixtures/context/tenant_guard.py`
 - `tests/packs/__init__.py`
 - `tests/packs/delivery/__init__.py`
 - `tests/packs/delivery/clarifier/__init__.py`
@@ -172,6 +179,11 @@
 - `tests/packs/delivery/clarifier/test_boundaries.py`
 - `tests/packs/delivery/clarifier/test_contracts.py`
 - `tests/packs/delivery/clarifier/test_reasoner.py`
+- `tests/packs/delivery/context/__init__.py`
+- `tests/packs/delivery/context/test_agent.py`
+- `tests/packs/delivery/context/test_boundaries.py`
+- `tests/packs/delivery/context/test_contracts.py`
+- `tests/packs/delivery/context/test_retriever.py`
 - `tests/packs/delivery/intake/__init__.py`
 - `tests/packs/delivery/intake/test_agent.py`
 - `tests/packs/delivery/intake/test_boundaries.py`
