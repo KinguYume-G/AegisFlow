@@ -40,6 +40,7 @@
 | ISSUE_TEMPLATE/adr.yml | 架构 | ADR 提案 Issue 表单 |
 | ISSUE_TEMPLATE/documentation.yml | 治理 | 文档 Issue 表单 |
 | PULL_REQUEST_TEMPLATE.md | 治理 | PR 模板，强制安全/测试/回滚章节 |
+| workflows/ci.yml | 质量/治理 | CI-001 基础 CI：锁定依赖、pytest 覆盖率门槛与 Core 镜像构建 |
 
 ## docs/（工程文档统一子目录）
 
@@ -81,6 +82,7 @@
 |---|---|---|
 | AF-101.md | AI流程 | 已批准的 AF-101 应用骨架 Design Note 与技术决策 |
 | AF-102.md | AI流程 | 已批准的 AF-102 Docker Compose 基础设施 Design Note 与九项决策 |
+| CI-001.md | AI流程 | 已批准的 CI-001 基础 CI Design Note；不在 canonical 75 条 Backlog 内，插入依据见 `20_DECISION_LOG.md` |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -88,6 +90,7 @@
 |---|---|---|
 | AF-101.md | 质量 | 已批准的 AF-101 Test Plan、测试先行顺序与失败判定 |
 | AF-102.md | 质量 | 已批准的 AF-102 Test Plan 与真实 Docker 验证证据 |
+| CI-001.md | 质量 | 已批准的 CI-001 Test Plan，以红灯/绿灯真实 Actions 运行证明 Gate 生效 |
 
 ## src/aegisflow_core/（AF-101 模块化单体骨架）
 

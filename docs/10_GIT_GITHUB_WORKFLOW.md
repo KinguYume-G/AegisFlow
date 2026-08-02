@@ -14,14 +14,20 @@ draft → ready → in-progress → review → changes-requested → approved �
 
 例外仅限紧急安全修复、自动依赖更新和拼写修复，即使例外也要后补 Issue。
 
-## Branch Protection 目标
+## Branch Protection（main 已生效）
 
-- 禁止直接 push main
-- 至少 1 个 Human Review
-- 必需检查通过
-- Review conversation 已解决
-- 禁止 force push
-- 禁止 AI 自我批准
+自 2026-08-02 起，`main` 已启用以下保护规则：
+
+- 所有变更必须通过 Pull Request，管理员同样受规则约束
+- 必需检查 `CI / test`（API identity：`context: test`、`app_id: 15368`）通过
+- 合并前分支必须与最新 `main` 保持同步
+- 所有 Review conversation 必须已解决
+- 禁止 force push 和删除 `main`
+- 禁止 AI 自我批准或合并；仍须由 Project Owner 完成人工 Review 与 Human Merge
+
+当前仓库只有一位可信 Human Reviewer，PR 作者无法批准自己的 PR，因此 GitHub 的
+`required_approving_review_count` 暂设为 `0`。这是单人仓库的过渡设置，不代表可以跳过人工审查。
+待第二位可信 Human Reviewer 加入后，必须将该值调整为 `1`，恢复平台强制的一票 Approval。
 
 ## PR Size
 

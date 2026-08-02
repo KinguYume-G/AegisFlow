@@ -26,6 +26,13 @@
 - 从 Phase 0 Exit 开始，所有改动必须执行 One Issue → One Branch → One PR → Human Review → Human Merge。
 - AI 不得批准或 Merge 自己创建的 PR，也不得以该 bootstrap exception 为依据绕过未来治理流程。
 
+### CI-001 inserted ahead of AF-103
+
+- 项目所有者在 AF-102（PR #78）合并后、AF-103 开始前，经 Tech Lead（AI）分析后决定插入 `CI-001 — Add foundational CI`（GitHub Issue #79），不在原始 75 条 canonical Backlog 内。
+- 原因：AF-101/AF-102 已产生真实可合并代码，但测试通过与否此前完全依赖贡献者自报证据，无独立验证；`docs/25_PHASE0_EXIT_REVIEW.md` 记录的 main 分支无 Branch Protection 风险持续未解决；AF-103 即将引入数据库迁移，是插入 CI 回归保护性价比最高的时间点。
+- `CI-001` 使用独立的 `CI-` 前缀而非 `AF-` 编号，明确标记它不属于 canonical Backlog 的 75 条规划基线，避免与 `project/GITHUB_ISSUE_IMPORT.csv` 的事实源产生混淆。
+- 该插入不改变已冻结的产品方向、架构或任何 Accepted ADR，不需要新 ADR；仅新增 GitHub Actions 工作流与 Branch Protection 配置。
+
 ## Open
 
 Python/Node 精确版本、ORM/migration、OIDC provider、Policy representation、Object storage、Langfuse hosting、k3s environment 和 Model providers 必须通过 Issue/ADR 决定。
