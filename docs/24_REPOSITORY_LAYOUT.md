@@ -85,8 +85,8 @@
 | AF-102.md | AI流程 | 已批准的 AF-102 Docker Compose 基础设施 Design Note 与九项决策 |
 | CI-001.md | AI流程 | 已批准的 CI-001 基础 CI Design Note；不在 canonical 75 条 Backlog 内，插入依据见 `20_DECISION_LOG.md` |
 | AF-103.md | AI流程 | 已批准的 AF-103 v3 初始领域模型与迁移 Design Note |
-| M1-SHARED-CONTRACTS.md | AI流程 | AF-104–AF-110 当前完整跨 Issue 契约（**Draft v4**）：Schema 所有权、确定性算法、安全边界、Langfuse 真实 smoke 与严格实施顺序 |
-| AF-104.md | AI流程 | Intake Agent Contract Design Note（**Draft v4**，精确规范化/长度/幂等算法） |
+| M1-SHARED-CONTRACTS.md | AI流程 | AF-104–AF-110 完整跨 Issue 契约（**Approved v4**，PR #84）：Schema 所有权、确定性算法、安全边界、Langfuse 真实 smoke 与严格实施顺序 |
+| AF-104.md | AI流程 | Intake Agent Contract Design Note（**Approved v4**，精确规范化/长度/幂等算法） |
 | AF-105.md | AI流程 | Clarifier Agent Contract Design Note（**Draft v4**，固定五规则与结构化 resolve） |
 | AF-106.md | AI流程 | Context Agent Retrieval Contract Design Note（**Draft v4**，受限 root 与确定性检索） |
 | AF-107.md | AI流程 | Planner Agent Contract Design Note（**Draft v4**，稳定能力枚举与固定四任务算法） |
@@ -102,7 +102,7 @@
 | AF-102.md | 质量 | 已批准的 AF-102 Test Plan 与真实 Docker 验证证据 |
 | CI-001.md | 质量 | 已批准的 CI-001 Test Plan，以红灯/绿灯真实 Actions 运行证明 Gate 生效 |
 | AF-103.md | 质量 | 已批准的 AF-103 v3 Test Plan，覆盖迁移、租户复合外键与触发器正负向验证 |
-| AF-104.md | 质量 | Intake 配套 Test Plan（**Draft v4**） |
+| AF-104.md | 质量 | Intake 配套 Test Plan（**Approved v4**） |
 | AF-105.md | 质量 | Clarifier 配套 Test Plan（**Draft v4**） |
 | AF-106.md | 质量 | Context 配套 Test Plan（**Draft v4**） |
 | AF-107.md | 质量 | Planner 配套 Test Plan（**Draft v4**） |
@@ -110,7 +110,7 @@
 | AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Draft v4**，mock CI + 人工真实 smoke） |
 | AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Draft v4**） |
 
-## src/aegisflow_core/（AF-101 模块化单体骨架）
+## src/aegisflow_core/（AF-101–AF-104 模块化单体与 Intake 契约）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -129,9 +129,14 @@
 | models/__init__.py | 代码边界 | Models 顶层包占位 |
 | evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
-| packs/delivery/__init__.py | 代码边界 | DeliveryPack 边界占位，不含 Agent 实现 |
+| packs/delivery/__init__.py | 代码边界 | DeliveryPack 根边界与六个固定 Agent 的包入口 |
+| packs/delivery/contracts/__init__.py | 代码边界 | DeliveryPack 版本化数据契约包标记，不做 re-export |
+| packs/delivery/contracts/determinism.py | 代码 | Clock/IdGenerator 端口与系统、固定、随机、顺序实现 |
+| packs/delivery/contracts/normalized_request.py | 代码/Schema | AF-104 NormalizedRequest v1、长度与 UTC/幂等键验证 |
+| packs/delivery/intake/__init__.py | 代码边界 | Intake Agent 子包标记 |
+| packs/delivery/intake/agent.py | 代码 | NFKC/空白规范化、canonical SHA-256 与 IntakeAgent |
 
-## tests/（AF-101–AF-103 测试）
+## tests/（AF-101–AF-104 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -148,6 +153,10 @@
 | domain/test_migration_config.py | 质量/数据 | Alembic 根入口、完整 metadata 与默认 schema 测试 |
 | domain/test_session.py | 质量/数据 | SQLAlchemy async engine/session factory 测试 |
 | domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
+| packs/delivery/intake/test_determinism.py | 质量 | Clock/IdGenerator UTC、UUID4 与可复现 UUID5 测试 |
+| packs/delivery/intake/test_normalized_request.py | 质量/Schema | source type、长度、UTC、hash 格式与 canonical 向量测试 |
+| packs/delivery/intake/test_agent.py | 质量/安全 | 规范化、幂等、注入边界与 prompt-like 数据测试 |
+| packs/delivery/intake/test_boundaries.py | 质量/架构 | Intake/contracts 禁止框架、数据库、Runtime 与 Provider SDK 依赖 |
 
 ## docs/adr/（Accepted ADR）
 

@@ -24,3 +24,4 @@
 | Local Infrastructure Foundation | Modular Monolith / Deployment Evolution | ADR-0004 | AF-102 | Approved Design Note/Test Plan; 30 tests; real Compose build and three-service health verification |
 | Continuous Integration | N/A (Repository Governance) | — | CI-001 | `CI / test`: red Run 30744284422; green Run 30744322133; protected-main readiness |
 | Initial Domain Model | Core Domain / PostgreSQL | — | AF-103 | Local PostgreSQL: 49 tests, 100% coverage, migration up/idempotent/down/re-up, `alembic check`; CI Actions link recorded in PR |
+| Intake Agent Contract | DeliveryPack / Intake | — | AF-104 | Canonical normalization and SHA-256 vectors; deterministic Clock/IdGenerator; `tests/packs/delivery/intake/` |

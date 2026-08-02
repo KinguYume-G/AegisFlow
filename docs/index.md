@@ -4,12 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：M1 — AF-104–AF-110 Design Bundle Review
-- **实现状态**：Phase 0、AF-101、AF-102、AF-103、CI-001 已完成并验证；M1 Design Bundle Draft v4 等待最终 Human Review
+- **阶段**：M1 — AF-104 Intake Agent Contract Implementation
+- **实现状态**：Phase 0、AF-101、AF-102、AF-103、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，当前仅实施 AF-104
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
 - **最近完成 Issue**：AF-103（GitHub #12，canonical），当前为 `CLOSED / status:verified`
-- **范围边界**：本轮只审查并整理 AF-104–AF-110 Design Note/Test Plan；AF-104 获批并明确调整为 `status:ready` 前不写对应业务代码
+- **范围边界**：AF-104 已获批并调整为 `status:ready`；本轮只实现 Intake 契约，AF-105 在 AF-104 Human Merge/验证前不得启动
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -61,13 +61,13 @@
 - [`design-notes/AF-102.md`](design-notes/AF-102.md)：AF-102 Docker Compose 基础设施 Design Note（Approved）
 - [`design-notes/CI-001.md`](design-notes/CI-001.md)：CI-001 基础 CI Design Note（Approved；非 canonical 治理插入，见 `20_DECISION_LOG.md`）
 - [`design-notes/AF-103.md`](design-notes/AF-103.md)：AF-103 初始领域模型与迁移 Design Note（Approved v3）
-- [`design-notes/M1-SHARED-CONTRACTS.md`](design-notes/M1-SHARED-CONTRACTS.md)：M1 Design Bundle（AF-104–AF-110）当前完整跨 Issue 契约（**Draft v4**，等待 Human Review）
-- [`design-notes/AF-104.md`](design-notes/AF-104.md) … [`AF-110.md`](design-notes/AF-110.md)：AF-104–AF-110 自包含 Design Note（**Draft v4**，严格顺序执行）
+- [`design-notes/M1-SHARED-CONTRACTS.md`](design-notes/M1-SHARED-CONTRACTS.md)：M1 Design Bundle（AF-104–AF-110）完整跨 Issue 契约（**Approved v4**，PR #84）
+- [`design-notes/AF-104.md`](design-notes/AF-104.md)：AF-104 自包含 Design Note（**Approved v4**）；[`AF-105.md`](design-notes/AF-105.md) … [`AF-110.md`](design-notes/AF-110.md) 保持 Draft v4，严格顺序执行
 - [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
 - [`test-plans/AF-102.md`](test-plans/AF-102.md)：AF-102 配套 Test Plan（Approved，含真实执行证据）
 - [`test-plans/CI-001.md`](test-plans/CI-001.md)：CI-001 配套 Test Plan（Approved；含真实 Actions 红灯/绿灯证据）
 - [`test-plans/AF-103.md`](test-plans/AF-103.md)：AF-103 配套 Test Plan（Approved v3）
-- [`test-plans/AF-104.md`](test-plans/AF-104.md) … [`AF-110.md`](test-plans/AF-110.md)：AF-104–AF-110 自包含 Test Plan（**Draft v4**）
+- [`test-plans/AF-104.md`](test-plans/AF-104.md)：AF-104 Test Plan（**Approved v4**）；[`AF-105.md`](test-plans/AF-105.md) … [`AF-110.md`](test-plans/AF-110.md) 保持 Draft v4
 
 ### 开发与协作
 

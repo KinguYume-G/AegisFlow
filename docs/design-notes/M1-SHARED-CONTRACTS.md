@@ -1,6 +1,6 @@
 # M1 Design Bundle — Shared Cross-Issue Contracts (AF-104–AF-110)
 
-> 状态：**Draft v4**，等待 Project Owner / Human Reviewer 最终批准。本文是当前完整契约，不依赖任何未入库的历史草稿。批准前不得据此实现 AF-104–AF-110，也不得调整这些 Issue 的状态。
+> 状态：**Approved v4**。Project Owner / Human Reviewer 已通过 PR #84 审查并合并本文。本文是当前完整契约，不依赖任何未入库的历史草稿；每个 Issue 仍须依次满足依赖、`status:ready` 与独立 PR 门禁。
 
 ## 1. 范围与当前事实
 

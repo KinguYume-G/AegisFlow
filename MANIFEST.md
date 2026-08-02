@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 144
-- Active project files: 137
+- Repository files: 153
+- Active project files: 146
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 24
-- Test files: 14
+- Application source files: 29
+- Test files: 18
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -145,6 +145,11 @@
 - `src/aegisflow_core/models/__init__.py`
 - `src/aegisflow_core/packs/__init__.py`
 - `src/aegisflow_core/packs/delivery/__init__.py`
+- `src/aegisflow_core/packs/delivery/contracts/__init__.py`
+- `src/aegisflow_core/packs/delivery/contracts/determinism.py`
+- `src/aegisflow_core/packs/delivery/contracts/normalized_request.py`
+- `src/aegisflow_core/packs/delivery/intake/__init__.py`
+- `src/aegisflow_core/packs/delivery/intake/agent.py`
 - `src/aegisflow_core/runtime/__init__.py`
 - `src/aegisflow_core/settings.py`
 - `tests/__init__.py`
@@ -155,6 +160,10 @@
 - `tests/domain/test_migration_config.py`
 - `tests/domain/test_models.py`
 - `tests/domain/test_session.py`
+- `tests/packs/delivery/intake/test_agent.py`
+- `tests/packs/delivery/intake/test_boundaries.py`
+- `tests/packs/delivery/intake/test_determinism.py`
+- `tests/packs/delivery/intake/test_normalized_request.py`
 - `tests/test_app_startup.py`
 - `tests/test_docker_compose_config.py`
 - `tests/test_health.py`
