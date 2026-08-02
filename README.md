@@ -8,11 +8,11 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 
 ## 当前阶段
 
-**M1：AF-101 Application Skeleton**
+**M1：AF-102 Docker Compose Foundation**
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-AF-101 的 Design Note、Test Plan 与七项技术决策已获 Project Owner 批准，当前工作仅建立模块化单体包边界、最小 FastAPI 应用和 `/health` 契约。数据库、Redis、Temporal、Agent、MCP、RBAC、Docker 与前端均不在本 Issue 范围内。
+AF-101 已通过 Human Review/Merge 并标记为 `status:verified`。当前 AF-102 只交付本地开发用 Core/PostgreSQL/Redis Compose 基础、不可变镜像 pin 与健康检查；不接入数据库/Redis 客户端，不修改应用契约，不引入 CI，也不开始 AF-103。
 
 ## 不可改变的定位
 
@@ -82,8 +82,10 @@ AF-101 的 Design Note、Test Plan 与七项技术决策已获 Project Owner 批
 - [x] 56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 导入
 - [x] Phase 0 Exit PR 完成 Human Review 与 Human Merge
 - [x] M0 人工确认完成，AF-000–AF-008 已关闭并验证
-- [x] AF-101 Design Note 与 Test Plan 获人工批准
-- [ ] AF-101 实现 PR 完成 Human Review 与 Human Merge
+- [x] AF-101 实现 PR 完成 Human Review 与 Human Merge
+- [x] AF-102 Design Note、Test Plan 与九项修正获人工批准
+- [ ] AF-102 实现 PR 完成 Human Review 与 Human Merge
+- [ ] AF-103 开始前，以独立 Issue/Branch/PR 建设基础 CI
 
 ## 真实性规则
 

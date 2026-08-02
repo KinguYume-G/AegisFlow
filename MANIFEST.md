@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 99
-- Active project files: 92
+- Repository files: 105
+- Active project files: 98
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
 - Application source files: 14
-- Test files: 7
+- Test files: 8
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -19,6 +19,7 @@
 ## Files
 
 - `.env.example`
+- `.dockerignore`
 - `.gitignore`
 - `.python-version`
 - `.github/CODEOWNERS`
@@ -31,10 +32,12 @@
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `AGENTS.md`
 - `CONTRIBUTING.md`
+- `Dockerfile`
 - `MANIFEST.md`
 - `README.md`
 - `SECURITY.md`
 - `START_HERE.md`
+- `compose.yaml`
 - `pyproject.toml`
 - `archive/duplicates/23_PHASE0_ACCEPTANCE.md`
 - `archive/originals/AegisFlow_Final_Plan_v2.md`
@@ -72,7 +75,9 @@
 - `docs/24_REPOSITORY_LAYOUT.md`
 - `docs/25_PHASE0_EXIT_REVIEW.md`
 - `docs/design-notes/AF-101.md`
+- `docs/design-notes/AF-102.md`
 - `docs/test-plans/AF-101.md`
+- `docs/test-plans/AF-102.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`
@@ -112,6 +117,7 @@
 - `tests/__init__.py`
 - `tests/conftest.py`
 - `tests/test_app_startup.py`
+- `tests/test_docker_compose_config.py`
 - `tests/test_health.py`
 - `tests/test_logging.py`
 - `tests/test_module_boundaries.py`
