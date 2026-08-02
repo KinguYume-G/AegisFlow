@@ -8,11 +8,11 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 
 ## 当前阶段
 
-**M1：CI-001 Foundational CI（AF-103 开工门）**
+**M1：AF-103 Implementation（初始领域模型与迁移）**
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-AF-101 与 AF-102 已通过 Human Review/Merge 并标记为 `status:verified`。当前插入治理任务 CI-001，为 pytest/coverage、Core 镜像构建和 main Branch Protection 建立独立门禁；CI-001 完成前 AF-103 保持 blocked。
+AF-101、AF-102 与插入的治理任务 CI-001 均已通过 Human Review/Merge 并标记为 `status:verified`；pytest/coverage、Core 镜像构建与 main Branch Protection 门禁已经生效。AF-103 Design Note/Test Plan v3 已由 Project Owner 批准，当前正在 `feat/AF-103-domain-model` 分支实施；不得越界开始 AF-104。
 
 ## 不可改变的定位
 
@@ -85,8 +85,9 @@ AF-101 与 AF-102 已通过 Human Review/Merge 并标记为 `status:verified`。
 - [x] AF-101 实现 PR 完成 Human Review 与 Human Merge
 - [x] AF-102 Design Note、Test Plan 与九项修正获人工批准
 - [x] AF-102 实现 PR 完成 Human Review 与 Human Merge
-- [ ] CI-001 完成红灯/绿灯验证并启用 main Branch Protection
-- [ ] CI-001 完成后再评审 AF-103 Ready 条件
+- [x] CI-001 完成红灯/绿灯验证并启用 main Branch Protection
+- [x] Project Owner 批准 AF-103 Design Note/Test Plan，并将 AF-103 调整为 `status:ready`
+- [ ] AF-103 实现通过 CI、Human Review 与 Human Merge
 
 ## 真实性规则
 

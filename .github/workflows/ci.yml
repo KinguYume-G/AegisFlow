@@ -18,6 +18,23 @@ jobs:
     name: test
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b
+        env:
+          POSTGRES_USER: aegisflow_ci
+          POSTGRES_PASSWORD: aegisflow_ci
+          POSTGRES_DB: aegisflow_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aegisflow_ci -d aegisflow_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://aegisflow_ci:aegisflow_ci@localhost:5432/aegisflow_ci
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -35,11 +52,23 @@ jobs:
       - name: Synchronize locked dependencies
         run: uv sync --locked
 
+      - name: Apply database migrations
+        run: uv run --locked alembic upgrade head
+
+      - name: Verify migration idempotency
+        run: uv run --locked alembic upgrade head
+
       - name: Run tests and coverage gate
         run: >-
           uv run --locked python -m pytest
           --cov=aegisflow_core
           --cov-report=term-missing
+
+      - name: Verify migration rollback
+        run: uv run --locked alembic downgrade base
+
+      - name: Verify migration reapply
+        run: uv run --locked alembic upgrade head
 
       - name: Build Core container image
         env:

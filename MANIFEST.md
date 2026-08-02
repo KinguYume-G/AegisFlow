@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 108
-- Active project files: 101
+- Repository files: 128
+- Active project files: 121
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 14
-- Test files: 8
+- Application source files: 24
+- Test files: 14
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -22,6 +22,7 @@
 - `.dockerignore`
 - `.gitignore`
 - `.python-version`
+- `alembic.ini`
 - `.github/CODEOWNERS`
 - `.github/ISSUE_TEMPLATE/adr.yml`
 - `.github/ISSUE_TEMPLATE/bug.yml`
@@ -77,9 +78,11 @@
 - `docs/25_PHASE0_EXIT_REVIEW.md`
 - `docs/design-notes/AF-101.md`
 - `docs/design-notes/AF-102.md`
+- `docs/design-notes/AF-103.md`
 - `docs/design-notes/CI-001.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
+- `docs/test-plans/AF-103.md`
 - `docs/test-plans/CI-001.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
@@ -106,6 +109,17 @@
 - `src/aegisflow_core/__init__.py`
 - `src/aegisflow_core/app.py`
 - `src/aegisflow_core/control_plane/__init__.py`
+- `src/aegisflow_core/control_plane/domain/__init__.py`
+- `src/aegisflow_core/control_plane/domain/approval.py`
+- `src/aegisflow_core/control_plane/domain/audit.py`
+- `src/aegisflow_core/control_plane/domain/base.py`
+- `src/aegisflow_core/control_plane/domain/execution.py`
+- `src/aegisflow_core/control_plane/domain/session.py`
+- `src/aegisflow_core/control_plane/domain/tenant.py`
+- `src/aegisflow_core/control_plane/domain/workflow.py`
+- `src/aegisflow_core/control_plane/migrations/env.py`
+- `src/aegisflow_core/control_plane/migrations/script.py.mako`
+- `src/aegisflow_core/control_plane/migrations/versions/0001_initial_domain_model.py`
 - `src/aegisflow_core/evaluation/__init__.py`
 - `src/aegisflow_core/gateway/__init__.py`
 - `src/aegisflow_core/health/__init__.py`
@@ -119,6 +133,12 @@
 - `src/aegisflow_core/settings.py`
 - `tests/__init__.py`
 - `tests/conftest.py`
+- `tests/domain/__init__.py`
+- `tests/domain/conftest.py`
+- `tests/domain/test_database_constraints.py`
+- `tests/domain/test_migration_config.py`
+- `tests/domain/test_models.py`
+- `tests/domain/test_session.py`
 - `tests/test_app_startup.py`
 - `tests/test_docker_compose_config.py`
 - `tests/test_health.py`

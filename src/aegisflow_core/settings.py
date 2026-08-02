@@ -12,10 +12,11 @@ class ConfigurationError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class Settings:
-    """Configuration intentionally limited to fields owned by AF-101."""
+    """Configuration intentionally limited to fields owned through AF-103."""
 
     app_env: str
     app_base_url: str | None
+    database_url: str
 
 
 def get_settings() -> Settings:
@@ -27,4 +28,12 @@ def get_settings() -> Settings:
         )
 
     app_base_url = os.environ.get("APP_BASE_URL") or None
-    return Settings(app_env=app_env, app_base_url=app_base_url)
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise ConfigurationError("DATABASE_URL is required")
+
+    return Settings(
+        app_env=app_env,
+        app_base_url=app_base_url,
+        database_url=database_url,
+    )

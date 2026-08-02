@@ -9,9 +9,9 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** is a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. / AegisFlow 是面向可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制的生产级 Agent Control Plane。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- The repository is in **M1**; AF-101 and AF-102 are verified, and CI-001 is the governance gate before AF-103. / 仓库处于 M1；AF-101 与 AF-102 已验证，CI-001 是 AF-103 前的治理开工门。
+- The repository is in **M1 / AF-103 Implementation**; AF-101, AF-102, and the CI-001 governance gate are verified. / 仓库处于 **M1 / AF-103 实施阶段**；AF-101、AF-102 与 CI-001 治理门均已验证。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
-- GitHub import and M0 verification are complete. AF-101 and AF-102 have been human-merged and verified; CI-001 is approved and in progress. / GitHub 导入与 M0 验证已完成；AF-101 与 AF-102 已人工合并并验证，CI-001 已批准并实施中。
+- GitHub import and M0 verification are complete. AF-101, AF-102, and CI-001 have been human-merged and verified; AF-103 Design Note/Test Plan v3 are approved and implementation is in progress. / GitHub 导入与 M0 验证已完成；AF-101、AF-102 与 CI-001 已人工合并并验证；AF-103 Design Note/Test Plan v3 已获批准并进入实施。
 
 ## Authoritative Reading Order / 权威阅读顺序
 
@@ -99,15 +99,15 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0, AF-101, and AF-102 are complete. The project is now in **M1 / CI-001**, before AF-103. / Phase 0、AF-101 与 AF-102 均已完成；项目当前处于 AF-103 前的 **M1 / CI-001**。
+Phase 0, AF-101, AF-102, and CI-001 are complete. The project is now in **M1 / AF-103 Implementation**. / Phase 0、AF-101、AF-102 与 CI-001 均已完成；项目当前处于 **M1 / AF-103 实施阶段**。
 
 Current work / 当前工作：
 
-- Implement only the approved CI-001 workflow and protected-main readiness / 仅实现获批的 CI-001 workflow 与 main 保护准备；
-- Do not modify application code, add migrations, deploy, or start AF-103 / 不修改应用代码、不加迁移、不部署、不开始 AF-103；
-- Require red/green Actions evidence, explicit protection approval, Human Review, and Human Merge / 必须具备 Actions 红绿灯证据、保护规则明确授权及 Human Review/Merge。
+- Implement only the approved AF-103 v3 scope / 只实施已批准的 AF-103 v3 范围；
+- Require CI-backed PostgreSQL migration, isolation, immutability, and rollback evidence / 必须提供 CI PostgreSQL 迁移、隔离、不可变性与回滚证据；
+- Stop at the PR for Human Review and Human Merge / 创建 PR 后停止，等待 Human Review/Merge。
 
-Only the explicitly approved CI-001 governance scope is authorized; all unreviewed business capability remains prohibited. / 当前只授权明确批准的 CI-001 治理范围，其他未经评审的业务能力仍禁止实现。
+Only AF-103 implementation is currently authorized; all later Issues remain prohibited until explicitly approved. / 当前只授权 AF-103 实施；后续 Issue 在明确批准前仍禁止开始。
 
 ## Pull Request Exit Criteria / PR 退出标准
 

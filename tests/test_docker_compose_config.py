@@ -80,7 +80,15 @@ def test_ports_bind_only_to_loopback(compose_config: dict[str, object]) -> None:
 def test_core_environment_is_allowlisted(compose_config: dict[str, object]) -> None:
     services = compose_config["services"]
     assert isinstance(services, dict)
-    assert set(services["core"]["environment"]) == {"APP_BASE_URL", "APP_ENV"}
+    assert set(services["core"]["environment"]) == {
+        "APP_BASE_URL",
+        "APP_ENV",
+        "DATABASE_URL",
+    }
+    assert services["core"]["environment"]["DATABASE_URL"] == (
+        "postgresql+asyncpg://aegisflow:local-placeholder-only@postgres:5432/"
+        "aegisflow_dev"
+    )
     assert set(services["postgres"]["environment"]) == {
         "POSTGRES_DB",
         "POSTGRES_PASSWORD",
