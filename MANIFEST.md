@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 191
-- Active project files: 184
+- Repository files: 196
+- Active project files: 189
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 46
-- Test files: 39
+- Application source files: 49
+- Test files: 41
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -32,6 +32,7 @@
 - `.github/ISSUE_TEMPLATE/security.yml`
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/workflows/ci.yml`
+- `.github/workflows/langfuse-smoke.yml`
 - `AGENTS.md`
 - `CONTRIBUTING.md`
 - `Dockerfile`
@@ -168,6 +169,8 @@
 - `src/aegisflow_core/packs/delivery/planner/fakes.py`
 - `src/aegisflow_core/packs/delivery/planner/ports.py`
 - `src/aegisflow_core/runtime/__init__.py`
+- `src/aegisflow_core/runtime/langfuse_smoke.py`
+- `src/aegisflow_core/runtime/tracing.py`
 - `src/aegisflow_core/settings.py`
 - `tests/__init__.py`
 - `tests/conftest.py`
@@ -202,6 +205,8 @@
 - `tests/packs/delivery/planner/test_boundaries.py`
 - `tests/packs/delivery/planner/test_contracts.py`
 - `tests/packs/delivery/planner/test_reasoner.py`
+- `tests/runtime/__init__.py`
+- `tests/runtime/test_tracing.py`
 - `tests/test_app_startup.py`
 - `tests/test_docker_compose_config.py`
 - `tests/test_health.py`

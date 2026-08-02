@@ -12,7 +12,7 @@
 | RBAC/Tenant | Control Plane | ADR-0007 | AF-401–AF-409 | Isolation suite |
 | Model Fallback | LiteLLM | — | AF-310, AF-311 | Outage test |
 | Evaluation | Evaluation | ADR-0010 | AF-501–AF-507 | Reports |
-| Observability | Langfuse/OTel | ADR-0008 | AF-109, AF-508–510 | Dashboard |
+| Observability | Langfuse/OTel | ADR-0008 | AF-109, AF-508–510 | AF-109 trace schema/redaction/Recorder tests and manual Langfuse smoke workflow; dashboard pending later Issues |
 | 100 Concurrency | Control Plane | — | AF-511 | Locust report |
 | k3s + Helm | Deployment | ADR-0004 | AF-512, AF-513 | Install/rollback |
 | Dogfooding | Personal | ADR-0012 | AF-515 | Usage log |
