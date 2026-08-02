@@ -26,3 +26,4 @@
 | Initial Domain Model | Core Domain / PostgreSQL | — | AF-103 | Local PostgreSQL: 49 tests, 100% coverage, migration up/idempotent/down/re-up, `alembic check`; CI Actions link recorded in PR |
 | Intake Agent Contract | DeliveryPack / Intake | — | AF-104 | Canonical normalization and SHA-256 vectors; deterministic Clock/IdGenerator; `tests/packs/delivery/intake/` |
 | Clarifier Agent Contract | DeliveryPack / Clarifier | — | AF-105 | Five deterministic gap rules; structured question/answer invariants; `tests/packs/delivery/clarifier/` |
+| Context Retrieval Contract | DeliveryPack / Context | — | AF-106 | Bounded local retrieval; exact citations; path/symlink/size/count guards; `tests/packs/delivery/context/` |
