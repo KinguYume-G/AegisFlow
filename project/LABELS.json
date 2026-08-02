@@ -1,0 +1,282 @@
+[
+  {
+    "name": "priority:P0",
+    "color": "B60205",
+    "description": "Critical for current gate"
+  },
+  {
+    "name": "priority:P1",
+    "color": "D93F0B",
+    "description": "High priority"
+  },
+  {
+    "name": "priority:P2",
+    "color": "FBCA04",
+    "description": "Normal priority"
+  },
+  {
+    "name": "priority:P3",
+    "color": "C2E0C6",
+    "description": "Roadmap / optional"
+  },
+  {
+    "name": "size:S",
+    "color": "0E8A16",
+    "description": "Small change"
+  },
+  {
+    "name": "size:M",
+    "color": "FBCA04",
+    "description": "Medium change"
+  },
+  {
+    "name": "size:L",
+    "color": "F9D0C4",
+    "description": "Large change"
+  },
+  {
+    "name": "size:XL",
+    "color": "B60205",
+    "description": "Extra-large change; split if possible"
+  },
+  {
+    "name": "status:draft",
+    "color": "EDEDED",
+    "description": "Not ready"
+  },
+  {
+    "name": "status:ready",
+    "color": "0E8A16",
+    "description": "Ready to start"
+  },
+  {
+    "name": "status:blocked",
+    "color": "B60205",
+    "description": "Blocked"
+  },
+  {
+    "name": "status:in-progress",
+    "color": "1D76DB",
+    "description": "Active work"
+  },
+  {
+    "name": "status:review",
+    "color": "5319E7",
+    "description": "Awaiting review"
+  },
+  {
+    "name": "status:changes-requested",
+    "color": "D93F0B",
+    "description": "Review changes requested"
+  },
+  {
+    "name": "status:approved",
+    "color": "0E8A16",
+    "description": "Approved by a human reviewer"
+  },
+  {
+    "name": "status:merged",
+    "color": "5319E7",
+    "description": "Pull request merged"
+  },
+  {
+    "name": "status:verified",
+    "color": "006B75",
+    "description": "Post-merge verification complete"
+  },
+  {
+    "name": "risk:high",
+    "color": "B60205",
+    "description": "Security/reliability critical"
+  },
+  {
+    "name": "risk:medium",
+    "color": "FBCA04",
+    "description": "Meaningful risk"
+  },
+  {
+    "name": "risk:low",
+    "color": "C2E0C6",
+    "description": "Low risk"
+  },
+  {
+    "name": "type:docs",
+    "color": "0075CA",
+    "description": "Documentation"
+  },
+  {
+    "name": "type:architecture",
+    "color": "5319E7",
+    "description": "Architecture / ADR"
+  },
+  {
+    "name": "type:test",
+    "color": "BFD4F2",
+    "description": "Testing"
+  },
+  {
+    "name": "type:security",
+    "color": "D73A4A",
+    "description": "Security"
+  },
+  {
+    "name": "type:reliability",
+    "color": "F9D0C4",
+    "description": "Reliability"
+  },
+  {
+    "name": "type:evaluation",
+    "color": "7057FF",
+    "description": "Agent evaluation"
+  },
+  {
+    "name": "type:observability",
+    "color": "006B75",
+    "description": "Tracing and metrics"
+  },
+  {
+    "name": "type:infra",
+    "color": "0052CC",
+    "description": "Infrastructure"
+  },
+  {
+    "name": "type:mcp",
+    "color": "C5DEF5",
+    "description": "MCP gateway/tools"
+  },
+  {
+    "name": "type:agent-runtime",
+    "color": "D4C5F9",
+    "description": "LangGraph runtime"
+  },
+  {
+    "name": "type:workflow-runtime",
+    "color": "BFDADC",
+    "description": "Temporal runtime"
+  },
+  {
+    "name": "type:agent-safety",
+    "color": "D73A4A",
+    "description": "Agent safety and prompt-injection defense"
+  },
+  {
+    "name": "type:ai-process",
+    "color": "C5DEF5",
+    "description": "AI collaboration and operating process"
+  },
+  {
+    "name": "type:audit",
+    "color": "5319E7",
+    "description": "Audit logging and evidence"
+  },
+  {
+    "name": "type:backend",
+    "color": "1D76DB",
+    "description": "Backend and core application work"
+  },
+  {
+    "name": "type:bug",
+    "color": "D73A4A",
+    "description": "Reproducible defect"
+  },
+  {
+    "name": "type:ci",
+    "color": "0E8A16",
+    "description": "Continuous integration"
+  },
+  {
+    "name": "type:control-plane",
+    "color": "0052CC",
+    "description": "Control-plane capability"
+  },
+  {
+    "name": "type:database",
+    "color": "006B75",
+    "description": "Database schema and persistence"
+  },
+  {
+    "name": "type:demo",
+    "color": "FAD8C7",
+    "description": "Demo, evidence, or presentation artifact"
+  },
+  {
+    "name": "type:frontend",
+    "color": "0075CA",
+    "description": "Web console and user interface"
+  },
+  {
+    "name": "type:governance",
+    "color": "7057FF",
+    "description": "Repository and project governance"
+  },
+  {
+    "name": "type:identity",
+    "color": "5319E7",
+    "description": "Authentication and identity"
+  },
+  {
+    "name": "type:integration",
+    "color": "C5DEF5",
+    "description": "External system integration"
+  },
+  {
+    "name": "type:model-gateway",
+    "color": "D4C5F9",
+    "description": "Model routing, fallback, and cost"
+  },
+  {
+    "name": "type:performance",
+    "color": "FBCA04",
+    "description": "Performance and load testing"
+  },
+  {
+    "name": "type:policy",
+    "color": "B60205",
+    "description": "Deterministic policy and authorization rules"
+  },
+  {
+    "name": "type:rag",
+    "color": "BFD4F2",
+    "description": "Retrieval and knowledge ingestion"
+  },
+  {
+    "name": "type:rbac",
+    "color": "5319E7",
+    "description": "Role-based access control"
+  },
+  {
+    "name": "type:release",
+    "color": "0E8A16",
+    "description": "Release and gate acceptance"
+  },
+  {
+    "name": "type:repo",
+    "color": "EDEDED",
+    "description": "Repository structure and tooling"
+  },
+  {
+    "name": "type:roadmap",
+    "color": "C2E0C6",
+    "description": "Post-MVP roadmap work"
+  },
+  {
+    "name": "type:sandbox",
+    "color": "F9D0C4",
+    "description": "Sandbox runtime and hardening"
+  },
+  {
+    "name": "pack:delivery",
+    "color": "0E8A16",
+    "description": "DeliveryPack"
+  },
+  {
+    "name": "pack:personal",
+    "color": "C2E0C6",
+    "description": "Personal Workbench"
+  },
+  {
+    "name": "pack:opspilot",
+    "color": "FAD8C7",
+    "description": "Post-MVP OpsPilot"
+  }
+]

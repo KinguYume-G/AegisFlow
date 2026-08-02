@@ -1,0 +1,39 @@
+name: Feature
+description: Request an approved product or engineering change
+title: "[AF-XXX] "
+labels: ["status:draft"]
+body:
+  - type: textarea
+    id: objective
+    attributes: {label: Objective}
+    validations: {required: true}
+  - type: textarea
+    id: non_goals
+    attributes: {label: Non-Goals}
+    validations: {required: true}
+  - type: textarea
+    id: acceptance
+    attributes: {label: Acceptance Criteria}
+    validations: {required: true}
+  - type: textarea
+    id: dependencies
+    attributes: {label: Dependencies}
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk
+      options: [low, medium, high]
+    validations: {required: true}
+  - type: textarea
+    id: tests
+    attributes: {label: Test Plan}
+    validations: {required: true}
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Readiness
+      options:
+        - label: This change respects the frozen product direction.
+          required: true
+        - label: No real secrets are included.
+          required: true

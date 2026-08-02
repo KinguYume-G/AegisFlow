@@ -1,0 +1,24 @@
+name: Bug
+description: Report a reproducible defect
+title: "[BUG][AF-XXX] "
+labels: ["type:bug", "status:draft"]
+body:
+  - type: textarea
+    id: observed
+    attributes: {label: Observed Behavior}
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes: {label: Expected Behavior}
+    validations: {required: true}
+  - type: textarea
+    id: reproduce
+    attributes: {label: Reproduction}
+    validations: {required: true}
+  - type: textarea
+    id: impact
+    attributes: {label: Reliability / Security Impact}
+  - type: textarea
+    id: failing_test
+    attributes: {label: Proposed Failing Test}
+    validations: {required: true}

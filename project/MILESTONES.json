@@ -1,0 +1,30 @@
+[
+  {
+    "title": "M0 Engineering System",
+    "description": "Documentation and governance only; no business code."
+  },
+  {
+    "title": "M1 Demand to Plan",
+    "description": "Gate 1A: Issue/PRD to evidence-based plan."
+  },
+  {
+    "title": "M2 Plan to Draft PR",
+    "description": "Gate 1B: sandbox execution and draft PR."
+  },
+  {
+    "title": "M3 Reliable Runtime",
+    "description": "Gate 2: Temporal, checkpoint, idempotency, recovery, model fallback."
+  },
+  {
+    "title": "M4 Governance & Security",
+    "description": "Gate 3: tenant, OIDC, RBAC, policy, audit, injection defense."
+  },
+  {
+    "title": "M5 Evaluation & Deployment",
+    "description": "Gate 4: evaluation, CI regression, k3s, Helm, observability, load test."
+  },
+  {
+    "title": "Post-MVP Roadmap",
+    "description": "OpsPilot, vLLM and extra MCP after Gate 4."
+  }
+]

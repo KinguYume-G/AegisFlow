@@ -1,0 +1,21 @@
+name: Architecture Decision
+description: Propose an architecture or scope decision
+title: "[ADR][AF-XXX] "
+labels: ["type:architecture", "status:draft"]
+body:
+  - type: textarea
+    id: context
+    attributes: {label: Context}
+    validations: {required: true}
+  - type: textarea
+    id: decision
+    attributes: {label: Proposed Decision}
+    validations: {required: true}
+  - type: textarea
+    id: alternatives
+    attributes: {label: Alternatives}
+    validations: {required: true}
+  - type: textarea
+    id: consequences
+    attributes: {label: Consequences}
+    validations: {required: true}

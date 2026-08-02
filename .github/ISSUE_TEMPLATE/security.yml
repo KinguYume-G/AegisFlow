@@ -1,0 +1,20 @@
+name: Security Improvement
+description: Propose a non-sensitive security hardening task
+title: "[SEC][AF-XXX] "
+labels: ["type:security", "risk:high", "status:draft"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not disclose exploitable vulnerability details in a public issue.
+  - type: textarea
+    id: objective
+    attributes: {label: Objective}
+    validations: {required: true}
+  - type: textarea
+    id: threat
+    attributes: {label: Threat / Abuse Case}
+    validations: {required: true}
+  - type: textarea
+    id: negative_tests
+    attributes: {label: Required Negative Tests}
+    validations: {required: true}

@@ -1,0 +1,91 @@
+# Engineering System Manifest
+
+- Repository files: 72
+- Active project files: 65
+- Archived snapshots and pending patch files: 7
+- Canonical planned GitHub Issues: 75
+- Archived pending-patch Issues: 80
+- Business code files generated: 0
+- Real secrets generated: 0
+
+## Source-of-Truth Policy
+
+- Active documentation lives in `docs/`.
+- The canonical GitHub import source is `project/GITHUB_ISSUE_IMPORT.csv` with 75 Issues.
+- `archive/phase0-gap-patch/` is an unmerged proposal and is not an active source of truth.
+- Byte-identical historical and duplicate files are retained under `archive/`; no original file was deleted.
+
+## Files
+
+- `.env.example`
+- `.gitignore`
+- `.github/CODEOWNERS`
+- `.github/ISSUE_TEMPLATE/adr.yml`
+- `.github/ISSUE_TEMPLATE/bug.yml`
+- `.github/ISSUE_TEMPLATE/config.yml`
+- `.github/ISSUE_TEMPLATE/documentation.yml`
+- `.github/ISSUE_TEMPLATE/feature.yml`
+- `.github/ISSUE_TEMPLATE/security.yml`
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `AGENTS.md`
+- `CONTRIBUTING.md`
+- `MANIFEST.md`
+- `README.md`
+- `SECURITY.md`
+- `START_HERE.md`
+- `archive/duplicates/23_PHASE0_ACCEPTANCE.md`
+- `archive/originals/AegisFlow_Final_Plan_v2.md`
+- `archive/phase0-gap-patch/05_GITHUB_ISSUE_BACKLOG.md`
+- `archive/phase0-gap-patch/GITHUB_ISSUE_IMPORT.csv`
+- `archive/phase0-gap-patch/GITHUB_ISSUE_IMPORT.jsonl`
+- `archive/phase0-gap-patch/GITHUB_ISSUE_IMPORT.md`
+- `archive/phase0-gap-patch/GITHUB_ISSUE_IMPORT.xlsx`
+- `docs/index.md`
+- `docs/AegisFlow_Final_Plan_v2.md`
+- `docs/00_PROJECT_CHARTER.md`
+- `docs/01_MASTER_TASK_BOOK.md`
+- `docs/02_ARCHITECTURE.md`
+- `docs/03_ROADMAP.md`
+- `docs/04_MILESTONES.md`
+- `docs/05_GITHUB_ISSUE_BACKLOG.md`
+- `docs/06_DEVELOPER_GUIDE.md`
+- `docs/07_AI_COLLABORATION_PROTOCOL.md`
+- `docs/08_TEST_STRATEGY.md`
+- `docs/09_SECURITY_BASELINE.md`
+- `docs/10_GIT_GITHUB_WORKFLOW.md`
+- `docs/11_DOCUMENTATION_GOVERNANCE.md`
+- `docs/12_DEFINITION_OF_READY_DONE.md`
+- `docs/13_RISK_REGISTER.md`
+- `docs/14_CONFIGURATION_REFERENCE.md`
+- `docs/15_RELEASE_AND_VERSIONING.md`
+- `docs/16_OBSERVABILITY_PLAN.md`
+- `docs/17_EVALUATION_PLAN.md`
+- `docs/18_RELIABILITY_PLAN.md`
+- `docs/19_THREAT_MODEL.md`
+- `docs/20_DECISION_LOG.md`
+- `docs/21_TRACEABILITY_MATRIX.md`
+- `docs/22_GLOSSARY.md`
+- `docs/23_PHASE0_ACCEPTANCE.md`
+- `docs/24_REPOSITORY_LAYOUT.md`
+- `docs/DESIGN_BLUEPRINT.md`
+- `docs/adr/0001-modular-monolith.md`
+- `docs/adr/0002-langgraph-temporal-state-ownership.md`
+- `docs/adr/0003-no-kafka.md`
+- `docs/adr/0004-no-terraform.md`
+- `docs/adr/0005-no-sft-lora.md`
+- `docs/adr/0006-no-crewai.md`
+- `docs/adr/0007-rbac-contextual-policy.md`
+- `docs/adr/0008-observability-boundaries.md`
+- `docs/adr/0009-phased-sandbox.md`
+- `docs/adr/0010-evaluation-datasets.md`
+- `docs/adr/0011-no-workflow-builder.md`
+- `docs/adr/0012-opspilot-roadmap-only.md`
+- `docs/templates/ADR_TEMPLATE.md`
+- `docs/templates/DESIGN_NOTE_TEMPLATE.md`
+- `docs/templates/HANDOFF_TEMPLATE.md`
+- `docs/templates/ISSUE_DESIGN_TEMPLATE.md`
+- `docs/templates/TEST_PLAN_TEMPLATE.md`
+- `project/GITHUB_ISSUE_IMPORT.csv`
+- `project/GITHUB_SETUP.md`
+- `project/LABELS.json`
+- `project/MILESTONES.json`

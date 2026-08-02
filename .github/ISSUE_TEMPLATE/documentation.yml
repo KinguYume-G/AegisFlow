@@ -1,0 +1,17 @@
+name: Documentation
+description: Add or correct project documentation
+title: "[DOCS][AF-XXX] "
+labels: ["type:docs", "status:draft"]
+body:
+  - type: textarea
+    id: problem
+    attributes: {label: Documentation Problem}
+    validations: {required: true}
+  - type: textarea
+    id: files
+    attributes: {label: Affected Documents}
+    validations: {required: true}
+  - type: textarea
+    id: acceptance
+    attributes: {label: Acceptance Criteria}
+    validations: {required: true}

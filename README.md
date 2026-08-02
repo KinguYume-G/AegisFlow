@@ -1,0 +1,85 @@
+# AegisFlow — Production-Grade Agent Control Plane
+
+> **Enterprise Software Delivery Agent Platform**
+
+> **Mandatory onboarding / 强制入门：在阅读或修改仓库内容前，先阅读 [`START_HERE.md`](START_HERE.md)。**
+
+AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的可靠执行、工具权限、人工审批、评测、审计、可观测性与成本治理，并以 `DeliveryPack` 的“需求 → 交付”研发闭环验证平台能力。
+
+## 当前阶段
+
+**Phase 0：Engineering System / Documentation First**
+
+本仓库当前只建立工程体系，不包含业务实现。业务代码只有在对应 GitHub Issue 已进入 `status:ready`、设计与测试计划通过 Review 后才能开始。
+
+## 不可改变的定位
+
+> 我做的不是代码审查工具，是 Agent 控制平面。研发交付是压力最大的那个负载，所以我用它来证明底座。
+
+唯一首发应用包是 `DeliveryPack`：
+
+```text
+需求 / PRD / Bug / GitHub Issue
+  → Intake
+  → Clarifier
+  → Context
+  → Planner
+  → Policy Gate
+  → Executor
+  → Reviewer
+  → Human Approval
+  → Draft PR / 部署
+  → Trace / Cost / Evaluation / Learning
+```
+
+六个命名 Agent 固定为：Intake、Clarifier、Context、Planner、Executor、Reviewer。不得新增平级 Agent，也不得把项目改造成 mini-CodeRabbit、通用聊天助手或 OpsPilot 主项目。
+
+## 首次进入项目
+
+任何开发者或 AI 第一次进入仓库时，先按顺序阅读：
+
+1. [`START_HERE.md`](START_HERE.md)：所有人类贡献者与 AI Agent 的强制第一入口；
+2. [`README.md`](README.md)：项目定位与当前阶段；
+3. [`AGENTS.md`](AGENTS.md)：不可违反的协作与开发约束；
+4. [`docs/index.md`](docs/index.md)：文档总入口、事实源、当前工作与任务导航。
+
+完成这些入口文档后，再按照 `docs/index.md` 为当前任务加载相关 Issue、ADR、测试策略与最近 Handoff。
+
+## 深入阅读顺序
+
+1. [`docs/DESIGN_BLUEPRINT.md`](docs/DESIGN_BLUEPRINT.md)
+2. [`docs/00_PROJECT_CHARTER.md`](docs/00_PROJECT_CHARTER.md)
+3. [`docs/02_ARCHITECTURE.md`](docs/02_ARCHITECTURE.md)
+4. [`docs/adr/`](docs/adr/)
+5. [`docs/03_ROADMAP.md`](docs/03_ROADMAP.md)
+6. [`docs/04_MILESTONES.md`](docs/04_MILESTONES.md)
+7. [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md)
+8. [`docs/06_DEVELOPER_GUIDE.md`](docs/06_DEVELOPER_GUIDE.md)
+9. [`docs/index.md`](docs/index.md)
+
+## 工程原则
+
+- Documentation First
+- Architecture First
+- Test First
+- Security by Default
+- Small Iterations
+- GitHub Driven
+- One Issue, One Pull Request
+- Human Review Required
+- No Secrets in Git, Chat, Logs, Prompts, Issues or PRs
+
+## 当前状态
+
+- [x] 产品方向冻结
+- [x] 项目宪章、总任务书、架构、Roadmap、Milestones
+- [x] GitHub Issue Backlog、Developer Guide、AI 协作规范
+- [x] 测试、安全、可靠性、评测与威胁模型
+- [x] ADR 集、Issue/PR 模板、配置占位符
+- [ ] GitHub 仓库确认
+- [ ] Labels、Milestones、Issues 导入
+- [ ] 进入首个实现 Issue
+
+## 真实性规则
+
+尚未实现或测量的能力不得写成已达成事实。`5 秒恢复`、`零重复副作用`、`100 并发`、`任务完成率`等在真实测试完成前只能标记为 TARGET。

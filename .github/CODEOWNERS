@@ -1,0 +1,6 @@
+# Replace with the real GitHub username/team before enabling required reviews.
+* @<GITHUB_USERNAME_OR_TEAM>
+/docs/ @<ARCHITECT_REVIEWER>
+/docs/adr/ @<ARCHITECT_REVIEWER>
+/SECURITY.md @<SECURITY_REVIEWER>
+/.github/ @<PROJECT_OWNER>
