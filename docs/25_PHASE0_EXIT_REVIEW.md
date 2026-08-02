@@ -1,5 +1,9 @@
 # 25 — Phase 0 Exit Review
 
+## Post-review resolution（2026-08-02）
+
+Project Owner / Human Reviewer 已确认 PR #76 在合并前完成人工审查，并正式批准 Project Charter、Architecture Baseline 与 Quality Strategies；AF-003 的停止条件由现有治理文档共同覆盖。PR #76 已人工合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`，Phase 0 Exit 已正式通过。下文保留为合并前的独立审核快照，不应再把其中的“等待 Human Merge”解释为当前状态。
+
 ## 审核范围与角色
 
 本文件由 AI 担任 Tech Lead / Phase 0 独立验收 Reviewer 产出，只做验收判断，不实现 AF-101，不写业务代码，不关闭 Issue，不改 Label/Status，不建 Tag。所有结论必须由 Project Owner / Human Reviewer 最终确认后才能据此关闭 Issue 或建 Tag。

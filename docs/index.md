@@ -4,12 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：Phase 0 Exit — Governance Review / Human Merge Pending
-- **实现状态**：工程体系与 GitHub 治理导入已完成，尚无业务代码；Phase 0 Exit PR 等待 Human Review 与 Human Merge
+- **阶段**：M1 — AF-101 Application Skeleton
+- **实现状态**：Phase 0 已人工确认退出；AF-000–AF-008 已关闭并验证；AF-101 正在按已批准的 Design Note 与 Test Plan 实现最小骨架
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **下一候选阶段**：本 PR Human Merge 且 M0 人工确认后进入 AF-101 Design；尚未开始 AF-101
-- **进入 AF-101 实现前置条件**：依赖完成、Design Note 与 Test Plan Review 通过，并由人工将 AF-101 改为 `status:ready`
+- **当前 Issue**：AF-101；依赖、Design Note、Test Plan 与技术决策均已由 Project Owner 批准
+- **范围边界**：仅模块包、最小 FastAPI 应用、配置/日志骨架和 `/health`；不包含 AF-102+ 能力
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -57,6 +57,8 @@
 - [`22_GLOSSARY.md`](22_GLOSSARY.md)：项目术语
 - [`24_REPOSITORY_LAYOUT.md`](24_REPOSITORY_LAYOUT.md)：仓库目录结构与每个文件的分类清单
 - [`25_PHASE0_EXIT_REVIEW.md`](25_PHASE0_EXIT_REVIEW.md)：Phase 0 独立验收审查，逐项核对 AF-000–AF-008 与退出条件
+- [`design-notes/AF-101.md`](design-notes/AF-101.md)：AF-101 应用骨架 Design Note（Approved）
+- [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
 
 ### 开发与协作
 

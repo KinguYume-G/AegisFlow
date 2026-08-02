@@ -1,11 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 73
-- Active project files: 66
+- Repository files: 99
+- Active project files: 92
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Business code files generated: 0
+- Application source files: 14
+- Test files: 7
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -19,6 +20,7 @@
 
 - `.env.example`
 - `.gitignore`
+- `.python-version`
 - `.github/CODEOWNERS`
 - `.github/ISSUE_TEMPLATE/adr.yml`
 - `.github/ISSUE_TEMPLATE/bug.yml`
@@ -33,6 +35,7 @@
 - `README.md`
 - `SECURITY.md`
 - `START_HERE.md`
+- `pyproject.toml`
 - `archive/duplicates/23_PHASE0_ACCEPTANCE.md`
 - `archive/originals/AegisFlow_Final_Plan_v2.md`
 - `archive/phase0-gap-patch/05_GITHUB_ISSUE_BACKLOG.md`
@@ -68,6 +71,8 @@
 - `docs/23_PHASE0_ACCEPTANCE.md`
 - `docs/24_REPOSITORY_LAYOUT.md`
 - `docs/25_PHASE0_EXIT_REVIEW.md`
+- `docs/design-notes/AF-101.md`
+- `docs/test-plans/AF-101.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`
@@ -90,3 +95,25 @@
 - `project/GITHUB_SETUP.md`
 - `project/LABELS.json`
 - `project/MILESTONES.json`
+- `src/aegisflow_core/__init__.py`
+- `src/aegisflow_core/app.py`
+- `src/aegisflow_core/control_plane/__init__.py`
+- `src/aegisflow_core/evaluation/__init__.py`
+- `src/aegisflow_core/gateway/__init__.py`
+- `src/aegisflow_core/health/__init__.py`
+- `src/aegisflow_core/health/router.py`
+- `src/aegisflow_core/logging.py`
+- `src/aegisflow_core/main.py`
+- `src/aegisflow_core/models/__init__.py`
+- `src/aegisflow_core/packs/__init__.py`
+- `src/aegisflow_core/packs/delivery/__init__.py`
+- `src/aegisflow_core/runtime/__init__.py`
+- `src/aegisflow_core/settings.py`
+- `tests/__init__.py`
+- `tests/conftest.py`
+- `tests/test_app_startup.py`
+- `tests/test_health.py`
+- `tests/test_logging.py`
+- `tests/test_module_boundaries.py`
+- `tests/test_settings.py`
+- `uv.lock`

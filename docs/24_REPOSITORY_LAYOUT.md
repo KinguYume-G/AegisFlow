@@ -18,9 +18,12 @@
 | AGENTS.md | AI流程 | AI 协作总协议、固定开发循环、停止条件 |
 | CONTRIBUTING.md | 治理 | 贡献流程、分支/PR/Commit 约束 |
 | SECURITY.md | 安全 | 漏洞上报渠道、Secret 处理规则 |
-| MANIFEST.md | 治理 | 仓库文件清单、Source-of-Truth 策略、业务代码计数自证（0 业务代码） |
+| MANIFEST.md | 治理 | 仓库文件清单、Source-of-Truth 策略、应用源码与测试文件计数 |
 | .env.example | 配置 | 环境变量占位符清单，禁止真实密钥 |
 | .gitignore | 配置 | Git 忽略规则 |
+| .python-version | 配置 | AF-101 批准的 Python 3.12 工具链选择 |
+| pyproject.toml | 配置 | Python 包、依赖、build backend、pytest 与 coverage 配置 |
+| uv.lock | 配置 | uv 解析的可复现 Python 依赖锁文件 |
 
 ## .github/（GitHub 强制要求在仓库根目录才生效）
 
@@ -68,6 +71,49 @@
 | 23_PHASE0_ACCEPTANCE.md | 治理 | Phase 0 验收清单与外部阻塞项 |
 | 24_REPOSITORY_LAYOUT.md | 治理 | 本文件：仓库目录与文件分类清单 |
 | 25_PHASE0_EXIT_REVIEW.md | 治理 | Phase 0 独立验收、bootstrap exception 风险与人工退出依据 |
+
+## docs/design-notes/（Design Note，非文档 Issue 开工前必需）
+
+| 文件 | 分类 | 用途 |
+|---|---|---|
+| AF-101.md | AI流程 | 已批准的 AF-101 应用骨架 Design Note 与技术决策 |
+
+## docs/test-plans/（配套 Design Note 的测试计划）
+
+| 文件 | 分类 | 用途 |
+|---|---|---|
+| AF-101.md | 质量 | 已批准的 AF-101 Test Plan、测试先行顺序与失败判定 |
+
+## src/aegisflow_core/（AF-101 模块化单体骨架）
+
+| 路径 | 分类 | 用途 |
+|---|---|---|
+| app.py | 代码 | FastAPI 应用工厂、路由挂载与安全异常信封 |
+| main.py | 代码 | ASGI 入口 `aegisflow_core.main:app` |
+| settings.py | 配置 | `APP_ENV` 与 `APP_BASE_URL` 的最小 fail-fast 配置 |
+| logging.py | 可观测 | 幂等 JSON stdout 日志基础 |
+| __init__.py | 代码边界 | `aegisflow_core` 根包标记 |
+| health/__init__.py | 代码边界 | Health 子包标记 |
+| health/router.py | 代码 | 稳定的 `GET /health` 契约 |
+| control_plane/__init__.py | 代码边界 | Control Plane 顶层包占位 |
+| runtime/__init__.py | 代码边界 | Runtime 顶层包占位 |
+| gateway/__init__.py | 代码边界 | Gateway 顶层包占位 |
+| models/__init__.py | 代码边界 | Models 顶层包占位 |
+| evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
+| packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
+| packs/delivery/__init__.py | 代码边界 | DeliveryPack 边界占位，不含 Agent 实现 |
+
+## tests/（AF-101 测试）
+
+| 文件 | 分类 | 用途 |
+|---|---|---|
+| __init__.py | 质量 | 测试包标记 |
+| conftest.py | 质量 | 隔离环境变量与 ASGI async client fixtures |
+| test_module_boundaries.py | 质量 | 包存在性、空边界与禁止依赖静态护栏 |
+| test_settings.py | 质量 | 合法、缺失和非法配置测试 |
+| test_app_startup.py | 质量/安全 | 应用构造、fail-fast 与安全异常信封测试 |
+| test_health.py | 质量 | `/health` 精确响应契约测试 |
+| test_logging.py | 质量/可观测 | 日志幂等与 JSON envelope 测试 |
 
 ## docs/adr/（Accepted ADR）
 

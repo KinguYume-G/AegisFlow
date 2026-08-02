@@ -18,5 +18,6 @@
 | Dogfooding | Personal | ADR-0012 | AF-515 | Usage log |
 | OpsPilot | Roadmap | ADR-0012 | AF-R01 | Optional |
 | Phase 0 GitHub Governance | Git/GitHub Workflow | — | AF-004 | 56 Labels, 7 Milestones, 75 Issues verified |
-| Phase 0 Repository Scaffold | Documentation-only Repository | — | AF-008 | `25_PHASE0_EXIT_REVIEW.md`; Phase 0 Exit PR pending Human Merge |
+| Phase 0 Repository Scaffold | Documentation-only Repository | — | AF-008 | PR #76 merged; `25_PHASE0_EXIT_REVIEW.md`; AF-000–AF-008 verified and closed |
 | Bootstrap Exception | Repository Governance | — | AF-004, AF-008 | `20_DECISION_LOG.md`; commits `817751a`, `82c91d7` |
+| Application Skeleton | Modular Monolith | ADR-0001 | AF-101 | Approved Design Note/Test Plan; 21 tests; `/health` contract; implementation PR |

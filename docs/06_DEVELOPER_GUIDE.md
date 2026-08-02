@@ -2,7 +2,16 @@
 
 ## 当前状态
 
-Phase 0 只包含文档与 GitHub 协作配置。实现阶段的项目版本、包管理器和命令必须由对应 Issue 落地后写入，不得假装命令已经存在。
+Phase 0 已完成。AF-101 已批准并建立 Python 3.12、uv、src-layout 与最小 FastAPI 骨架；只有下方标记为“已落地”的命令可以作为当前事实，其余工具链仍须由对应 Issue 实现。
+
+## AF-101 已落地命令
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest -v --cov=aegisflow_core --cov-report=term-missing
+```
+
+启动最小应用前必须设置 `APP_ENV=development|test|production`，再执行 `uv run --locked uvicorn aegisflow_core.main:app`。当前不提供 Makefile、ruff、mypy 或 CI 命令；这些能力需要独立 Issue 批准。
 
 ## 预期工具链
 
