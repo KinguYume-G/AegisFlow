@@ -27,3 +27,4 @@
 | Intake Agent Contract | DeliveryPack / Intake | — | AF-104 | Canonical normalization and SHA-256 vectors; deterministic Clock/IdGenerator; `tests/packs/delivery/intake/` |
 | Clarifier Agent Contract | DeliveryPack / Clarifier | — | AF-105 | Five deterministic gap rules; structured question/answer invariants; `tests/packs/delivery/clarifier/` |
 | Context Retrieval Contract | DeliveryPack / Context | — | AF-106 | Bounded local retrieval; exact citations; path/symlink/size/count guards; `tests/packs/delivery/context/` |
+| Planner Agent Contract | DeliveryPack / Planner | ADR-0007 | AF-107 | Measurement/Plan v1; stable capability allowlist; deterministic tasks/risk; Clarifier gate; `tests/packs/delivery/planner/` |
