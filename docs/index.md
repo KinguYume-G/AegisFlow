@@ -4,11 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：Phase 0 — Engineering System / Documentation First
-- **实现状态**：尚无业务代码；现有内容为文档、治理配置和 GitHub 导入资料
+- **阶段**：Phase 0 Exit — Governance Review / Human Merge Pending
+- **实现状态**：工程体系与 GitHub 治理导入已完成，尚无业务代码；Phase 0 Exit PR 等待 Human Review 与 Human Merge
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
-- **下一候选工作**：`AF-101 — Create modular monolith application skeleton`
-- **进入 AF-101 前置条件**：完成 M0 Review，并通过 Design Note 与 Test Plan Review
+- **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
+- **下一候选阶段**：本 PR Human Merge 且 M0 人工确认后进入 AF-101 Design；尚未开始 AF-101
+- **进入 AF-101 实现前置条件**：依赖完成、Design Note 与 Test Plan Review 通过，并由人工将 AF-101 改为 `status:ready`
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -55,6 +56,7 @@
 - [`21_TRACEABILITY_MATRIX.md`](21_TRACEABILITY_MATRIX.md)：需求、架构、ADR、Issue 与证据映射
 - [`22_GLOSSARY.md`](22_GLOSSARY.md)：项目术语
 - [`24_REPOSITORY_LAYOUT.md`](24_REPOSITORY_LAYOUT.md)：仓库目录结构与每个文件的分类清单
+- [`25_PHASE0_EXIT_REVIEW.md`](25_PHASE0_EXIT_REVIEW.md)：Phase 0 独立验收审查，逐项核对 AF-000–AF-008 与退出条件
 
 ### 开发与协作
 
@@ -98,7 +100,7 @@
 
 ## 外部输入与停止条件
 
-GitHub 仓库、写授权、测试仓库、OIDC Provider、Model Provider、Langfuse 配置和演示环境尚需项目所有者提供。缺少相应输入时，将对应 Issue 保持 blocked，不得编造配置或 Secret。
+GitHub 仓库与治理写授权已经确认。测试仓库、OIDC Provider、Model Provider、Langfuse 配置和演示环境仍需项目所有者提供；缺少相应输入时，将对应 Issue 保持 blocked，不得编造配置或 Secret。
 
 遇到架构冲突、未授权仓库、高风险外部写操作、缺失验收标准、真实 Secret 需求或无法安全测试时，立即停止并请求人工输入。
 

@@ -67,6 +67,7 @@
 | 22_GLOSSARY.md | 治理 | 术语表 |
 | 23_PHASE0_ACCEPTANCE.md | 治理 | Phase 0 验收清单与外部阻塞项 |
 | 24_REPOSITORY_LAYOUT.md | 治理 | 本文件：仓库目录与文件分类清单 |
+| 25_PHASE0_EXIT_REVIEW.md | 治理 | Phase 0 独立验收、bootstrap exception 风险与人工退出依据 |
 
 ## docs/adr/（Accepted ADR）
 

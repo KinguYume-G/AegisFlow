@@ -1,0 +1,99 @@
+# ==========================================
+# 1. 敏感信息与环境变量 (绝对不能提交到 GitHub)
+# ==========================================
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.cert
+
+# ==========================================
+# 2. Python & FastAPI 相关缓存与虚拟环境
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Python 虚拟环境
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# pytest / 测试缓存与覆盖率
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.nox/
+.hypothesis/
+
+# ==========================================
+# 3. Node.js 前端 / 工具链相关
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# 构建产物
+dist/
+out/
+.next/
+.nuxt/
+
+# ==========================================
+# 4. 编辑器 & AI 编程助手缓存 (Cursor/VSCode/JetBrains)
+# ==========================================
+# IDE 配置文件
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# AI 工具 (如 Claude Code / Cursor 运行日志与索引)
+.cursor/
+.claude/
+*.log
+
+# ==========================================
+# 5. 操作系统垃圾文件
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

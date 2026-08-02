@@ -1,7 +1,7 @@
 # Engineering System Manifest
 
-- Repository files: 72
-- Active project files: 65
+- Repository files: 73
+- Active project files: 66
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
@@ -67,6 +67,7 @@
 - `docs/22_GLOSSARY.md`
 - `docs/23_PHASE0_ACCEPTANCE.md`
 - `docs/24_REPOSITORY_LAYOUT.md`
+- `docs/25_PHASE0_EXIT_REVIEW.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`
