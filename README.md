@@ -8,9 +8,11 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 
 ## 当前阶段
 
-**Phase 0：Engineering System / Documentation First**
+**Phase 0 Exit：Governance Review / Human Merge Pending**
 
-本仓库当前只建立工程体系，不包含业务实现。业务代码只有在对应 GitHub Issue 已进入 `status:ready`、设计与测试计划通过 Review 后才能开始。
+Phase 0 工程体系已推送到 GitHub，56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 已完成导入；本仓库仍不包含业务实现。当前通过 `chore/phase0-exit` PR 完成最终治理收尾，只有 Human Review 与 Human Merge 后才能人工确认 Phase 0 Exit，并进入 AF-101 Design 阶段。
+
+AF-101 Design 尚未开始，AF-101 仍为 `status:blocked`。业务代码只有在依赖完成、Issue 进入 `status:ready`、Design Note 与 Test Plan 通过 Review 后才能开始。
 
 ## 不可改变的定位
 
@@ -76,9 +78,10 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 - [x] GitHub Issue Backlog、Developer Guide、AI 协作规范
 - [x] 测试、安全、可靠性、评测与威胁模型
 - [x] ADR 集、Issue/PR 模板、配置占位符
-- [ ] GitHub 仓库确认
-- [ ] Labels、Milestones、Issues 导入
-- [ ] 进入首个实现 Issue
+- [x] GitHub 仓库与写权限确认，Phase 0 工程体系已推送
+- [x] 56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 导入
+- [ ] Phase 0 Exit PR 完成 Human Review 与 Human Merge
+- [ ] 进入 AF-101 Design（尚未开始，不等于业务实现）
 
 ## 真实性规则
 
