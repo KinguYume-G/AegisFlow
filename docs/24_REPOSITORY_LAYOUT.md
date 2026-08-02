@@ -27,6 +27,7 @@
 | uv.lock | 配置 | uv 解析的可复现 Python 依赖锁文件 |
 | Dockerfile | 配置/安全 | AF-102 多阶段 Core 镜像构建，锁定镜像摘要并以非 root 用户运行 |
 | compose.yaml | 配置 | AF-102 本地 Core/PostgreSQL/Redis 编排、回环端口与健康检查 |
+| alembic.ini | 配置 | AF-103 Alembic CLI 根入口，指向 `control_plane/migrations/` |
 
 ## .github/（GitHub 强制要求在仓库根目录才生效）
 
@@ -40,7 +41,7 @@
 | ISSUE_TEMPLATE/adr.yml | 架构 | ADR 提案 Issue 表单 |
 | ISSUE_TEMPLATE/documentation.yml | 治理 | 文档 Issue 表单 |
 | PULL_REQUEST_TEMPLATE.md | 治理 | PR 模板，强制安全/测试/回滚章节 |
-| workflows/ci.yml | 质量/治理 | CI-001 基础 CI：锁定依赖、pytest 覆盖率门槛与 Core 镜像构建 |
+| workflows/ci.yml | 质量/治理 | Required CI：锁定依赖、PostgreSQL 迁移 up/down/reapply、pytest 覆盖率门槛与 Core 镜像构建 |
 
 ## docs/（工程文档统一子目录）
 
@@ -83,6 +84,7 @@
 | AF-101.md | AI流程 | 已批准的 AF-101 应用骨架 Design Note 与技术决策 |
 | AF-102.md | AI流程 | 已批准的 AF-102 Docker Compose 基础设施 Design Note 与九项决策 |
 | CI-001.md | AI流程 | 已批准的 CI-001 基础 CI Design Note；不在 canonical 75 条 Backlog 内，插入依据见 `20_DECISION_LOG.md` |
+| AF-103.md | AI流程 | 已批准的 AF-103 v3 初始领域模型与迁移 Design Note |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -91,6 +93,7 @@
 | AF-101.md | 质量 | 已批准的 AF-101 Test Plan、测试先行顺序与失败判定 |
 | AF-102.md | 质量 | 已批准的 AF-102 Test Plan 与真实 Docker 验证证据 |
 | CI-001.md | 质量 | 已批准的 CI-001 Test Plan，以红灯/绿灯真实 Actions 运行证明 Gate 生效 |
+| AF-103.md | 质量 | 已批准的 AF-103 v3 Test Plan，覆盖迁移、租户复合外键与触发器正负向验证 |
 
 ## src/aegisflow_core/（AF-101 模块化单体骨架）
 
@@ -98,12 +101,14 @@
 |---|---|---|
 | app.py | 代码 | FastAPI 应用工厂、路由挂载与安全异常信封 |
 | main.py | 代码 | ASGI 入口 `aegisflow_core.main:app` |
-| settings.py | 配置 | `APP_ENV` 与 `APP_BASE_URL` 的最小 fail-fast 配置 |
+| settings.py | 配置 | `APP_ENV`、`APP_BASE_URL` 与 `DATABASE_URL` 的 fail-fast 配置 |
 | logging.py | 可观测 | 幂等 JSON stdout 日志基础 |
 | __init__.py | 代码边界 | `aegisflow_core` 根包标记 |
 | health/__init__.py | 代码边界 | Health 子包标记 |
 | health/router.py | 代码 | 稳定的 `GET /health` 契约 |
-| control_plane/__init__.py | 代码边界 | Control Plane 顶层包占位 |
+| control_plane/__init__.py | 代码边界 | Control Plane 顶层包标记 |
+| control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
+| control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包占位 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包占位 |
 | models/__init__.py | 代码边界 | Models 顶层包占位 |
@@ -111,7 +116,7 @@
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
 | packs/delivery/__init__.py | 代码边界 | DeliveryPack 边界占位，不含 Agent 实现 |
 
-## tests/（AF-101/AF-102 测试）
+## tests/（AF-101–AF-103 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -123,6 +128,11 @@
 | test_health.py | 质量 | `/health` 精确响应契约测试 |
 | test_logging.py | 质量/可观测 | 日志幂等与 JSON envelope 测试 |
 | test_docker_compose_config.py | 质量/安全 | Compose 渲染、镜像 pin、环境 allowlist、回环端口与构建上下文静态护栏 |
+| domain/conftest.py | 质量/数据 | 独立 PostgreSQL 测试事务与 rollback fixture |
+| domain/test_models.py | 质量/数据 | 六表 metadata、命名约束、UUID/时间默认值与复合外键静态测试 |
+| domain/test_migration_config.py | 质量/数据 | Alembic 根入口、完整 metadata 与默认 schema 测试 |
+| domain/test_session.py | 质量/数据 | SQLAlchemy async engine/session factory 测试 |
+| domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
 
 ## docs/adr/（Accepted ADR）
 

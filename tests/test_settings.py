@@ -10,6 +10,10 @@ def test_valid_app_env_accepted(
     monkeypatch: pytest.MonkeyPatch, app_env: str
 ) -> None:
     monkeypatch.setenv("APP_ENV", app_env)
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test",
+    )
     monkeypatch.delenv("APP_BASE_URL", raising=False)
 
     settings = get_settings()
@@ -20,6 +24,10 @@ def test_valid_app_env_accepted(
 
 def test_missing_app_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("APP_ENV", raising=False)
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test",
+    )
 
     with pytest.raises(ConfigurationError):
         get_settings()
@@ -27,6 +35,10 @@ def test_missing_app_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_invalid_app_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_ENV", "staging")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test",
+    )
 
     with pytest.raises(ConfigurationError):
         get_settings()
@@ -34,8 +46,38 @@ def test_invalid_app_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_app_base_url_optional(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_ENV", "test")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test",
+    )
     monkeypatch.setenv("APP_BASE_URL", "https://aegisflow.example.test")
 
     settings = get_settings()
 
     assert settings.app_base_url == "https://aegisflow.example.test"
+
+
+@pytest.mark.parametrize("database_url", [None, ""])
+def test_database_url_required(
+    monkeypatch: pytest.MonkeyPatch, database_url: str | None
+) -> None:
+    monkeypatch.setenv("APP_ENV", "test")
+    if database_url is None:
+        monkeypatch.delenv("DATABASE_URL", raising=False)
+    else:
+        monkeypatch.setenv("DATABASE_URL", database_url)
+
+    with pytest.raises(ConfigurationError):
+        get_settings()
+
+
+def test_database_url_passthrough(monkeypatch: pytest.MonkeyPatch) -> None:
+    database_url = (
+        "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test"
+    )
+    monkeypatch.setenv("APP_ENV", "test")
+    monkeypatch.setenv("DATABASE_URL", database_url)
+
+    settings = get_settings()
+
+    assert settings.database_url == database_url

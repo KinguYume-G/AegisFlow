@@ -41,6 +41,13 @@ flowchart LR
 ```text
 aegisflow_core/
 ├── control_plane/
+│   ├── domain
+│   │   ├── tenant
+│   │   ├── workflow
+│   │   ├── execution
+│   │   ├── approval
+│   │   └── audit
+│   ├── migrations
 │   ├── tenants
 │   ├── identity
 │   ├── rbac
@@ -77,7 +84,7 @@ aegisflow_core/
         └── reviewer
 ```
 
-当前文档只定义边界，不提供业务实现。
+AF-101 已落地六个顶层 Python 包边界。AF-103 在既有 `control_plane/` 边界内增加 `domain/`（SQLAlchemy 模型、异步会话）与 `migrations/`（Alembic schema 版本），承载 PostgreSQL 中由 Core Domain 所有的持久化事实；它们不是新的顶层模块，也不改变 LangGraph、Temporal 或 Redis 的状态所有权。
 
 ## DeliveryPack Runtime
 

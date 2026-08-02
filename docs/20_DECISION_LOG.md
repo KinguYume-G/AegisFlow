@@ -33,6 +33,13 @@
 - `CI-001` 使用独立的 `CI-` 前缀而非 `AF-` 编号，明确标记它不属于 canonical Backlog 的 75 条规划基线，避免与 `project/GITHUB_ISSUE_IMPORT.csv` 的事实源产生混淆。
 - 该插入不改变已冻结的产品方向、架构或任何 Accepted ADR，不需要新 ADR；仅新增 GitHub Actions 工作流与 Branch Protection 配置。
 
+### AF-103 ORM and migration stack
+
+- Project Owner 于 2026-08-02 批准 AF-103 Design Note/Test Plan v3：采用 SQLAlchemy 2.0 async + asyncpg + Alembic，并由 `uv.lock` 锁定精确依赖版本。
+- 持久化实现位于既有 `control_plane/domain/` 与 `control_plane/migrations/` 子目录，不新增第七个顶层模块，不改变 ADR-0001 或 ADR-0002 的状态所有权。
+- 初始六表使用租户复合外键、数据库 `CHECK`、Workflow 不可变触发器与 append-only Audit 触发器；迁移 up/down 和负向约束测试进入 Required CI。
+- 该技术选择由 canonical Issue AF-103 解决 `ORM/migration` 待决项，不需要新增 ADR；未来若改变持久化系统或状态所有权，仍必须走 ADR。
+
 ## Open
 
-Python/Node 精确版本、ORM/migration、OIDC provider、Policy representation、Object storage、Langfuse hosting、k3s environment 和 Model providers 必须通过 Issue/ADR 决定。
+Python/Node 精确版本、OIDC provider、Policy representation、Object storage、Langfuse hosting、k3s environment 和 Model providers 必须通过 Issue/ADR 决定。

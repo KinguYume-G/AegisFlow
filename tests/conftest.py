@@ -10,6 +10,10 @@ import pytest
 def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Provide the minimum valid process environment for app construction."""
     monkeypatch.setenv("APP_ENV", "test")
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test",
+    )
     monkeypatch.delenv("APP_BASE_URL", raising=False)
 
 

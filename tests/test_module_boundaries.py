@@ -47,10 +47,13 @@ def test_domain_packages_do_not_import_frameworks_or_model_sdks() -> None:
         for source_file in package_path.glob("*.py"):
             assert _imports(source_file).isdisjoint(PROHIBITED_IMPORT_ROOTS)
 
+    control_plane = PACKAGE_ROOT / "control_plane"
+    for source_file in (control_plane / "domain").glob("*.py"):
+        assert _imports(source_file).isdisjoint(PROHIBITED_IMPORT_ROOTS)
 
-def test_domain_packages_contain_only_boundary_markers() -> None:
+
+def test_unimplemented_domain_packages_contain_only_boundary_markers() -> None:
     expected_files = {
-        PACKAGE_ROOT / "control_plane" / "__init__.py",
         PACKAGE_ROOT / "runtime" / "__init__.py",
         PACKAGE_ROOT / "gateway" / "__init__.py",
         PACKAGE_ROOT / "models" / "__init__.py",
@@ -61,7 +64,6 @@ def test_domain_packages_contain_only_boundary_markers() -> None:
     actual_files = {
         path
         for root in (
-            PACKAGE_ROOT / "control_plane",
             PACKAGE_ROOT / "runtime",
             PACKAGE_ROOT / "gateway",
             PACKAGE_ROOT / "models",
@@ -71,6 +73,28 @@ def test_domain_packages_contain_only_boundary_markers() -> None:
         for path in root.rglob("*.py")
     }
     assert actual_files == expected_files
+
+
+def test_control_plane_contains_only_approved_af_103_modules() -> None:
+    control_plane = PACKAGE_ROOT / "control_plane"
+    expected_relative_files = {
+        Path("__init__.py"),
+        Path("domain/__init__.py"),
+        Path("domain/base.py"),
+        Path("domain/tenant.py"),
+        Path("domain/workflow.py"),
+        Path("domain/execution.py"),
+        Path("domain/approval.py"),
+        Path("domain/audit.py"),
+        Path("domain/session.py"),
+        Path("migrations/env.py"),
+        Path("migrations/versions/0001_initial_domain_model.py"),
+    }
+    actual_relative_files = {
+        path.relative_to(control_plane)
+        for path in control_plane.rglob("*.py")
+    }
+    assert actual_relative_files == expected_relative_files
 
 
 def test_application_layer_imports_are_explicit() -> None:
