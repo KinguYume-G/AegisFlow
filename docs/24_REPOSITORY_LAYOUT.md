@@ -89,7 +89,7 @@
 | AF-104.md | AI流程 | Intake Agent Contract Design Note（**Approved v4**，精确规范化/长度/幂等算法） |
 | AF-105.md | AI流程 | Clarifier Agent Contract Design Note（**Approved v4**，固定五规则与结构化 resolve） |
 | AF-106.md | AI流程 | Context Agent Retrieval Contract Design Note（**Approved v4**，受限 root 与确定性检索） |
-| AF-107.md | AI流程 | Planner Agent Contract Design Note（**Draft v4**，稳定能力枚举与固定四任务算法） |
+| AF-107.md | AI流程 | Planner Agent Contract Design Note（**Approved v4**，稳定能力枚举与固定四任务算法） |
 | AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Draft v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
 | AF-109.md | AI流程 | Langfuse Tracing Design Note（**Draft v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
 | AF-110.md | AI流程 | Gate 1A E2E Design Note（**Draft v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
@@ -105,12 +105,12 @@
 | AF-104.md | 质量 | Intake 配套 Test Plan（**Approved v4**） |
 | AF-105.md | 质量 | Clarifier 配套 Test Plan（**Approved v4**） |
 | AF-106.md | 质量 | Context 配套 Test Plan（**Approved v4**） |
-| AF-107.md | 质量 | Planner 配套 Test Plan（**Draft v4**） |
+| AF-107.md | 质量 | Planner 配套 Test Plan（**Approved v4**） |
 | AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Draft v4**） |
 | AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Draft v4**，mock CI + 人工真实 smoke） |
 | AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Draft v4**） |
 
-## src/aegisflow_core/（AF-101–AF-106 模块化单体与 DeliveryPack 契约）
+## src/aegisflow_core/（AF-101–AF-107 模块化单体与 DeliveryPack 契约）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -134,7 +134,9 @@
 | packs/delivery/contracts/clarification.py | 代码/Schema | AF-105 ClarificationQuestion/Clarification v1 与状态不变量 |
 | packs/delivery/contracts/context_package.py | 代码/Schema | AF-106 CitedSnippet/ContextPackage v1、POSIX 路径与扫描统计 |
 | packs/delivery/contracts/determinism.py | 代码 | Clock/IdGenerator 端口与系统、固定、随机、顺序实现 |
+| packs/delivery/contracts/measurement.py | 代码/Schema | AF-107 finite 非负 Measurement v1 与 not_available 不变量 |
 | packs/delivery/contracts/normalized_request.py | 代码/Schema | AF-104 NormalizedRequest v1、长度与 UTC/幂等键验证 |
+| packs/delivery/contracts/plan.py | 代码/Schema | AF-107 Plan/PlanTask/ToolRequirement v1 与稳定 capability allowlist |
 | packs/delivery/clarifier/__init__.py | 代码边界 | Clarifier Agent 子包标记 |
 | packs/delivery/clarifier/ports.py | 代码边界 | ClarificationReasoner 显式注入端口 |
 | packs/delivery/clarifier/fakes.py | 代码 | 无外部调用的五规则确定性 Reasoner |
@@ -145,8 +147,12 @@
 | packs/delivery/context/agent.py | 代码 | Context 检索委派与异常传播 |
 | packs/delivery/intake/__init__.py | 代码边界 | Intake Agent 子包标记 |
 | packs/delivery/intake/agent.py | 代码 | NFKC/空白规范化、canonical SHA-256 与 IntakeAgent |
+| packs/delivery/planner/__init__.py | 代码边界 | Planner Agent 子包标记 |
+| packs/delivery/planner/ports.py | 代码边界 | PlanReasoner 显式注入端口 |
+| packs/delivery/planner/fakes.py | 代码/安全 | 固定四任务、L1/L3 风险与诚实预算的确定性 Reasoner |
+| packs/delivery/planner/agent.py | 代码 | Clarifier 充分性门禁、Planner 委派与异常传播 |
 
-## tests/（AF-101–AF-106 测试）
+## tests/（AF-101–AF-107 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -182,6 +188,11 @@
 | packs/delivery/intake/test_normalized_request.py | 质量/Schema | source type、长度、UTC、hash 格式与 canonical 向量测试 |
 | packs/delivery/intake/test_agent.py | 质量/安全 | 规范化、幂等、注入边界与 prompt-like 数据测试 |
 | packs/delivery/intake/test_boundaries.py | 质量/架构 | Intake/contracts 禁止框架、数据库、Runtime 与 Provider SDK 依赖 |
+| packs/delivery/planner/__init__.py | 质量 | Planner 测试包标记 |
+| packs/delivery/planner/test_agent.py | 质量 | Clarifier Gate、显式 Reasoner 注入与异常传播测试 |
+| packs/delivery/planner/test_boundaries.py | 质量/架构 | Planner 禁止 Web/LangGraph/Policy/MCP/Provider 依赖且不提前实施后续 Issue |
+| packs/delivery/planner/test_contracts.py | 质量/Schema | Measurement、Plan、结构化 ToolRequirement 与能力 allowlist 不变量测试 |
+| packs/delivery/planner/test_reasoner.py | 质量/安全 | 固定任务、风险、诚实预算、证据缺失与 prompt-like context 测试 |
 
 ## docs/adr/（Accepted ADR）
 

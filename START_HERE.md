@@ -9,9 +9,9 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** is a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. / AegisFlow 是面向可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制的生产级 Agent Control Plane。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- The repository is in **M1 implementation**; AF-101 through AF-105 and CI-001 are verified. AF-106 is the only active implementation Issue. / 仓库处于 **M1 实施阶段**；AF-101 至 AF-105 与 CI-001 均已验证，AF-106 是当前唯一实施中的 Issue。
+- The repository is in **M1 implementation**; AF-101 through AF-106 and CI-001 are verified. AF-107 is the only active implementation Issue. / 仓库处于 **M1 实施阶段**；AF-101 至 AF-106 与 CI-001 均已验证，AF-107 是当前唯一实施中的 Issue。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
-- GitHub import and M0 verification are complete. AF-101 through AF-105 and CI-001 are verified; the AF-104–AF-110 Design Bundle v4 was human-merged in PR #84. / GitHub 导入与 M0 验证已完成；AF-101 至 AF-105 与 CI-001 已验证；AF-104–AF-110 Design Bundle v4 已通过 PR #84 人工合并。
+- GitHub import and M0 verification are complete. AF-101 through AF-106 and CI-001 are verified; the AF-104–AF-110 Design Bundle v4 was human-merged in PR #84. / GitHub 导入与 M0 验证已完成；AF-101 至 AF-106 与 CI-001 已验证；AF-104–AF-110 Design Bundle v4 已通过 PR #84 人工合并。
 
 ## Authoritative Reading Order / 权威阅读顺序
 
@@ -99,15 +99,15 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0, AF-101 through AF-105, CI-001, and the M1 Design Bundle review are complete. The project is now implementing **AF-106**. / Phase 0、AF-101 至 AF-105、CI-001 与 M1 Design Bundle 审查均已完成；项目当前正在实施 **AF-106**。
+Phase 0, AF-101 through AF-106, CI-001, and the M1 Design Bundle review are complete. The project is now implementing **AF-107**. / Phase 0、AF-101 至 AF-106、CI-001 与 M1 Design Bundle 审查均已完成；项目当前正在实施 **AF-107**。
 
 Current work / 当前工作：
 
-- Implement only the approved AF-106 Context retrieval contract and prove its filesystem safety / 仅实施已批准的 AF-106 Context 检索契约并验证文件系统安全边界；
-- Do not start AF-107 until AF-106 is Human Merged and verified / AF-106 完成人工合并与验证前不得启动 AF-107；
+- Implement only the approved AF-107 deterministic Planner contract and its validation gates / 仅实施已批准的 AF-107 确定性 Planner 契约及其校验门禁；
+- Do not start AF-108 until AF-107 is Human Merged and verified / AF-107 完成人工合并与验证前不得启动 AF-108；
 - Continue One Issue → One Branch → One PR → Human Review/Merge / 继续严格执行单 Issue、单分支、单 PR 与人工审查合并。
 
-Only AF-106 implementation is currently authorized; AF-107–AF-110 remain gated. / 当前仅授权实施 AF-106；AF-107–AF-110 仍受门禁约束。
+Only AF-107 implementation is currently authorized; AF-108–AF-110 remain gated. / 当前仅授权实施 AF-107；AF-108–AF-110 仍受门禁约束。
 
 ## Pull Request Exit Criteria / PR 退出标准
 

@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 178
-- Active project files: 171
+- Repository files: 189
+- Active project files: 182
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 39
-- Test files: 33
+- Application source files: 45
+- Test files: 38
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -149,7 +149,9 @@
 - `src/aegisflow_core/packs/delivery/contracts/clarification.py`
 - `src/aegisflow_core/packs/delivery/contracts/context_package.py`
 - `src/aegisflow_core/packs/delivery/contracts/determinism.py`
+- `src/aegisflow_core/packs/delivery/contracts/measurement.py`
 - `src/aegisflow_core/packs/delivery/contracts/normalized_request.py`
+- `src/aegisflow_core/packs/delivery/contracts/plan.py`
 - `src/aegisflow_core/packs/delivery/clarifier/__init__.py`
 - `src/aegisflow_core/packs/delivery/clarifier/agent.py`
 - `src/aegisflow_core/packs/delivery/clarifier/fakes.py`
@@ -160,6 +162,10 @@
 - `src/aegisflow_core/packs/delivery/context/ports.py`
 - `src/aegisflow_core/packs/delivery/intake/__init__.py`
 - `src/aegisflow_core/packs/delivery/intake/agent.py`
+- `src/aegisflow_core/packs/delivery/planner/__init__.py`
+- `src/aegisflow_core/packs/delivery/planner/agent.py`
+- `src/aegisflow_core/packs/delivery/planner/fakes.py`
+- `src/aegisflow_core/packs/delivery/planner/ports.py`
 - `src/aegisflow_core/runtime/__init__.py`
 - `src/aegisflow_core/settings.py`
 - `tests/__init__.py`
@@ -189,6 +195,11 @@
 - `tests/packs/delivery/intake/test_boundaries.py`
 - `tests/packs/delivery/intake/test_determinism.py`
 - `tests/packs/delivery/intake/test_normalized_request.py`
+- `tests/packs/delivery/planner/__init__.py`
+- `tests/packs/delivery/planner/test_agent.py`
+- `tests/packs/delivery/planner/test_boundaries.py`
+- `tests/packs/delivery/planner/test_contracts.py`
+- `tests/packs/delivery/planner/test_reasoner.py`
 - `tests/test_app_startup.py`
 - `tests/test_docker_compose_config.py`
 - `tests/test_health.py`

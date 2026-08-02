@@ -64,7 +64,9 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "clarification.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "context_package.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "determinism.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "measurement.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "normalized_request.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "plan.py",
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "agent.py",
         PACKAGE_ROOT / "packs" / "delivery" / "clarifier" / "fakes.py",
@@ -75,6 +77,10 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "packs" / "delivery" / "context" / "ports.py",
         PACKAGE_ROOT / "packs" / "delivery" / "intake" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "intake" / "agent.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "planner" / "__init__.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "planner" / "agent.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "planner" / "fakes.py",
+        PACKAGE_ROOT / "packs" / "delivery" / "planner" / "ports.py",
     }
     actual_files = {
         path
