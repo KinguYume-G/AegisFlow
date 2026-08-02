@@ -31,8 +31,8 @@ Phase 0 只建立工程体系，不写业务代码。
 - [x] Phase 0 engineering system pushed to `KinguYume-G/AegisFlow`
 - [x] 56 canonical Labels, 7 Milestones and 75 canonical Issues imported
 - [x] Phase 0 Exit evidence recorded in `25_PHASE0_EXIT_REVIEW.md`
-- [ ] Phase 0 Exit PR approved and merged by a Human Reviewer
-- [ ] M0 Review and Phase 0 Exit confirmed by the Project Owner
+- [x] Phase 0 Exit PR approved and merged by a Human Reviewer
+- [x] M0 Review and Phase 0 Exit confirmed by the Project Owner
 
 ## External Input Status
 
@@ -48,12 +48,12 @@ Phase 0 只建立工程体系，不写业务代码。
 
 ## Phase 0 Exit Gate
 
-本 PR 通过 Human Review 与 Human Merge 后，可由 Project Owner 结合 `25_PHASE0_EXIT_REVIEW.md` 人工确认 Phase 0 Exit。AI 不得自行批准、Merge、关闭 M0 Issues 或宣布 Gate 已通过。
+PR #76 已由 Project Owner / Human Reviewer 完成人工审查与合并；Project Owner 于 2026-08-02 结合 `25_PHASE0_EXIT_REVIEW.md` 正式确认 Phase 0 Exit，并批准关闭 AF-000–AF-008。9 个 M0 Issues 均已关闭并标记为 `status:verified`。
 
 ## Next Eligible Work
 
-Phase 0 Exit 经人工确认后，下一阶段是 AF-101 Design，而不是业务实现：
+Phase 0 Exit 已人工确认，下一阶段从 AF-101 的设计与最小骨架实现开始：
 
 `AF-101 — Create modular monolith application skeleton`
 
-AF-101 当前保持 `status:blocked`。开始业务实现前，必须完成依赖、Design Note 和 Test Plan Review，并由人工将 Issue 改为 `status:ready`。
+AF-101 的依赖、Design Note、Test Plan 与七项技术决策已经人工批准。实现仍须严格限定在已评审的最小骨架范围，并经独立 Branch、PR、Human Review 与 Human Merge。

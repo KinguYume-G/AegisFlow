@@ -15,11 +15,11 @@
 3. [x] 创建 7 个 Milestones；
 4. [x] 创建 56 个权威 Labels；
 5. [x] 从 CSV 创建 75 个 canonical Issues；
-6. [ ] 通过本次 Branch → PR → Human Review → Human Merge 流程完成人工 M0 Review；
-7. [ ] 由人工处理 M0 Issues 与 Phase 0 Exit；
+6. [x] 通过 Branch → PR → Human Review → Human Merge 流程完成人工 M0 Review；
+7. [x] 由人工处理 M0 Issues 与 Phase 0 Exit；
 8. [ ] 配置 main Branch Protection；
 9. [ ] Gate 通过后再决定是否创建 `v0.0.0-docs` Tag；
-10. [ ] Phase 0 Exit 后进入 AF-101 Design；AF-101 Ready 前不得开始业务实现。
+10. [x] Phase 0 Exit 后进入 AF-101 Design，并在人工批准 Design Note、Test Plan 与技术决策后开始最小骨架实现。
 
 ## 重要
 

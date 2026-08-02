@@ -9,9 +9,9 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** is a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. / AegisFlow 是面向可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制的生产级 Agent Control Plane。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- The repository is completing **Phase 0 Exit — Governance Review / Human Merge Pending**. The engineering system and GitHub governance data are present, but there is still no business implementation. / 仓库正在完成 Phase 0 Exit 治理审查与人工合并；工程体系和 GitHub 治理数据已经就绪，但仍无业务实现。
+- The repository has exited **Phase 0** and entered **M1**, beginning with the minimal AF-101 application skeleton. / 仓库已经退出 Phase 0 并进入 M1，当前从最小 AF-101 应用骨架开始。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
-- GitHub import is complete. AF-101 Design may begin only after the Phase 0 Exit PR is human-reviewed and human-merged and M0 is human-confirmed; business implementation remains blocked until AF-101 dependencies, Design Note, Test Plan, and `status:ready` all pass. / GitHub 导入已完成；只有 Phase 0 Exit PR 经人工 Review、人工 Merge 且 M0 由人工确认后，才能进入 AF-101 Design。AF-101 的依赖、Design Note、Test Plan 与 `status:ready` 全部满足前，业务实现仍被阻塞。
+- GitHub import and M0 verification are complete. AF-101's dependency, Design Note, Test Plan, and technical decisions have been human-approved; its implementation remains limited to the reviewed skeleton scope. / GitHub 导入与 M0 验证已完成；AF-101 的依赖、Design Note、Test Plan 与技术决策均已人工批准，实现仍严格限于已评审的骨架范围。
 
 ## Authoritative Reading Order / 权威阅读顺序
 
@@ -99,16 +99,15 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0 documentation, repository bootstrap, and GitHub governance import are complete. Phase 0 has **not exited yet** because the exit PR still requires Human Review and Human Merge. / Phase 0 文档、仓库 bootstrap 与 GitHub 治理导入已经完成；退出 PR 尚需 Human Review 与 Human Merge，因此 Phase 0 **尚未正式退出**。
+Phase 0 documentation, repository bootstrap, GitHub governance import, Human Review, Human Merge, and M0 confirmation are complete. The project is now in **M1 / AF-101**. / Phase 0 文档、仓库 bootstrap、GitHub 治理导入、人工 Review、人工 Merge 与 M0 确认均已完成；项目当前处于 **M1 / AF-101**。
 
-Pending exit work / 待完成退出项：
+Current work / 当前工作：
 
-- Human-review and human-merge the Phase 0 Exit PR / 人工 Review 并人工 Merge Phase 0 Exit PR；
-- Human-confirm M0 Review using [`docs/25_PHASE0_EXIT_REVIEW.md`](docs/25_PHASE0_EXIT_REVIEW.md) / 依据 Phase 0 Exit Review 由人工确认 M0；
-- Begin AF-101 Design only after Phase 0 Exit; do not write business code / Phase 0 Exit 后才进入 AF-101 Design，仍不得编写业务代码；
-- Mark AF-101 ready only after its dependency, Design Note, and Test Plan are approved / 仅在依赖、Design Note 与 Test Plan 获批后将 AF-101 标记为 ready。
+- Implement only the reviewed AF-101 package skeleton, application factory, configuration boundary, logging base, and `/health` contract / 仅实现已评审的 AF-101 包骨架、应用工厂、配置边界、日志基础和 `/health` 契约；
+- Keep all AF-102+ infrastructure and business capabilities out of scope / 不提前实现 AF-102 及后续基础设施与业务能力；
+- Require Human Review and Human Merge before AF-101 is complete / AF-101 必须经 Human Review 与 Human Merge 后才算完成。
 
-Until then, documentation-only work is permitted; business implementation is not. / 在此之前只允许文档类工作，不允许业务实现。
+Only the explicitly approved AF-101 skeleton is authorized; all unreviewed business capability remains prohibited. / 当前只授权明确批准的 AF-101 骨架，其他未经评审的业务能力仍禁止实现。
 
 ## Pull Request Exit Criteria / PR 退出标准
 

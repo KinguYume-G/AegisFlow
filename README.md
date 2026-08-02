@@ -8,11 +8,11 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 
 ## 当前阶段
 
-**Phase 0 Exit：Governance Review / Human Merge Pending**
+**M1：AF-101 Application Skeleton**
 
-Phase 0 工程体系已推送到 GitHub，56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 已完成导入；本仓库仍不包含业务实现。当前通过 `chore/phase0-exit` PR 完成最终治理收尾，只有 Human Review 与 Human Merge 后才能人工确认 Phase 0 Exit，并进入 AF-101 Design 阶段。
+Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-AF-101 Design 尚未开始，AF-101 仍为 `status:blocked`。业务代码只有在依赖完成、Issue 进入 `status:ready`、Design Note 与 Test Plan 通过 Review 后才能开始。
+AF-101 的 Design Note、Test Plan 与七项技术决策已获 Project Owner 批准，当前工作仅建立模块化单体包边界、最小 FastAPI 应用和 `/health` 契约。数据库、Redis、Temporal、Agent、MCP、RBAC、Docker 与前端均不在本 Issue 范围内。
 
 ## 不可改变的定位
 
@@ -80,8 +80,10 @@ AF-101 Design 尚未开始，AF-101 仍为 `status:blocked`。业务代码只有
 - [x] ADR 集、Issue/PR 模板、配置占位符
 - [x] GitHub 仓库与写权限确认，Phase 0 工程体系已推送
 - [x] 56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 导入
-- [ ] Phase 0 Exit PR 完成 Human Review 与 Human Merge
-- [ ] 进入 AF-101 Design（尚未开始，不等于业务实现）
+- [x] Phase 0 Exit PR 完成 Human Review 与 Human Merge
+- [x] M0 人工确认完成，AF-000–AF-008 已关闭并验证
+- [x] AF-101 Design Note 与 Test Plan 获人工批准
+- [ ] AF-101 实现 PR 完成 Human Review 与 Human Merge
 
 ## 真实性规则
 
