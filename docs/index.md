@@ -62,7 +62,7 @@
 - [`design-notes/CI-001.md`](design-notes/CI-001.md)：CI-001 基础 CI Design Note（Approved；非 canonical 治理插入，见 `20_DECISION_LOG.md`）
 - [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
 - [`test-plans/AF-102.md`](test-plans/AF-102.md)：AF-102 配套 Test Plan（Approved，含真实执行证据）
-- [`test-plans/CI-001.md`](test-plans/CI-001.md)：CI-001 配套 Test Plan（Approved；红灯/绿灯证据待实现填写）
+- [`test-plans/CI-001.md`](test-plans/CI-001.md)：CI-001 配套 Test Plan（Approved；含真实 Actions 红灯/绿灯证据）
 
 ### 开发与协作
 

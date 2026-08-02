@@ -22,4 +22,4 @@
 | Bootstrap Exception | Repository Governance | — | AF-004, AF-008 | `20_DECISION_LOG.md`; commits `817751a`, `82c91d7` |
 | Application Skeleton | Modular Monolith | ADR-0001 | AF-101 | PR #77 human-merged; 21 tests; `/health` contract; `status:verified` |
 | Local Infrastructure Foundation | Modular Monolith / Deployment Evolution | ADR-0004 | AF-102 | Approved Design Note/Test Plan; 30 tests; real Compose build and three-service health verification |
-| Continuous Integration | N/A (Repository Governance) | — | CI-001 | GitHub Actions `CI / test`; red/green run evidence; protected-main readiness |
+| Continuous Integration | N/A (Repository Governance) | — | CI-001 | `CI / test`: red Run 30744284422; green Run 30744322133; protected-main readiness |
