@@ -1,7 +1,7 @@
 # Engineering System Manifest
 
-- Repository files: 128
-- Active project files: 121
+- Repository files: 129
+- Active project files: 122
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
@@ -120,6 +120,7 @@
 - `src/aegisflow_core/control_plane/migrations/env.py`
 - `src/aegisflow_core/control_plane/migrations/script.py.mako`
 - `src/aegisflow_core/control_plane/migrations/versions/0001_initial_domain_model.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0002_normalize_check_names.py`
 - `src/aegisflow_core/evaluation/__init__.py`
 - `src/aegisflow_core/gateway/__init__.py`
 - `src/aegisflow_core/health/__init__.py`
