@@ -85,6 +85,14 @@
 | AF-102.md | AI流程 | 已批准的 AF-102 Docker Compose 基础设施 Design Note 与九项决策 |
 | CI-001.md | AI流程 | 已批准的 CI-001 基础 CI Design Note；不在 canonical 75 条 Backlog 内，插入依据见 `20_DECISION_LOG.md` |
 | AF-103.md | AI流程 | 已批准的 AF-103 v3 初始领域模型与迁移 Design Note |
+| M1-SHARED-CONTRACTS.md | AI流程 | AF-104–AF-110 当前完整跨 Issue 契约（**Draft v4**）：Schema 所有权、确定性算法、安全边界、Langfuse 真实 smoke 与严格实施顺序 |
+| AF-104.md | AI流程 | Intake Agent Contract Design Note（**Draft v4**，精确规范化/长度/幂等算法） |
+| AF-105.md | AI流程 | Clarifier Agent Contract Design Note（**Draft v4**，固定五规则与结构化 resolve） |
+| AF-106.md | AI流程 | Context Agent Retrieval Contract Design Note（**Draft v4**，受限 root 与确定性检索） |
+| AF-107.md | AI流程 | Planner Agent Contract Design Note（**Draft v4**，稳定能力枚举与固定四任务算法） |
+| AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Draft v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
+| AF-109.md | AI流程 | Langfuse Tracing Design Note（**Draft v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
+| AF-110.md | AI流程 | Gate 1A E2E Design Note（**Draft v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -94,6 +102,13 @@
 | AF-102.md | 质量 | 已批准的 AF-102 Test Plan 与真实 Docker 验证证据 |
 | CI-001.md | 质量 | 已批准的 CI-001 Test Plan，以红灯/绿灯真实 Actions 运行证明 Gate 生效 |
 | AF-103.md | 质量 | 已批准的 AF-103 v3 Test Plan，覆盖迁移、租户复合外键与触发器正负向验证 |
+| AF-104.md | 质量 | Intake 配套 Test Plan（**Draft v4**） |
+| AF-105.md | 质量 | Clarifier 配套 Test Plan（**Draft v4**） |
+| AF-106.md | 质量 | Context 配套 Test Plan（**Draft v4**） |
+| AF-107.md | 质量 | Planner 配套 Test Plan（**Draft v4**） |
+| AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Draft v4**） |
+| AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Draft v4**，mock CI + 人工真实 smoke） |
+| AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Draft v4**） |
 
 ## src/aegisflow_core/（AF-101 模块化单体骨架）
 
@@ -185,3 +200,4 @@
 ## 已知待办（不在本次分类范围内，供后续 Issue 参考）
 
 - `archive/phase0-gap-patch/` 的合并需要先形成对应的 Design Note 和 ADR-0013/0014 的正式 Accepted 状态，再走一次独立的 PR，不与本次目录整理混在一起。
+- 仓库根目录存在一个**未追踪、未登记进本文件与 MANIFEST.md 的外部输入文件** `gemini-code-1785679381247.md`（AF-110 Gate 1A Fixture 草稿内容）。按 `docs/design-notes/M1-SHARED-CONTRACTS.md` v4 第 12 节，这个文件只是设计输入，不是仓库事实源；AF-110 实现 PR 必须把内容迁移为 `tests/fixtures/gate1a/` 下的三个结构化 JSON 文件，完成映射验证后删除本地根文件。

@@ -1,7 +1,7 @@
 # Engineering System Manifest
 
-- Repository files: 129
-- Active project files: 122
+- Repository files: 144
+- Active project files: 137
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
@@ -79,10 +79,25 @@
 - `docs/design-notes/AF-101.md`
 - `docs/design-notes/AF-102.md`
 - `docs/design-notes/AF-103.md`
+- `docs/design-notes/AF-104.md`
+- `docs/design-notes/AF-105.md`
+- `docs/design-notes/AF-106.md`
+- `docs/design-notes/AF-107.md`
+- `docs/design-notes/AF-108.md`
+- `docs/design-notes/AF-109.md`
+- `docs/design-notes/AF-110.md`
 - `docs/design-notes/CI-001.md`
+- `docs/design-notes/M1-SHARED-CONTRACTS.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
+- `docs/test-plans/AF-104.md`
+- `docs/test-plans/AF-105.md`
+- `docs/test-plans/AF-106.md`
+- `docs/test-plans/AF-107.md`
+- `docs/test-plans/AF-108.md`
+- `docs/test-plans/AF-109.md`
+- `docs/test-plans/AF-110.md`
 - `docs/test-plans/CI-001.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
