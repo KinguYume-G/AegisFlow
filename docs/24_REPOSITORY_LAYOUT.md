@@ -42,6 +42,7 @@
 | ISSUE_TEMPLATE/documentation.yml | 治理 | 文档 Issue 表单 |
 | PULL_REQUEST_TEMPLATE.md | 治理 | PR 模板，强制安全/测试/回滚章节 |
 | workflows/ci.yml | 质量/治理 | Required CI：锁定依赖、PostgreSQL 迁移 up/down/reapply、pytest 覆盖率门槛与 Core 镜像构建 |
+| workflows/langfuse-smoke.yml | 质量/可观测/安全 | AF-109 Human Merge 后人工触发的 Langfuse auth/write/flush/bounded-query smoke；使用受保护 Environment |
 
 ## docs/（工程文档统一子目录）
 
@@ -91,7 +92,7 @@
 | AF-106.md | AI流程 | Context Agent Retrieval Contract Design Note（**Approved v4**，受限 root 与确定性检索） |
 | AF-107.md | AI流程 | Planner Agent Contract Design Note（**Approved v4**，稳定能力枚举与固定四任务算法） |
 | AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Approved v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
-| AF-109.md | AI流程 | Langfuse Tracing Design Note（**Draft v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
+| AF-109.md | AI流程 | Langfuse Tracing Design Note（**Approved v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
 | AF-110.md | AI流程 | Gate 1A E2E Design Note（**Draft v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
@@ -107,16 +108,16 @@
 | AF-106.md | 质量 | Context 配套 Test Plan（**Approved v4**） |
 | AF-107.md | 质量 | Planner 配套 Test Plan（**Approved v4**） |
 | AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Approved v4**） |
-| AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Draft v4**，mock CI + 人工真实 smoke） |
+| AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Approved v4**，mock CI + 人工真实 smoke） |
 | AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Draft v4**） |
 
-## src/aegisflow_core/（AF-101–AF-108 模块化单体与 DeliveryPack 契约）
+## src/aegisflow_core/（AF-101–AF-109 模块化单体与 DeliveryPack 契约）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
 | app.py | 代码 | FastAPI 应用工厂、路由挂载与安全异常信封 |
 | main.py | 代码 | ASGI 入口 `aegisflow_core.main:app` |
-| settings.py | 配置 | `APP_ENV`、`APP_BASE_URL` 与 `DATABASE_URL` 的 fail-fast 配置 |
+| settings.py | 配置 | 应用/数据库及四项 Langfuse all-or-none 的 fail-fast 配置 |
 | logging.py | 可观测 | 幂等 JSON stdout 日志基础 |
 | __init__.py | 代码边界 | `aegisflow_core` 根包标记 |
 | health/__init__.py | 代码边界 | Health 子包标记 |
@@ -124,7 +125,9 @@
 | control_plane/__init__.py | 代码边界 | Control Plane 顶层包标记 |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
-| runtime/__init__.py | 代码边界 | Runtime 顶层包占位 |
+| runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
+| runtime/tracing.py | 可观测/安全 | AF-109 诚实 token/cost 契约、prompt 脱敏、确定性关联与 NoOp/InMemory/Langfuse Recorder |
+| runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包占位 |
 | models/__init__.py | 代码边界 | Models 顶层包占位 |
 | evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
@@ -153,7 +156,7 @@
 | packs/delivery/planner/fakes.py | 代码/安全 | 固定四任务、L1/L3 风险与诚实预算的确定性 Reasoner |
 | packs/delivery/planner/agent.py | 代码 | Clarifier 充分性门禁、Planner 委派与异常传播 |
 
-## tests/（AF-101–AF-108 测试）
+## tests/（AF-101–AF-109 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -170,6 +173,8 @@
 | domain/test_migration_config.py | 质量/数据 | Alembic 根入口、完整 metadata 与默认 schema 测试 |
 | domain/test_session.py | 质量/数据 | SQLAlchemy async engine/session factory 测试 |
 | domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
+| runtime/__init__.py | 质量 | Runtime 测试包标记 |
+| runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
 | packs/__init__.py | 质量 | Application Pack 测试包标记，避免同名测试模块冲突 |
 | packs/delivery/__init__.py | 质量 | DeliveryPack 测试包标记 |
 | packs/delivery/clarifier/__init__.py | 质量 | Clarifier 测试包标记 |

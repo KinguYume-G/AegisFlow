@@ -45,6 +45,5 @@ def test_planner_and_contracts_are_framework_independent() -> None:
         assert _imports(source_file).isdisjoint(PROHIBITED_IMPORT_ROOTS)
 
 
-def test_af_108_does_not_create_later_issue_modules() -> None:
+def test_af_109_does_not_create_later_issue_modules() -> None:
     assert not PACKAGE_ROOT.parents[1].joinpath("runtime", "state.py").exists()
-    assert not PACKAGE_ROOT.parents[1].joinpath("runtime", "tracing.py").exists()

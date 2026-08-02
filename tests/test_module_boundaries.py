@@ -55,6 +55,8 @@ def test_domain_packages_do_not_import_frameworks_or_model_sdks() -> None:
 def test_domain_packages_contain_only_approved_modules() -> None:
     expected_files = {
         PACKAGE_ROOT / "runtime" / "__init__.py",
+        PACKAGE_ROOT / "runtime" / "langfuse_smoke.py",
+        PACKAGE_ROOT / "runtime" / "tracing.py",
         PACKAGE_ROOT / "gateway" / "__init__.py",
         PACKAGE_ROOT / "models" / "__init__.py",
         PACKAGE_ROOT / "evaluation" / "__init__.py",

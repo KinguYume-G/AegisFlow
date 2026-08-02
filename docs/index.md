@@ -4,12 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：M1 — AF-108 Clarification HITL Interface Implementation
-- **实现状态**：Phase 0、AF-101–AF-107、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，当前仅实施 AF-108
+- **阶段**：M1 — AF-109 Langfuse Tracing Implementation
+- **实现状态**：Phase 0、AF-101–AF-108、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，当前仅实施 AF-109
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **最近完成 Issue**：AF-107（GitHub #16，canonical），通过 PR #88 Human Merge，当前为 `CLOSED / status:verified`
-- **范围边界**：AF-108 已获批并进入实施；本轮只实现进程内 Clarification HITL Gateway，AF-109 在 AF-108 Human Merge/验证前不得启动
+- **最近完成 Issue**：AF-108（GitHub #17，canonical），通过 PR #89 Human Merge，当前为 `CLOSED / status:verified`
+- **范围边界**：AF-109 已获批并进入实施；本轮只实现安全 tracing contract、Recorder 与人工 Langfuse smoke，AF-110 在 AF-109 Human Merge/验证前不得启动
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -62,12 +62,12 @@
 - [`design-notes/CI-001.md`](design-notes/CI-001.md)：CI-001 基础 CI Design Note（Approved；非 canonical 治理插入，见 `20_DECISION_LOG.md`）
 - [`design-notes/AF-103.md`](design-notes/AF-103.md)：AF-103 初始领域模型与迁移 Design Note（Approved v3）
 - [`design-notes/M1-SHARED-CONTRACTS.md`](design-notes/M1-SHARED-CONTRACTS.md)：M1 Design Bundle（AF-104–AF-110）完整跨 Issue 契约（**Approved v4**，PR #84）
-- [`design-notes/AF-104.md`](design-notes/AF-104.md) … [`AF-108.md`](design-notes/AF-108.md)：已批准的自包含 Design Note；[`AF-109.md`](design-notes/AF-109.md) … [`AF-110.md`](design-notes/AF-110.md) 保持 Draft v4，严格顺序执行
+- [`design-notes/AF-104.md`](design-notes/AF-104.md) … [`AF-109.md`](design-notes/AF-109.md)：已批准的自包含 Design Note；[`AF-110.md`](design-notes/AF-110.md) 保持 Draft v4，严格顺序执行
 - [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
 - [`test-plans/AF-102.md`](test-plans/AF-102.md)：AF-102 配套 Test Plan（Approved，含真实执行证据）
 - [`test-plans/CI-001.md`](test-plans/CI-001.md)：CI-001 配套 Test Plan（Approved；含真实 Actions 红灯/绿灯证据）
 - [`test-plans/AF-103.md`](test-plans/AF-103.md)：AF-103 配套 Test Plan（Approved v3）
-- [`test-plans/AF-104.md`](test-plans/AF-104.md) … [`AF-108.md`](test-plans/AF-108.md)：已批准的 Test Plan；[`AF-109.md`](test-plans/AF-109.md) … [`AF-110.md`](test-plans/AF-110.md) 保持 Draft v4
+- [`test-plans/AF-104.md`](test-plans/AF-104.md) … [`AF-109.md`](test-plans/AF-109.md)：已批准的 Test Plan；[`AF-110.md`](test-plans/AF-110.md) 保持 Draft v4
 
 ### 开发与协作
 
