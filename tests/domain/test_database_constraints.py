@@ -128,6 +128,22 @@ async def test_schema_and_triggers_exist(db_connection: AsyncConnection) -> None
             )
         ).scalars()
     )
+    check_constraints = set(
+        (
+            await db_connection.execute(
+                text(
+                    """
+                    SELECT constraint_name
+                    FROM information_schema.table_constraints
+                    WHERE constraint_schema = 'public'
+                      AND constraint_type = 'CHECK'
+                      AND table_name IN ('workflows', 'runs', 'steps', 'approvals')
+                      AND constraint_name LIKE 'ck\\_%' ESCAPE '\\'
+                    """
+                )
+            )
+        ).scalars()
+    )
 
     assert tables == {
         "tenants",
@@ -140,6 +156,13 @@ async def test_schema_and_triggers_exist(db_connection: AsyncConnection) -> None
     assert triggers == {
         "trg_workflows_prevent_mutation",
         "trg_audit_events_prevent_mutation",
+    }
+    assert check_constraints == {
+        "ck_workflows_status",
+        "ck_workflows_version_positive",
+        "ck_runs_status",
+        "ck_steps_status",
+        "ck_approvals_decision",
     }
 
 

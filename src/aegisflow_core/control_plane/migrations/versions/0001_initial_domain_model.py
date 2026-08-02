@@ -58,9 +58,11 @@ def upgrade() -> None:
         ),
         sa.CheckConstraint(
             "status IN ('active', 'superseded')",
-            name="ck_workflows_status",
+            name=op.f("ck_workflows_status"),
         ),
-        sa.CheckConstraint("version > 0", name="ck_workflows_version_positive"),
+        sa.CheckConstraint(
+            "version > 0", name=op.f("ck_workflows_version_positive")
+        ),
         sa.ForeignKeyConstraint(
             ["tenant_id"],
             ["tenants.id"],
@@ -87,7 +89,7 @@ def upgrade() -> None:
         sa.CheckConstraint(
             "status IN ('pending', 'running', 'waiting_clarification', "
             "'waiting_approval', 'completed', 'failed', 'cancelled')",
-            name="ck_runs_status",
+            name=op.f("ck_runs_status"),
         ),
         sa.ForeignKeyConstraint(
             ["tenant_id"],
@@ -116,7 +118,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=NOW_DEFAULT, nullable=False),
         sa.CheckConstraint(
             "status IN ('pending', 'running', 'completed', 'failed', 'skipped')",
-            name="ck_steps_status",
+            name=op.f("ck_steps_status"),
         ),
         sa.ForeignKeyConstraint(
             ["tenant_id"],
@@ -149,7 +151,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=NOW_DEFAULT, nullable=False),
         sa.CheckConstraint(
             "decision IN ('pending', 'approved', 'rejected')",
-            name="ck_approvals_decision",
+            name=op.f("ck_approvals_decision"),
         ),
         sa.ForeignKeyConstraint(
             ["tenant_id"],
