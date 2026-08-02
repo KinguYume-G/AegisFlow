@@ -21,9 +21,12 @@
 | MANIFEST.md | 治理 | 仓库文件清单、Source-of-Truth 策略、应用源码与测试文件计数 |
 | .env.example | 配置 | 环境变量占位符清单，禁止真实密钥 |
 | .gitignore | 配置 | Git 忽略规则 |
+| .dockerignore | 安全/配置 | 排除 Secret、Git 元数据、开发缓存、文档与测试源码，缩小镜像构建上下文 |
 | .python-version | 配置 | AF-101 批准的 Python 3.12 工具链选择 |
 | pyproject.toml | 配置 | Python 包、依赖、build backend、pytest 与 coverage 配置 |
 | uv.lock | 配置 | uv 解析的可复现 Python 依赖锁文件 |
+| Dockerfile | 配置/安全 | AF-102 多阶段 Core 镜像构建，锁定镜像摘要并以非 root 用户运行 |
+| compose.yaml | 配置 | AF-102 本地 Core/PostgreSQL/Redis 编排、回环端口与健康检查 |
 
 ## .github/（GitHub 强制要求在仓库根目录才生效）
 
@@ -77,12 +80,14 @@
 | 文件 | 分类 | 用途 |
 |---|---|---|
 | AF-101.md | AI流程 | 已批准的 AF-101 应用骨架 Design Note 与技术决策 |
+| AF-102.md | AI流程 | 已批准的 AF-102 Docker Compose 基础设施 Design Note 与九项决策 |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
 | AF-101.md | 质量 | 已批准的 AF-101 Test Plan、测试先行顺序与失败判定 |
+| AF-102.md | 质量 | 已批准的 AF-102 Test Plan 与真实 Docker 验证证据 |
 
 ## src/aegisflow_core/（AF-101 模块化单体骨架）
 
@@ -103,7 +108,7 @@
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
 | packs/delivery/__init__.py | 代码边界 | DeliveryPack 边界占位，不含 Agent 实现 |
 
-## tests/（AF-101 测试）
+## tests/（AF-101/AF-102 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -114,6 +119,7 @@
 | test_app_startup.py | 质量/安全 | 应用构造、fail-fast 与安全异常信封测试 |
 | test_health.py | 质量 | `/health` 精确响应契约测试 |
 | test_logging.py | 质量/可观测 | 日志幂等与 JSON envelope 测试 |
+| test_docker_compose_config.py | 质量/安全 | Compose 渲染、镜像 pin、环境 allowlist、回环端口与构建上下文静态护栏 |
 
 ## docs/adr/（Accepted ADR）
 

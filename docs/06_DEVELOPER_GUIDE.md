@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-Phase 0 已完成。AF-101 已批准并建立 Python 3.12、uv、src-layout 与最小 FastAPI 骨架；只有下方标记为“已落地”的命令可以作为当前事实，其余工具链仍须由对应 Issue 实现。
+Phase 0 与 AF-101 已完成。AF-102 已建立本地 Core/PostgreSQL/Redis Compose 基础；只有下方标记为“已落地”的命令可以作为当前事实，其余工具链仍须由对应 Issue 实现。
 
 ## AF-101 已落地命令
 
@@ -12,6 +12,20 @@ uv run --locked python -m pytest -v --cov=aegisflow_core --cov-report=term-missi
 ```
 
 启动最小应用前必须设置 `APP_ENV=development|test|production`，再执行 `uv run --locked uvicorn aegisflow_core.main:app`。当前不提供 Makefile、ruff、mypy 或 CI 命令；这些能力需要独立 Issue 批准。
+
+## AF-102 已落地命令
+
+先从 `.env.example` 创建未跟踪的 `.env`，并替换 Compose 使用的全部 `<...>` 占位符。`APP_ENV`、`POSTGRES_USER`、`POSTGRES_PASSWORD`、`POSTGRES_DB` 为必需变量；三个 `*_HOST_PORT` 可按本机端口占用情况配置。不要提交 `.env`。
+
+```bash
+docker compose config --quiet
+docker compose up -d --build --wait
+docker compose ps
+curl http://127.0.0.1:8000/health
+docker compose down
+```
+
+Core、PostgreSQL 与 Redis 的宿主端口只绑定 `127.0.0.1`。`docker compose down --volumes` 会删除本地 PostgreSQL 数据卷，只能在明确需要重置本地数据时执行。AF-102 尚未让 Core 连接 PostgreSQL 或 Redis；该能力属于后续 Issue。
 
 ## 预期工具链
 

@@ -4,12 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：M1 — AF-101 Application Skeleton
-- **实现状态**：Phase 0 已人工确认退出；AF-000–AF-008 已关闭并验证；AF-101 正在按已批准的 Design Note 与 Test Plan 实现最小骨架
+- **阶段**：M1 — AF-102 Docker Compose Foundation
+- **实现状态**：Phase 0 与 AF-101 已完成并验证；AF-102 正按获批 Design Note、Test Plan 与九项修正实现
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **当前 Issue**：AF-101；依赖、Design Note、Test Plan 与技术决策均已由 Project Owner 批准
-- **范围边界**：仅模块包、最小 FastAPI 应用、配置/日志骨架和 `/health`；不包含 AF-102+ 能力
+- **当前 Issue**：AF-102；依赖 AF-101 已满足，设计与测试计划已由 Project Owner 批准
+- **范围边界**：仅本地 Core/PostgreSQL/Redis Compose、镜像构建和健康检查；不修改应用代码、不引入 CI、不开始 AF-103
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -58,7 +58,9 @@
 - [`24_REPOSITORY_LAYOUT.md`](24_REPOSITORY_LAYOUT.md)：仓库目录结构与每个文件的分类清单
 - [`25_PHASE0_EXIT_REVIEW.md`](25_PHASE0_EXIT_REVIEW.md)：Phase 0 独立验收审查，逐项核对 AF-000–AF-008 与退出条件
 - [`design-notes/AF-101.md`](design-notes/AF-101.md)：AF-101 应用骨架 Design Note（Approved）
+- [`design-notes/AF-102.md`](design-notes/AF-102.md)：AF-102 Docker Compose 基础设施 Design Note（Approved）
 - [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
+- [`test-plans/AF-102.md`](test-plans/AF-102.md)：AF-102 配套 Test Plan（Approved，含真实执行证据）
 
 ### 开发与协作
 
