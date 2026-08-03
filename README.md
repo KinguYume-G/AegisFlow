@@ -8,11 +8,11 @@ AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的�
 
 ## 当前阶段
 
-**M1：AF-110 Gate 1A End-to-End Implementation**
+**M2：Gate 1B — Plan to Draft PR**
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-AF-101–AF-109 与插入的治理任务 CI-001 均已通过 Human Review/Merge 并标记为 `status:verified`；pytest/coverage、Core 镜像构建、PostgreSQL migration 验证、main Branch Protection 与人工 Langfuse smoke 已通过。AF-104–AF-110 Design Bundle v4 已通过 PR #84 Human Review/Merge；AF-110 已获批并进入实施，当前仅组装 Gate 1A 进程内端到端链路，不启动 M2。
+AF-101–AF-110 与 CI-001 均已通过 Human Review/Merge 并标记为 `status:verified`；Gate 1A、CI、PostgreSQL migration、Branch Protection 与 Langfuse smoke 已验证。M2 Design Bundle Draft v2 已获 Project Owner 批准，等待本治理 PR Human Merge 后按 AF-201→AF-210 的依赖顺序实施；当前没有任何 M2 业务代码。
 
 ## 不可改变的定位
 
@@ -97,7 +97,9 @@ AF-101–AF-109 与插入的治理任务 CI-001 均已通过 Human Review/Merge 
 - [x] AF-107 实现 PR 完成 CI、Human Review 与 Human Merge
 - [x] AF-108 实现 PR 完成 CI、Human Review 与 Human Merge
 - [x] AF-109 实现 PR 完成 CI、Human Review、Human Merge 与人工 Langfuse smoke
-- [ ] AF-110 实现 PR 完成 CI、Human Review 与 Human Merge
+- [x] AF-110 实现 PR 完成 CI、Human Review 与 Human Merge
+- [ ] M2 Design Bundle Draft v2 完成 Human Review/Merge
+- [ ] 按依赖顺序从 AF-201 开始实施 Gate 1B
 
 ## 真实性规则
 

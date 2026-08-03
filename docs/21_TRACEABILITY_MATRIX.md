@@ -30,3 +30,13 @@
 | Planner Agent Contract | DeliveryPack / Planner | ADR-0007 | AF-107 | Measurement/Plan v1; stable capability allowlist; deterministic tasks/risk; Clarifier gate; `tests/packs/delivery/planner/` |
 | Clarification HITL Interface | DeliveryPack / Clarifier | ADR-0002 | AF-108 | In-memory replay idempotency; run isolation; atomic answer transition; duplicate rejection; `test_hitl.py` |
 | Gate 1A End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0008 | AF-110 | Native LangGraph interrupt/resume; validated run/thread identity; deterministic fixture-to-Plan path; four correlated node traces; `tests/e2e/test_gate1a.py` |
+| GitHub App / Webhook Verification | Gateway (GitHub) | — | AF-201 | Draft v2 — bounded replay guard; pending Human Review; no implementation |
+| GitHub MCP Read Tools | Gateway (GitHub) | ADR-0007 | AF-202 | Draft v2 — explicit truncation/reconciliation reads; no implementation |
+| Repository Knowledge Ingestion | Runtime (Context) / PostgreSQL+pgvector | — | AF-203 | Draft v2 — line-accurate citations and secret quarantine; no implementation |
+| Docker Sandbox Baseline | Gateway (Sandbox) | ADR-0009 | AF-204 | Draft v2 — narrow Sandbox Broker; no implementation |
+| Executor Agent Contract | DeliveryPack / Executor | — | AF-205 | Draft v2 — controlled TestProfile/path/size limits; no implementation |
+| Reviewer Agent Contract | DeliveryPack / Reviewer | ADR-0002 | AF-206 | Draft v2 — valid async approval state machine; no implementation |
+| Deterministic Policy Gate v0 | Gateway (Policy) | ADR-0007 | AF-207 | Draft v2 — trusted ExecutionScope; no implementation |
+| GitHub Draft PR Write Tool | Gateway (GitHub) | ADR-0007 | AF-208 | Draft v2 — verified authorization and atomic claim; no implementation |
+| Webhook/Tool-call Idempotency (M2 scope) | Ledger | ADR-0002 | AF-209 | Draft v2 — lease/fencing ClaimResult; no implementation |
+| Gate 1B End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0007, ADR-0009 | AF-210 | Draft v2 — pending Human Review; real E2E requires Fixture repository and development GitHub App |

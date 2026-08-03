@@ -4,12 +4,12 @@
 
 ## 当前状态
 
-- **阶段**：M1 — AF-110 Gate 1A End-to-End Implementation
-- **实现状态**：Phase 0、AF-101–AF-109、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，当前仅实施 AF-110
+- **阶段**：M1 已完成（Gate 1A 通过）；M2 Design Bundle（AF-201–AF-210，Gate 1B）已产出，处于 Draft，等待人工最终 Review
+- **实现状态**：Phase 0、AF-101–AF-110、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，AF-110 通过 PR #91 Human Merge 且为 `CLOSED / status:verified`
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **最近完成 Issue**：AF-109（GitHub #18，canonical），通过 PR #90 Human Merge 且人工 Langfuse smoke 成功，当前为 `CLOSED / status:verified`
-- **范围边界**：AF-110 已获批并进入实施；本轮只组装进程内 Gate 1A、真实 interrupt/resume、安全恢复与固定 Fixture，不启动 M2
+- **最近完成 Issue**：AF-110（GitHub #19，canonical），通过 PR #91 Human Merge，当前为 `CLOSED / status:verified`
+- **范围边界**：M2 Design Bundle（AF-201–AF-210）只完成 Draft v2 设计与测试计划，未写业务代码、未创建 PR、未修改 Issue 状态；实施仍需 Human Review 批准，并按 Issue 依赖逐项进行
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序
@@ -63,11 +63,14 @@
 - [`design-notes/AF-103.md`](design-notes/AF-103.md)：AF-103 初始领域模型与迁移 Design Note（Approved v3）
 - [`design-notes/M1-SHARED-CONTRACTS.md`](design-notes/M1-SHARED-CONTRACTS.md)：M1 Design Bundle（AF-104–AF-110）完整跨 Issue 契约（**Approved v4**，PR #84）
 - [`design-notes/AF-104.md`](design-notes/AF-104.md) … [`AF-110.md`](design-notes/AF-110.md)：已批准的自包含 Design Note，严格顺序执行
+- [`design-notes/M2-SHARED-CONTRACTS.md`](design-notes/M2-SHARED-CONTRACTS.md)：M2 Gate 1B 跨 Issue 契约（**Draft v2**，设计决策已关闭，等待 Human Review）
+- [`design-notes/AF-201.md`](design-notes/AF-201.md) … [`AF-210.md`](design-notes/AF-210.md)：AF-201–AF-210 Design Notes（**Draft v2**，严格顺序：201→202→203→204→207→205→206→208→209→210）
 - [`test-plans/AF-101.md`](test-plans/AF-101.md)：AF-101 配套 Test Plan（Approved）
 - [`test-plans/AF-102.md`](test-plans/AF-102.md)：AF-102 配套 Test Plan（Approved，含真实执行证据）
 - [`test-plans/CI-001.md`](test-plans/CI-001.md)：CI-001 配套 Test Plan（Approved；含真实 Actions 红灯/绿灯证据）
 - [`test-plans/AF-103.md`](test-plans/AF-103.md)：AF-103 配套 Test Plan（Approved v3）
 - [`test-plans/AF-104.md`](test-plans/AF-104.md) … [`AF-110.md`](test-plans/AF-110.md)：已批准的 Test Plan
+- [`test-plans/AF-201.md`](test-plans/AF-201.md) … [`AF-210.md`](test-plans/AF-210.md)：AF-201–AF-210 配套 Test Plans（**Draft v2**）
 
 ### 开发与协作
 
@@ -111,7 +114,7 @@
 
 ## 外部输入与停止条件
 
-GitHub 仓库与治理写授权已经确认。测试仓库、OIDC Provider、Model Provider、Langfuse 配置和演示环境仍需项目所有者提供；缺少相应输入时，将对应 Issue 保持 blocked，不得编造配置或 Secret。
+GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私有 Fixture 仓库和仅安装到该仓库的开发 GitHub App；Secret 只能放入受保护环境。OIDC/Model Provider 等后续输入不得编造。
 
 遇到架构冲突、未授权仓库、高风险外部写操作、缺失验收标准、真实 Secret 需求或无法安全测试时，立即停止并请求人工输入。
 
