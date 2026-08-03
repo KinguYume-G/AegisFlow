@@ -5,12 +5,13 @@ from uuid import UUID
 from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
+    Index,
     Integer,
     Text,
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from aegisflow_core.control_plane.domain.base import (
@@ -42,6 +43,13 @@ class Workflow(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
             "version",
             name="uq_workflows_tenant_id_version",
         ),
+        Index(
+            "uq_workflows_tenant_name_active",
+            "tenant_id",
+            "name",
+            unique=True,
+            postgresql_where=text("status = 'active'"),
+        ),
     )
 
     tenant_id: Mapped[UUID] = mapped_column(
@@ -52,6 +60,9 @@ class Workflow(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     definition_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    definition: Mapped[dict[str, object] | None] = mapped_column(
+        JSONB, nullable=True
+    )
     status: Mapped[str] = mapped_column(
         Text,
         nullable=False,

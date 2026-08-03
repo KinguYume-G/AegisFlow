@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 345
-- Active project files: 338
+- Repository files: 355
+- Active project files: 348
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 118
-- Test files: 88
+- Application source files: 124
+- Test files: 90
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -105,6 +105,7 @@
 - `docs/design-notes/AF-312.md`
 - `docs/design-notes/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`
+- `docs/design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -129,6 +130,7 @@
 - `docs/test-plans/AF-312.md`
 - `docs/test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`
+- `docs/test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
@@ -166,10 +168,16 @@
 - `src/aegisflow_core/control_plane/domain/session.py`
 - `src/aegisflow_core/control_plane/domain/tenant.py`
 - `src/aegisflow_core/control_plane/domain/workflow.py`
+- `src/aegisflow_core/control_plane/domain/versioning.py`
 - `src/aegisflow_core/control_plane/migrations/env.py`
 - `src/aegisflow_core/control_plane/migrations/script.py.mako`
 - `src/aegisflow_core/control_plane/migrations/versions/0001_initial_domain_model.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0002_normalize_check_names.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0007_add_tenant_version_foundations.py`
+- `src/aegisflow_core/control_plane/tenants/__init__.py`
+- `src/aegisflow_core/control_plane/tenants/scope.py`
+- `src/aegisflow_core/control_plane/versions/__init__.py`
+- `src/aegisflow_core/control_plane/versions/service.py`
 - `src/aegisflow_core/evaluation/__init__.py`
 - `src/aegisflow_core/gateway/__init__.py`
 - `src/aegisflow_core/gateway/github/__init__.py`
@@ -221,6 +229,8 @@
 - `tests/conftest.py`
 - `tests/control_plane/__init__.py`
 - `tests/control_plane/test_bootstrap.py`
+- `tests/control_plane/test_tenant_scope.py`
+- `tests/control_plane/test_versioning.py`
 - `tests/domain/__init__.py`
 - `tests/domain/conftest.py`
 - `tests/domain/test_database_constraints.py`

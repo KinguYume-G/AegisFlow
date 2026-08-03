@@ -131,6 +131,8 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 - [`reports/GATE2_RELIABILITY_REPORT.md`](reports/GATE2_RELIABILITY_REPORT.md)：Gate 2 工程证据、指标、限制与验收建议。
 - [`reports/GATE2_RELIABILITY_BLOG.md`](reports/GATE2_RELIABILITY_BLOG.md)：面向读者的可靠性技术总结。
 - [`reports/GATE2_DEMO_RUNBOOK.md`](reports/GATE2_DEMO_RUNBOOK.md)：受保护工作流的可重复演示步骤与停止条件。
+- [`design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`](design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md)：AF-401–AF-413 租户、身份、RBAC、Policy、Audit、MCP、Sandbox 与 Gate 3 共享契约，**Approved v1**。
+- [`test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`](test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md)：M4 五个依赖波次的安全与隔离总 Test Plan，**Approved v1**。
 
 ## 维护规则
 

@@ -57,3 +57,6 @@
 | LiteLLM Model Gateway | Models / Langfuse projection | ADR-0008 | AF-310 | Exact locked LiteLLM 1.94.0; Secret-reference settings; SDK retries disabled; honest token/cost states; protected real-provider smoke workflow |
 | Model Circuit and Fallback | Models / PostgreSQL | ADR-0002, ADR-0008 | AF-311 | Tenant-route Closed/Open/Half-Open state, fenced probe, bounded primary/fallback chain, migration 0006 and persistence/concurrency tests |
 | Gate 2 Reliability Evidence | GitHub Actions / Documentation | ADR-0002, ADR-0008 | AF-312 | PR #100 merge 5a5b6a3; hosted fault run 30801262477; protected primary-provider smoke 30804037539; reviewed report, limitations, blog, and demo runbook |
+| Tenant Persistence Scope | Control Plane / PostgreSQL | ADR-0007 | AF-401 | Explicit tenant session; automatic ORM criteria; cross-tenant write/root/raw SQL rejection; `tests/control_plane/test_tenant_scope.py` |
+| Immutable Prompt Versions | Control Plane / PostgreSQL | ADR-0002, ADR-0007 | AF-410 | Concurrent ordered publication, immutable rows, rollback-as-new-version, exact Run binding and audit; `tests/control_plane/test_versioning.py` |
+| Immutable Workflow Versions | Control Plane / PostgreSQL | ADR-0002, ADR-0007 | AF-411 | Canonical persisted definition/hash, one active version, rollback-as-new-version, legacy fail-closed resolution and immutable trigger tests |
