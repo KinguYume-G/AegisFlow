@@ -33,6 +33,10 @@ class Settings:
     sandbox_default_memory_limit_mb: int = 512
     sandbox_default_cpu_limit: float = 1.0
     sandbox_default_pids_limit: int = 128
+    temporal_address: str = "localhost:7233"
+    temporal_namespace: str = "default"
+    temporal_task_queue: str = "aegisflow-delivery"
+    langgraph_database_url: str | None = None
 
     @property
     def github_app_configured(self) -> bool:
@@ -118,4 +122,13 @@ def get_settings() -> Settings:
         sandbox_default_memory_limit_mb=int(os.environ.get("SANDBOX_DEFAULT_MEMORY_LIMIT_MB") or "512"),
         sandbox_default_cpu_limit=float(os.environ.get("SANDBOX_DEFAULT_CPU_LIMIT") or "1"),
         sandbox_default_pids_limit=int(os.environ.get("SANDBOX_DEFAULT_PIDS_LIMIT") or "128"),
+        temporal_address=os.environ.get("TEMPORAL_ADDRESS") or "localhost:7233",
+        temporal_namespace=os.environ.get("TEMPORAL_NAMESPACE") or "default",
+        temporal_task_queue=(
+            os.environ.get("TEMPORAL_TASK_QUEUE") or "aegisflow-delivery"
+        ),
+        langgraph_database_url=(
+            os.environ.get("LANGGRAPH_DATABASE_URL")
+            or database_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+        ),
     )

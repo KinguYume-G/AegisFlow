@@ -265,7 +265,11 @@ def _validate_run_identity(state: AgentState, config: RunnableConfig) -> None:
     if not isinstance(trace_id, UUID):
         raise TypeError("trace_id must be a UUID")
     thread_id = config.get("configurable", {}).get("thread_id")
-    if thread_id != str(run_id):
+    configured_run_id = config.get("configurable", {}).get("aegisflow_run_id")
+    if configured_run_id is not None:
+        if configured_run_id != str(run_id):
+            raise ValueError("checkpoint run identity does not match state")
+    elif thread_id != str(run_id):
         raise ValueError("thread_id must equal run_id")
 
 

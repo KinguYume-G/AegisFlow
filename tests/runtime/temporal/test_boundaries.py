@@ -1,0 +1,113 @@
+from __future__ import annotations
+
+from unittest.mock import AsyncMock
+
+import pytest
+from temporalio.exceptions import ApplicationError
+
+from aegisflow_core.runtime.temporal import client as client_module
+from aegisflow_core.runtime.temporal import worker as worker_module
+from aegisflow_core.runtime.temporal.activities import (
+    DeliveryActivities,
+    UnconfiguredGraphPort,
+)
+from aegisflow_core.runtime.temporal.contracts import (
+    AdvanceRequest,
+    AdvanceResult,
+    DeliveryWorkflowInput,
+    HumanSignal,
+)
+from tests.runtime.temporal.test_contracts import identity
+
+
+class StubGraph:
+    def __init__(self, result: AdvanceResult | Exception) -> None:
+        self.result = result
+
+    async def advance(self, request: AdvanceRequest) -> AdvanceResult:
+        if isinstance(self.result, Exception):
+            raise self.result
+        return self.result
+
+
+@pytest.mark.asyncio
+async def test_activity_boundary_returns_result_and_classifies_failure() -> None:
+    request = AdvanceRequest(identity())
+    expected = AdvanceResult("completed", "result:1")
+    assert await DeliveryActivities(StubGraph(expected)).advance_gate1b(request) == expected
+    with pytest.raises(ApplicationError):
+        await DeliveryActivities(StubGraph(ValueError("bad input"))).advance_gate1b(request)
+    with pytest.raises(RuntimeError, match="not configured"):
+        await UnconfiguredGraphPort().advance(request)
+
+
+@pytest.mark.asyncio
+async def test_client_validates_start_and_typed_signals(monkeypatch) -> None:
+    with pytest.raises(ValueError):
+        await client_module.connect_temporal("", "default")
+    connected = object()
+    connect = AsyncMock(return_value=connected)
+    monkeypatch.setattr(client_module.Client, "connect", connect)
+    assert await client_module.connect_temporal("temporal:7233", "default") is connected
+
+    temporal_client = AsyncMock()
+    temporal_client.start_workflow.return_value = object()
+    workflow_input = DeliveryWorkflowInput(identity())
+    with pytest.raises(ValueError):
+        await client_module.start_delivery_workflow(
+            temporal_client, workflow_input, task_queue=""
+        )
+    await client_module.start_delivery_workflow(
+        temporal_client, workflow_input, task_queue="delivery"
+    )
+    temporal_client.start_workflow.assert_awaited_once()
+
+    handle = AsyncMock()
+    clarification = HumanSignal(
+        "s1", "clarification", workflow_input.identity.tenant_id,
+        workflow_input.identity.run_id, "question:1", "answer", "human", "now",
+    )
+    approval = HumanSignal(
+        "s2", "approval", workflow_input.identity.tenant_id,
+        workflow_input.identity.run_id, "approval:1", "approved", "human", "now",
+    )
+    await client_module.signal_clarification(handle, clarification)
+    await client_module.signal_approval(handle, approval)
+    with pytest.raises(ValueError):
+        await client_module.signal_clarification(handle, approval)
+    with pytest.raises(ValueError):
+        await client_module.signal_approval(handle, clarification)
+    assert handle.signal.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_worker_bootstrap_initializes_checkpoints_and_runs(monkeypatch) -> None:
+    with pytest.raises(ValueError):
+        worker_module.build_worker(object(), StubGraph(AdvanceResult("completed")), task_queue="")
+    constructed = object()
+    monkeypatch.setattr(worker_module, "Worker", lambda *args, **kwargs: constructed)
+    assert worker_module.build_worker(
+        object(), StubGraph(AdvanceResult("completed")), task_queue="delivery"
+    ) is constructed
+
+    setup = AsyncMock()
+    manager = AsyncMock()
+    manager.setup = setup
+    monkeypatch.setattr(worker_module, "PostgresCheckpointManager", lambda _: manager)
+    temporal_client = object()
+    monkeypatch.setattr(
+        worker_module, "connect_temporal", AsyncMock(return_value=temporal_client)
+    )
+    run = AsyncMock()
+    monkeypatch.setattr(worker_module, "build_worker", lambda *args, **kwargs: type(
+        "WorkerStub", (), {"run": run}
+    )())
+    monkeypatch.setenv("DATABASE_URL", "postgresql://db")
+    await worker_module.run_worker(StubGraph(AdvanceResult("completed")))
+    setup.assert_awaited_once()
+    run.assert_awaited_once()
+
+    monkeypatch.delenv("DATABASE_URL")
+    monkeypatch.delenv("LANGGRAPH_DATABASE_URL", raising=False)
+    with pytest.raises(RuntimeError, match="DATABASE_URL"):
+        await worker_module.run_worker()

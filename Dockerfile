@@ -39,6 +39,10 @@ EXPOSE 8000
 
 CMD ["uvicorn", "aegisflow_core.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+FROM runtime AS temporal-worker
+
+CMD ["python", "-m", "aegisflow_core.runtime.temporal.worker"]
+
 FROM runtime AS sandbox-broker
 
 USER root

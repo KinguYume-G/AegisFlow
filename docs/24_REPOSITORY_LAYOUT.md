@@ -2,6 +2,8 @@
 
 > M2 implementation update: AF-203–AF-207 were human-merged in PR #96. AF-208–AF-210 add authorized Draft PR writes, a PostgreSQL fencing ledger, transactional runtime facts, and the asynchronous Gate 1B graph; real GitHub evidence still requires the protected Fixture/App environment.
 
+> M3 implementation update: AF-301–AF-307 add pinned Temporal test/runtime services, replay-safe Workflow and Signal contracts, PostgreSQL-backed LangGraph checkpoints, bounded Activity policies, and fencing-ledger integration under `runtime/temporal/` and `runtime/checkpoint/`.
+
 本文件是仓库目录结构与每个文件分类的权威清单，随文档架构整理一并建立。新增、移动或归档文件时，需同步更新本表与 `docs/index.md`、根目录 `MANIFEST.md`。
 
 ## 设计原则
@@ -158,6 +160,8 @@
 | runtime/state.py | 代码/状态 | AF-110 Gate 1A `AgentState`；强制 run/trace identity 并承载四 Agent 的版本化契约 |
 | runtime/graph.py | 代码/编排/安全 | AF-110 LangGraph 进程内图、原生 interrupt/resume、安全 thread 校验、节点错误定位与 Trace 记录 |
 | runtime/gate1b.py | 代码/编排/安全/可靠性 | AF-210 异步 Gate 1B、Rework 上限、Human Approval 与 Draft PR 路径 |
+| runtime/checkpoint/ | 代码/状态/可靠性 | AF-303 official PostgresSaver 生命周期、严格 serializer 与 tenant/run/version 复合隔离键 |
+| runtime/temporal/ | 代码/编排/可靠性 | AF-301–AF-307 durable Workflow/Activity、Signal、retry/timeout、worker/client 与 fencing-ledger adapter |
 | runtime/tracing.py | 可观测/安全 | AF-109 诚实 token/cost 契约、prompt 脱敏、确定性关联与 NoOp/InMemory/Langfuse Recorder |
 | runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包标记 |

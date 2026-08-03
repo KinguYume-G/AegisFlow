@@ -56,13 +56,21 @@ def test_compose_declares_only_approved_services(
 ) -> None:
     services = compose_config["services"]
     assert isinstance(services, dict)
-    assert set(services) == {"core", "postgres", "redis", "sandbox-broker"}
+    assert set(services) == {
+        "core",
+        "postgres",
+        "redis",
+        "sandbox-broker",
+        "temporal-postgres",
+        "temporal",
+        "temporal-worker",
+    }
 
 
 def test_service_images_are_immutable(compose_config: dict[str, object]) -> None:
     services = compose_config["services"]
     assert isinstance(services, dict)
-    for name in ("postgres", "redis"):
+    for name in ("postgres", "redis", "temporal-postgres", "temporal"):
         image = services[name]["image"]
         assert "@sha256:" in image
         assert not image.endswith(":latest")
@@ -71,7 +79,7 @@ def test_service_images_are_immutable(compose_config: dict[str, object]) -> None
 def test_ports_bind_only_to_loopback(compose_config: dict[str, object]) -> None:
     services = compose_config["services"]
     assert isinstance(services, dict)
-    for name in ("core", "postgres", "redis"):
+    for name in ("core", "postgres", "redis", "temporal"):
         ports = services[name]["ports"]
         assert ports
         assert all(port["host_ip"] == "127.0.0.1" for port in ports)
@@ -108,6 +116,10 @@ def test_healthchecks_and_startup_dependencies_are_explicit(
         "postgres": {"condition": "service_healthy", "required": True},
         "redis": {"condition": "service_healthy", "required": True},
         "sandbox-broker": {"condition": "service_healthy", "required": True},
+    }
+    assert services["temporal-worker"]["depends_on"] == {
+        "postgres": {"condition": "service_healthy", "required": True},
+        "temporal": {"condition": "service_healthy", "required": True},
     }
 
 
