@@ -29,5 +29,6 @@ def test_alembic_metadata_is_complete() -> None:
         "audit_events",
         "repository_chunks",
         "idempotency_records",
+        "model_circuit_states",
     }
     assert all(table.schema is None for table in Base.metadata.tables.values())

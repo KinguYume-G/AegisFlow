@@ -2,7 +2,7 @@
 
 > M2 implementation update: AF-203–AF-207 were human-merged in PR #96. AF-208–AF-210 add authorized Draft PR writes, a PostgreSQL fencing ledger, transactional runtime facts, and the asynchronous Gate 1B graph; real GitHub evidence still requires the protected Fixture/App environment.
 
-> M3 implementation update: AF-301–AF-307 add pinned Temporal test/runtime services, replay-safe Workflow and Signal contracts, PostgreSQL-backed LangGraph checkpoints, bounded Activity policies, and fencing-ledger integration under `runtime/temporal/` and `runtime/checkpoint/`.
+> M3 implementation update: AF-301–AF-311 add durable Temporal/Signal/checkpoint ownership, Saga compensation, real worker-loss fault injection, an isolated LiteLLM adapter, and tenant-scoped PostgreSQL circuit state. AF-312 publication remains separate.
 
 本文件是仓库目录结构与每个文件分类的权威清单，随文档架构整理一并建立。新增、移动或归档文件时，需同步更新本表与 `docs/index.md`、根目录 `MANIFEST.md`。
 
@@ -48,6 +48,8 @@
 | workflows/ci.yml | 质量/治理 | Required CI：锁定依赖、PostgreSQL 迁移 up/down/reapply、pytest 覆盖率门槛与 Core 镜像构建 |
 | workflows/langfuse-smoke.yml | 质量/可观测/安全 | AF-109 Human Merge 后人工触发的 Langfuse auth/write/flush/bounded-query smoke；使用受保护 Environment |
 | workflows/gate1b-e2e.yml | 质量/安全/集成 | AF-210 受保护 Environment 手动真实 Draft PR、幂等与 Marker 清理验收 |
+| workflows/gate2-fault-injection.yml | 质量/可靠性 | AF-309 手动执行四类故障点 × 五次真实 worker crash/restart，并上传 JSONL 证据 |
+| workflows/model-gateway-smoke.yml | 质量/安全/模型网关 | AF-310 受保护 `model-development` Environment 的真实 Provider smoke，不向日志输出 Secret 或模型内容 |
 
 ## docs/（工程文档统一子目录）
 
@@ -110,6 +112,8 @@
 | AF-208.md | AI流程 | 授权、原子幂等 GitHub Draft PR 工具 Design Note（**Draft v2**） |
 | AF-209.md | AI流程 | 带 lease/fencing 的 Idempotency Ledger Design Note（**Draft v2**） |
 | AF-210.md | AI流程 | 异步 Gate 1B E2E Design Note（**Draft v2**） |
+| M3-DURABLE-RUNTIME-BUNDLE.md | 可靠性 | AF-301–AF-307 Durable Runtime 批次 Design Note（**Approved v1**） |
+| M3-RELIABILITY-MODEL-BUNDLE.md | 可靠性/模型网关 | AF-308–AF-311 Saga、故障注入、LiteLLM 与熔断回退 Design Note（**Approved v1**） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -136,6 +140,8 @@
 | AF-208.md | 质量 | Draft PR 写工具配套 Test Plan（**Draft v2**） |
 | AF-209.md | 质量 | Idempotency Ledger 配套 Test Plan（**Draft v2**） |
 | AF-210.md | 质量 | Gate 1B E2E 配套 Test Plan（**Draft v2**，真实 E2E 需要外部资源） |
+| M3-DURABLE-RUNTIME-BUNDLE.md | 质量/可靠性 | AF-301–AF-307 Durable Runtime 配套 Test Plan（**Approved v1**） |
+| M3-RELIABILITY-MODEL-BUNDLE.md | 质量/可靠性 | AF-308–AF-311 可靠性与模型运行时配套 Test Plan（**Approved v1**） |
 
 ## src/aegisflow_core/（AF-101–AF-110 与 AF-201–AF-210 模块化单体、DeliveryPack 和 Gate 1B 实现）
 
@@ -154,6 +160,8 @@
 | control_plane/idempotency_ledger.py | 代码/数据/可靠性 | AF-209 原子 claim、复用、失败和 stale-writer fencing 状态机 |
 | control_plane/runtime_uow.py | 代码/数据 | AF-210 Run/Step/Audit 事务边界 |
 | control_plane/migrations/versions/0005_add_idempotency_ledger.py | 数据/迁移 | AF-209 Ledger 表与约束迁移 |
+| control_plane/domain/model_routing.py | 代码/数据/可靠性 | AF-311 tenant-route Circuit 状态、failure count 与 fenced Half-Open probe 模型 |
+| control_plane/migrations/versions/0006_add_model_circuit_state.py | 数据/迁移 | AF-308 compensation scope 与 AF-311 Circuit 状态表迁移 |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
@@ -162,6 +170,10 @@
 | runtime/gate1b.py | 代码/编排/安全/可靠性 | AF-210 异步 Gate 1B、Rework 上限、Human Approval 与 Draft PR 路径 |
 | runtime/checkpoint/ | 代码/状态/可靠性 | AF-303 official PostgresSaver 生命周期、严格 serializer 与 tenant/run/version 复合隔离键 |
 | runtime/temporal/ | 代码/编排/可靠性 | AF-301–AF-307 durable Workflow/Activity、Signal、retry/timeout、worker/client 与 fencing-ledger adapter |
+| runtime/temporal/saga.py | 代码/编排/可靠性 | AF-308 reverse-order Saga 协调、可重放结果与人工升级契约 |
+| runtime/temporal/saga_ledger.py | 代码/数据/可靠性 | AF-308 独立 compensation claim、handler 分类与原 effect compensated 状态衔接 |
+| runtime/fault_injection.py | 代码/可靠性/证据 | AF-309 固定 4×5 测试矩阵、验收判定、p50/p95 与 canonical JSONL |
+| runtime/fault_injection_cli.py、fault_probe.py、fault_probe_worker.py | 代码/可靠性/工具 | AF-309 真实 Temporal worker crash/restart 探针与 CLI；拒绝非专用证据目录 |
 | runtime/tracing.py | 可观测/安全 | AF-109 诚实 token/cost 契约、prompt 脱敏、确定性关联与 NoOp/InMemory/Langfuse Recorder |
 | runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包标记 |
@@ -170,7 +182,13 @@
 | gateway/github/webhook.py | 代码/安全/可靠性 | AF-201 签名优先校验、Schema、防重放、审计与异步 dispatch seam |
 | gateway/github/pull_request.py | 代码/安全/集成 | AF-208 精确授权、结构化 Git Data 写入、Marker reconciliation 与 Draft PR |
 | gateway/github/idempotency_guard.py | 代码/可靠性 | AF-209 Tool/Webhook 到 PostgreSQL Ledger 的 async adapter |
-| models/__init__.py | 代码边界 | Models 顶层包占位 |
+| models/__init__.py | 代码边界 | Models 顶层包入口 |
+| models/contracts.py | 代码/Schema/模型网关 | AF-310 provider-neutral request/result、route chain、token/cost 契约 |
+| models/litellm_adapter.py | 代码/模型网关/安全 | AF-310 唯一 LiteLLM SDK 边界；禁用 SDK retry，安全错误分类，不记录 Secret |
+| models/gateway.py | 代码/模型网关/可靠性 | AF-310/311 budget fail-closed、Secret 延迟解析与有界 primary/fallback 路由 |
+| models/circuit_breaker.py | 代码/可靠性 | AF-311 可注入 Clock 的 Closed/Open/Half-Open 状态机与单 probe fencing |
+| models/postgres_circuit.py | 代码/数据/可靠性 | AF-311 PostgreSQL row-lock 共享 Circuit store |
+| models/smoke.py | 质量/模型网关/安全 | 受保护真实 Provider smoke 入口，仅输出脱敏计量与路由 metadata |
 | evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
 | packs/delivery/__init__.py | 代码边界 | DeliveryPack 根边界与六个固定 Agent 的包入口 |
@@ -222,6 +240,9 @@
 | domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
 | runtime/__init__.py | 质量 | Runtime 测试包标记 |
 | runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
+| runtime/test_fault_injection.py | 质量/可靠性 | AF-309 固定 20 次矩阵、验收、百分位与 JSONL 证据测试 |
+| runtime/temporal/test_saga.py、test_saga_ledger.py | 质量/可靠性 | AF-308 reverse order、replay、fencing、失败分类与人工升级测试 |
+| models/ | 质量/模型网关/可靠性 | AF-310/311 adapter、预算、fallback、Circuit 状态、租户隔离与 PostgreSQL 持久化测试 |
 | e2e/__init__.py | 质量 | Gate 1A 端到端测试包标记 |
 | e2e/test_gate1a.py | 质量/安全/可靠性 | AF-110 真实 interrupt/resume、错误 thread、幂等、可重复性、Trace 与节点失败定位门禁 |
 | e2e/test_gate1b.py | 质量/安全/可靠性 | AF-210 Policy 拒绝、Human 批准/拒绝、Draft PR 副作用门禁 |

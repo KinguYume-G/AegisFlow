@@ -37,6 +37,10 @@ class Settings:
     temporal_namespace: str = "default"
     temporal_task_queue: str = "aegisflow-delivery"
     langgraph_database_url: str | None = None
+    model_primary_name: str | None = None
+    model_primary_api_key_env: str | None = None
+    model_fallback_name: str | None = None
+    model_fallback_api_key_env: str | None = None
 
     @property
     def github_app_configured(self) -> bool:
@@ -47,6 +51,18 @@ class Settings:
                 self.github_app_private_key,
                 self.github_webhook_secret,
                 self.github_installation_id,
+            )
+        )
+
+    @property
+    def model_gateway_configured(self) -> bool:
+        """Whether both bounded model routes and Secret references exist."""
+        return all(
+            (
+                self.model_primary_name,
+                self.model_primary_api_key_env,
+                self.model_fallback_name,
+                self.model_fallback_api_key_env,
             )
         )
 
@@ -93,6 +109,25 @@ def get_settings() -> Settings:
             "GitHub App configuration must provide all four required fields or none"
         )
 
+    model_values = {
+        "model_primary_name": os.environ.get("MODEL_PRIMARY_NAME") or None,
+        "model_primary_api_key_env": os.environ.get("MODEL_PRIMARY_API_KEY_ENV")
+        or None,
+        "model_fallback_name": os.environ.get("MODEL_FALLBACK_NAME") or None,
+        "model_fallback_api_key_env": os.environ.get("MODEL_FALLBACK_API_KEY_ENV")
+        or None,
+    }
+    model_configured_count = sum(value is not None for value in model_values.values())
+    if model_configured_count not in (0, len(model_values)):
+        raise ConfigurationError(
+            "Model gateway configuration must provide both routes and Secret references or none"
+        )
+    if (
+        model_configured_count
+        and model_values["model_primary_name"] == model_values["model_fallback_name"]
+    ):
+        raise ConfigurationError("Primary and fallback model names must be distinct")
+
     raw_github_timeout = os.environ.get("GITHUB_API_TIMEOUT_SECONDS") or "10"
     try:
         github_api_timeout_seconds = float(raw_github_timeout)
@@ -113,6 +148,7 @@ def get_settings() -> Settings:
         database_url=database_url,
         **langfuse_values,
         **github_values,
+        **model_values,
         github_api_timeout_seconds=github_api_timeout_seconds,
         aegisflow_bootstrap_tenant_slug=(
             os.environ.get("AEGISFLOW_BOOTSTRAP_TENANT_SLUG") or "gate1b-default"

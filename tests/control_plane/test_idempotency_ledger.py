@@ -129,3 +129,43 @@ async def test_concurrent_begin_has_exactly_one_executor() -> None:
         assert sum(isinstance(result, InProgress) for result in results) == 9
     finally:
         await _cleanup(engine, sessions, tenant)
+
+
+@pytest.mark.database
+@pytest.mark.asyncio
+async def test_succeeded_tool_effect_can_be_marked_compensated_once() -> None:
+    engine, sessions, tenant, clock, ledger = await _ledger()
+    try:
+        claim = await ledger.begin(
+            scope="tool_call",
+            idempotency_key="effect-to-compensate",
+            tenant_id=tenant,
+            arguments_hash="args",
+            run_id=None,
+            step_id=None,
+            tool_name="github.create_draft_pr",
+        )
+        assert isinstance(claim, Execute)
+        await ledger.complete(
+            "effect-to-compensate",
+            claim_token=claim.claim_token,
+            result_reference="created",
+        )
+        await ledger.mark_compensated(
+            "effect-to-compensate", tenant_id=tenant, result_reference="closed"
+        )
+        await ledger.mark_compensated(
+            "effect-to-compensate", tenant_id=tenant, result_reference="closed"
+        )
+        result = await ledger.begin(
+            scope="tool_call",
+            idempotency_key="effect-to-compensate",
+            tenant_id=tenant,
+            arguments_hash="args",
+            run_id=None,
+            step_id=None,
+            tool_name=None,
+        )
+        assert isinstance(result, FinalFailure)
+    finally:
+        await _cleanup(engine, sessions, tenant)

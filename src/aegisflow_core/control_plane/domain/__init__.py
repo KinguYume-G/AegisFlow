@@ -6,6 +6,7 @@ from aegisflow_core.control_plane.domain.base import Base
 from aegisflow_core.control_plane.domain.execution import Run, Step
 from aegisflow_core.control_plane.domain.idempotency import IdempotencyRecord
 from aegisflow_core.control_plane.domain.knowledge import RepositoryChunk
+from aegisflow_core.control_plane.domain.model_routing import ModelCircuitState
 from aegisflow_core.control_plane.domain.tenant import Tenant
 from aegisflow_core.control_plane.domain.workflow import Workflow
 
@@ -14,6 +15,7 @@ __all__ = [
     "AuditEvent",
     "Base",
     "IdempotencyRecord",
+    "ModelCircuitState",
     "Run",
     "RepositoryChunk",
     "Step",

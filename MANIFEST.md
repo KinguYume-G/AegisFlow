@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 314
-- Active project files: 307
+- Repository files: 340
+- Active project files: 333
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 104
-- Test files: 80
+- Application source files: 118
+- Test files: 88
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -32,7 +32,9 @@
 - `.github/ISSUE_TEMPLATE/security.yml`
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/workflows/ci.yml`
+- `.github/workflows/gate2-fault-injection.yml`
 - `.github/workflows/langfuse-smoke.yml`
+- `.github/workflows/model-gateway-smoke.yml`
 - `AGENTS.md`
 - `CONTRIBUTING.md`
 - `Dockerfile`
@@ -101,6 +103,7 @@
 - `docs/design-notes/AF-209.md`
 - `docs/design-notes/AF-210.md`
 - `docs/design-notes/M3-DURABLE-RUNTIME-BUNDLE.md`
+- `docs/design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -123,6 +126,7 @@
 - `docs/test-plans/AF-209.md`
 - `docs/test-plans/AF-210.md`
 - `docs/test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`
+- `docs/test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`
@@ -172,6 +176,12 @@
 - `src/aegisflow_core/logging.py`
 - `src/aegisflow_core/main.py`
 - `src/aegisflow_core/models/__init__.py`
+- `src/aegisflow_core/models/circuit_breaker.py`
+- `src/aegisflow_core/models/contracts.py`
+- `src/aegisflow_core/models/gateway.py`
+- `src/aegisflow_core/models/litellm_adapter.py`
+- `src/aegisflow_core/models/postgres_circuit.py`
+- `src/aegisflow_core/models/smoke.py`
 - `src/aegisflow_core/packs/__init__.py`
 - `src/aegisflow_core/packs/delivery/__init__.py`
 - `src/aegisflow_core/packs/delivery/contracts/__init__.py`
@@ -252,7 +262,13 @@
 - `tests/packs/delivery/planner/test_contracts.py`
 - `tests/packs/delivery/planner/test_reasoner.py`
 - `tests/runtime/__init__.py`
+- `tests/runtime/test_fault_injection.py`
 - `tests/runtime/test_tracing.py`
+- `tests/models/__init__.py`
+- `tests/models/test_circuit_breaker.py`
+- `tests/models/test_gateway.py`
+- `tests/models/test_litellm_adapter.py`
+- `tests/models/test_postgres_circuit.py`
 - `tests/test_app_startup.py`
 - `tests/test_docker_compose_config.py`
 - `tests/test_health.py`
@@ -289,6 +305,10 @@
 - `src/aegisflow_core/runtime/context/store.py`
 - `src/aegisflow_core/runtime/checkpoint/__init__.py`
 - `src/aegisflow_core/runtime/checkpoint/postgres.py`
+- `src/aegisflow_core/runtime/fault_injection.py`
+- `src/aegisflow_core/runtime/fault_injection_cli.py`
+- `src/aegisflow_core/runtime/fault_probe.py`
+- `src/aegisflow_core/runtime/fault_probe_worker.py`
 - `src/aegisflow_core/runtime/temporal/__init__.py`
 - `src/aegisflow_core/runtime/temporal/activities.py`
 - `src/aegisflow_core/runtime/temporal/client.py`
@@ -296,6 +316,8 @@
 - `src/aegisflow_core/runtime/temporal/idempotent_activity.py`
 - `src/aegisflow_core/runtime/temporal/ownership.py`
 - `src/aegisflow_core/runtime/temporal/policies.py`
+- `src/aegisflow_core/runtime/temporal/saga.py`
+- `src/aegisflow_core/runtime/temporal/saga_ledger.py`
 - `src/aegisflow_core/runtime/temporal/worker.py`
 - `src/aegisflow_core/runtime/temporal/workflow.py`
 - `tests/gateway/policy/test_gate.py`
@@ -314,11 +336,15 @@
 - `tests/runtime/temporal/test_idempotent_activity.py`
 - `tests/runtime/temporal/test_ownership.py`
 - `tests/runtime/temporal/test_policies.py`
+- `tests/runtime/temporal/test_saga.py`
+- `tests/runtime/temporal/test_saga_ledger.py`
 - `tests/runtime/temporal/test_workflow.py`
 - `uv.lock`
 - `src/aegisflow_core/control_plane/domain/idempotency.py`
+- `src/aegisflow_core/control_plane/domain/model_routing.py`
 - `src/aegisflow_core/control_plane/idempotency_ledger.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0005_add_idempotency_ledger.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0006_add_model_circuit_state.py`
 - `src/aegisflow_core/control_plane/runtime_uow.py`
 - `src/aegisflow_core/gateway/github/idempotency_guard.py`
 - `src/aegisflow_core/gateway/github/pull_request.py`

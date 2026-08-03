@@ -52,3 +52,7 @@
 | Durable Graph Checkpoints | LangGraph / PostgreSQL | ADR-0002 | AF-303 | Official PostgresSaver setup; strict serializer; composite tenant/run/version identity; interrupt reconstruction and cross-tenant isolation tests |
 | Durable Human Signals | Temporal / DeliveryPack | ADR-0002 | AF-304, AF-305 | Typed clarification/approval Signals; duplicate/conflict handling; timeout and worker reconstruction tests |
 | Activity Reliability | Temporal / PostgreSQL Ledger | ADR-0002 | AF-306, AF-307 | Bounded retry classes/timeouts; fencing-ledger adapter; concurrent duplicate and stale-completion tests |
+| Saga Compensation | Temporal / PostgreSQL Ledger | ADR-0002 | AF-308 | Reverse-order typed receipts; separate fenced compensation claim; original-effect `compensated` transition; explicit manual escalation and audit port tests |
+| Worker-Loss Recovery | Temporal / Runtime | ADR-0002 | AF-309 | Real local 4×5 abrupt worker-loss matrix: 20/20 terminal completions, duplicate effects 0, lost Signals 0, p50 2281 ms, p95 3031 ms; protected artifact workflow added |
+| LiteLLM Model Gateway | Models / Langfuse projection | ADR-0008 | AF-310 | Exact locked LiteLLM 1.94.0; Secret-reference settings; SDK retries disabled; honest token/cost states; protected real-provider smoke workflow |
+| Model Circuit and Fallback | Models / PostgreSQL | ADR-0002, ADR-0008 | AF-311 | Tenant-route Closed/Open/Half-Open state, fenced probe, bounded primary/fallback chain, migration 0006 and persistence/concurrency tests |

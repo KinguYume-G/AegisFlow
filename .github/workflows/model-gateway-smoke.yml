@@ -1,0 +1,41 @@
+name: Model gateway smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-gateway-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: model-development
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://unused:unused@localhost/unused
+      MODEL_PRIMARY_NAME: ${{ vars.MODEL_PRIMARY_NAME }}
+      MODEL_PRIMARY_API_KEY_ENV: PRIMARY_PROVIDER_KEY
+      MODEL_FALLBACK_NAME: ${{ vars.MODEL_FALLBACK_NAME }}
+      MODEL_FALLBACK_API_KEY_ENV: FALLBACK_PROVIDER_KEY
+      PRIMARY_PROVIDER_KEY: ${{ secrets.MODEL_PRIMARY_API_KEY }}
+      FALLBACK_PROVIDER_KEY: ${{ secrets.MODEL_FALLBACK_API_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned Python and uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.31"
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Synchronize locked dependencies
+        run: uv sync --locked
+
+      - name: Run redacted model gateway smoke
+        run: uv run --locked python -m aegisflow_core.models.smoke
