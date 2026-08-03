@@ -1,0 +1,33 @@
+{
+  "fixture_id": "gate1a-refund-audit-export-v1",
+  "source_type": "feature_request",
+  "source_system": "sanitized-payment-settlement-service",
+  "request": {
+    "source_ref": "fixture://gate1a-refund-audit-export-v1",
+    "title": "导出历史退款审计日志为 CSV",
+    "body": "作为财务管理员，我希望能够导出系统内的历史退款（Refund）审计日志为 CSV，\n以便于季度对账和外部审计审查。\n\nExisting Context\n- 服务基于 FastAPI + SQLAlchemy 架构；\n- 数据库使用 PostgreSQL，采用 tenant_id 字段实现多租户隔离；\n- 后台配备 Redis + Celery 处理耗时异步任务；\n- 现有 GET /api/v1/audits/refunds 端点支持基本的列表分页查询；\n- 权限角色分级：普通操作员（Operator）、财务主管（Finance Admin）。"
+  },
+  "existing_context": [
+    "服务基于 FastAPI + SQLAlchemy 架构",
+    "数据库使用 PostgreSQL，采用 tenant_id 字段实现多租户隔离",
+    "后台配备 Redis + Celery 处理耗时异步任务",
+    "现有 GET /api/v1/audits/refunds 端点支持基本的列表分页查询",
+    "权限角色分级为普通操作员（Operator）和财务主管（Finance Admin）"
+  ],
+  "acceptance_criteria": [
+    "严格拦截跨 Tenant 数据泄露，未授权角色返回 403 Forbidden",
+    "超过 20,000 条时返回 400 校验错误",
+    "导出的 CSV 文件必须带有 UTF-8 BOM 标头防乱码",
+    "导出文件严禁包含 Secret、API Token 或完整支付卡号",
+    "必须包含自动化测试用例、内存消耗评估、回滚方案与估算工时"
+  ],
+  "sanitization_record": {
+    "contains_secrets": false,
+    "contains_pii": false,
+    "actions": [
+      "移除了真实支付网关与第三方 API 签名逻辑",
+      "清理了真实公司、财务人员姓名及私有域名",
+      "抽象并泛化了具体业务字段与数量阈值"
+    ]
+  }
+}

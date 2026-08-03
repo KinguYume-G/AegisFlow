@@ -56,6 +56,8 @@ def test_domain_packages_contain_only_approved_modules() -> None:
     expected_files = {
         PACKAGE_ROOT / "runtime" / "__init__.py",
         PACKAGE_ROOT / "runtime" / "langfuse_smoke.py",
+        PACKAGE_ROOT / "runtime" / "graph.py",
+        PACKAGE_ROOT / "runtime" / "state.py",
         PACKAGE_ROOT / "runtime" / "tracing.py",
         PACKAGE_ROOT / "gateway" / "__init__.py",
         PACKAGE_ROOT / "models" / "__init__.py",

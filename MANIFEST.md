@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 196
-- Active project files: 189
+- Repository files: 206
+- Active project files: 199
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 49
-- Test files: 41
+- Application source files: 51
+- Test files: 49
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -169,7 +169,9 @@
 - `src/aegisflow_core/packs/delivery/planner/fakes.py`
 - `src/aegisflow_core/packs/delivery/planner/ports.py`
 - `src/aegisflow_core/runtime/__init__.py`
+- `src/aegisflow_core/runtime/graph.py`
 - `src/aegisflow_core/runtime/langfuse_smoke.py`
+- `src/aegisflow_core/runtime/state.py`
 - `src/aegisflow_core/runtime/tracing.py`
 - `src/aegisflow_core/settings.py`
 - `tests/__init__.py`
@@ -180,8 +182,16 @@
 - `tests/domain/test_migration_config.py`
 - `tests/domain/test_models.py`
 - `tests/domain/test_session.py`
+- `tests/e2e/__init__.py`
+- `tests/e2e/test_gate1a.py`
+- `tests/fixtures/context/refund_audit_security.md`
+- `tests/fixtures/context/refund_celery_export.py`
+- `tests/fixtures/context/refund_tenant_isolation.py`
 - `tests/fixtures/context/retrieval_contract.md`
 - `tests/fixtures/context/tenant_guard.py`
+- `tests/fixtures/gate1a/expected_clarification.json`
+- `tests/fixtures/gate1a/fixed_clarification_response.json`
+- `tests/fixtures/gate1a/sample_request.json`
 - `tests/packs/__init__.py`
 - `tests/packs/delivery/__init__.py`
 - `tests/packs/delivery/clarifier/__init__.py`

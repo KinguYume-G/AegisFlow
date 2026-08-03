@@ -1,0 +1,25 @@
+{
+  "reasoner_id": "deterministic-clarifier-v1",
+  "questions": [
+    {
+      "field": "authorized_roles",
+      "question": "哪些角色被明确允许执行该操作？"
+    },
+    {
+      "field": "time_range",
+      "question": "默认时间范围与最大可选时间跨度是多少？"
+    },
+    {
+      "field": "record_limit",
+      "question": "单次处理的最大记录数是多少？"
+    },
+    {
+      "field": "output_fields_and_redaction",
+      "question": "输出字段及敏感信息脱敏规则是什么？"
+    },
+    {
+      "field": "delivery_mode",
+      "question": "何时同步返回，何时转为异步任务？"
+    }
+  ]
+}

@@ -86,6 +86,8 @@ aegisflow_core/
 
 AF-101 已落地六个顶层 Python 包边界。AF-103 在既有 `control_plane/` 边界内增加 `domain/`（SQLAlchemy 模型、异步会话）与 `migrations/`（Alembic schema 版本），承载 PostgreSQL 中由 Core Domain 所有的持久化事实；它们不是新的顶层模块，也不改变 LangGraph、Temporal 或 Redis 的状态所有权。
 
+AF-110 在既有 `runtime/` 边界内落地 `state.py` 与 `graph.py`，使用 LangGraph `StateGraph`、`InMemorySaver` 和原生 `interrupt()` / `Command(resume=...)` 组装 Intake → Clarifier → Context → Planner 的 Gate 1A 进程内测试链路。`thread_id` 固定等于 `run_id`；恢复前必须验证待恢复 checkpoint。该内存 checkpointer 仅用于 M1 测试证据，不代表跨进程持久化、Temporal 编排或生产级 durable HITL 已实现。
+
 ## DeliveryPack Runtime
 
 ```mermaid

@@ -29,3 +29,4 @@
 | Context Retrieval Contract | DeliveryPack / Context | — | AF-106 | Bounded local retrieval; exact citations; path/symlink/size/count guards; `tests/packs/delivery/context/` |
 | Planner Agent Contract | DeliveryPack / Planner | ADR-0007 | AF-107 | Measurement/Plan v1; stable capability allowlist; deterministic tasks/risk; Clarifier gate; `tests/packs/delivery/planner/` |
 | Clarification HITL Interface | DeliveryPack / Clarifier | ADR-0002 | AF-108 | In-memory replay idempotency; run isolation; atomic answer transition; duplicate rejection; `test_hitl.py` |
+| Gate 1A End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0008 | AF-110 | Native LangGraph interrupt/resume; validated run/thread identity; deterministic fixture-to-Plan path; four correlated node traces; `tests/e2e/test_gate1a.py` |

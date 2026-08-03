@@ -1,0 +1,11 @@
+{
+  "answers": {
+    "authorized_roles": "仅允许角色为 Finance Admin 的用户执行导出。",
+    "time_range": "默认查询最近 30 天，自定义时间跨度不得超过 90 天。",
+    "record_limit": "单次导出上限 20,000 条，超过则拒绝请求并要求缩小筛选条件。",
+    "output_fields_and_redaction": "CSV 必需字段为 refund_id, order_id, amount, status, created_at, operator_email；所有敏感支付信息（如卡号）必须掩码处理，所有时间统一转换为 UTC。",
+    "delivery_mode": "数据量不超过 1,000 条时同步 Response 导出；超过 1,000 条时通过 Celery 异步生成并使用临时预签名 URL 下载。",
+    "tenant_concurrency": "限制同一 Tenant 同一时间只能运行 1 个导出 Task。",
+    "csv_encoding_and_security": "CSV 使用 UTF-8 BOM，严禁包含 Secret、API Token 或完整支付卡号。"
+  }
+}
