@@ -9,6 +9,7 @@ from typing import Any, Literal, cast
 from uuid import UUID
 
 from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
@@ -39,6 +40,7 @@ from aegisflow_core.packs.delivery.planner.ports import PlanReasoner
 from aegisflow_core.packs.delivery.reviewer.agent import ReviewerAgent
 from aegisflow_core.packs.delivery.reviewer.ports import ApprovalGateway, ReviewReasoner
 from aegisflow_core.runtime.graph import InvalidResumeThreadError, build_gate1a_graph
+from aegisflow_core.runtime.checkpoint import CheckpointIdentity, build_checkpoint_config
 from aegisflow_core.runtime.state import AgentState
 from aegisflow_core.runtime.tracing import (
     TraceRecorder,
@@ -64,16 +66,22 @@ class Gate1BDispatcher:
         self,
         graph: CompiledStateGraph[Any, Any, Any, Any],
         state_factory: Callable[[WebhookVerificationResult], Awaitable[AgentState]],
+        *,
+        workflow_version: int = 1,
     ) -> None:
         self._graph = graph
         self._state_factory = state_factory
+        self._workflow_version = workflow_version
 
     async def dispatch(self, event: WebhookVerificationResult) -> None:
         if not event.accepted or event.event != "repository_dispatch":
             raise ValueError("Gate 1B accepts only verified repository_dispatch events")
         state = await self._state_factory(event)
         run_id = _run_id(state)
-        await self._graph.ainvoke(state, config=_config(run_id))
+        await self._graph.ainvoke(
+            state,
+            config=_config(run_id, _tenant_id(state), self._workflow_version),
+        )
 
 
 def build_gate1b_graph(
@@ -97,6 +105,7 @@ def build_gate1b_graph(
     trace_recorder: TraceRecorder,
     unit_of_work_factory: Callable[[], AsyncUnitOfWork],
     max_rework_attempts: int = 2,
+    checkpointer: BaseCheckpointSaver[Any] | None = None,
 ) -> CompiledStateGraph[AgentState, None, AgentState, AgentState]:
     """Build Gate 1B with no implicit adapters or external-write bypass."""
     if max_rework_attempts < 1:
@@ -313,15 +322,21 @@ def build_gate1b_graph(
         "approval_wait", approval_route, {"draft_pr": "draft_pr", "end": END}
     )
     builder.add_edge("draft_pr", END)
-    return builder.compile(checkpointer=InMemorySaver(), name="aegisflow-gate1b")
+    return builder.compile(
+        checkpointer=checkpointer or InMemorySaver(),
+        name="aegisflow-gate1b",
+    )
 
 
 async def resume_gate1b(
     compiled_graph: CompiledStateGraph[Any, Any, Any, Any],
     run_id: UUID,
     decision: Mapping[str, str],
+    *,
+    tenant_id: UUID | None = None,
+    workflow_version: int = 1,
 ) -> AgentState:
-    config = _config(run_id)
+    config = _config(run_id, tenant_id, workflow_version)
     snapshot = await compiled_graph.aget_state(config)
     checkpoint_run_id = snapshot.values.get("run_id") if snapshot.values else None
     pending = snapshot.interrupts or tuple(
@@ -409,7 +424,15 @@ def _trace_id(state: AgentState) -> UUID:
     return value
 
 
-def _config(run_id: UUID) -> RunnableConfig:
+def _config(
+    run_id: UUID,
+    tenant_id: UUID | None = None,
+    workflow_version: int = 1,
+) -> RunnableConfig:
+    if tenant_id is not None:
+        return build_checkpoint_config(
+            CheckpointIdentity(tenant_id, run_id, workflow_version)
+        )
     return {"configurable": {"thread_id": str(run_id)}}
 
 

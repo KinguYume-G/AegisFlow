@@ -1,9 +1,16 @@
 """Shared test fixtures for the AegisFlow application skeleton."""
 
+import asyncio
 from collections.abc import AsyncIterator
+import sys
 
 import httpx
 import pytest
+
+
+if sys.platform == "win32":
+    # psycopg's async implementation requires a selector-based loop on Windows.
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 @pytest.fixture

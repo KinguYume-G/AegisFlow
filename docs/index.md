@@ -120,6 +120,11 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 
 遇到架构冲突、未授权仓库、高风险外部写操作、缺失验收标准、真实 Secret 需求或无法安全测试时，立即停止并请求人工输入。
 
+### M3 Durable Runtime 批次
+
+- [`design-notes/M3-DURABLE-RUNTIME-BUNDLE.md`](design-notes/M3-DURABLE-RUNTIME-BUNDLE.md)：AF-301–AF-307 durable runtime 批次契约，**Approved v1**。
+- [`test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`](test-plans/M3-DURABLE-RUNTIME-BUNDLE.md)：AF-301–AF-307 配套 Test Plan，**Approved v1**。
+
 ## 维护规则
 
 - 产品方向变化、状态所有权、持久化系统、权限模型、Gate 或微服务策略变化必须新增 ADR；

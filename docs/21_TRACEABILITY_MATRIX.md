@@ -48,3 +48,7 @@
 | GitHub Draft PR Write Tool | Gateway (GitHub) | ADR-0007 | AF-208 | Exact-scope approval, structured Git Data writes, atomic claim and remote Marker reconciliation; `test_pull_request.py` |
 | Webhook/Tool-call Idempotency (M2 scope) | Ledger | ADR-0002 | AF-209 | Migration 0005; tenant/scope key, lease/fencing token, concurrent claim and stale-writer tests |
 | Gate 1B End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0007, ADR-0009 | AF-210 | Async Policy→Executor→Reviewer→Human Approval→Draft PR graph; local/DB E2E passes; real GitHub evidence waits on protected Fixture/App environment |
+| Durable Workflow Bootstrap and Ownership | Temporal / Runtime | ADR-0002 | AF-301, AF-302 | Pinned Temporal service; replay-safe Workflow/Activity boundary; executable ownership/import guards; `tests/runtime/temporal/` |
+| Durable Graph Checkpoints | LangGraph / PostgreSQL | ADR-0002 | AF-303 | Official PostgresSaver setup; strict serializer; composite tenant/run/version identity; interrupt reconstruction and cross-tenant isolation tests |
+| Durable Human Signals | Temporal / DeliveryPack | ADR-0002 | AF-304, AF-305 | Typed clarification/approval Signals; duplicate/conflict handling; timeout and worker reconstruction tests |
+| Activity Reliability | Temporal / PostgreSQL Ledger | ADR-0002 | AF-306, AF-307 | Bounded retry classes/timeouts; fencing-ledger adapter; concurrent duplicate and stale-completion tests |

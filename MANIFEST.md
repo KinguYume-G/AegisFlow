@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 292
-- Active project files: 285
+- Repository files: 314
+- Active project files: 307
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 93
-- Test files: 71
+- Application source files: 104
+- Test files: 80
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -100,6 +100,7 @@
 - `docs/design-notes/AF-208.md`
 - `docs/design-notes/AF-209.md`
 - `docs/design-notes/AF-210.md`
+- `docs/design-notes/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -121,6 +122,7 @@
 - `docs/test-plans/AF-208.md`
 - `docs/test-plans/AF-209.md`
 - `docs/test-plans/AF-210.md`
+- `docs/test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`
@@ -285,6 +287,17 @@
 - `src/aegisflow_core/runtime/context/ingestion.py`
 - `src/aegisflow_core/runtime/context/pgvector_retriever.py`
 - `src/aegisflow_core/runtime/context/store.py`
+- `src/aegisflow_core/runtime/checkpoint/__init__.py`
+- `src/aegisflow_core/runtime/checkpoint/postgres.py`
+- `src/aegisflow_core/runtime/temporal/__init__.py`
+- `src/aegisflow_core/runtime/temporal/activities.py`
+- `src/aegisflow_core/runtime/temporal/client.py`
+- `src/aegisflow_core/runtime/temporal/contracts.py`
+- `src/aegisflow_core/runtime/temporal/idempotent_activity.py`
+- `src/aegisflow_core/runtime/temporal/ownership.py`
+- `src/aegisflow_core/runtime/temporal/policies.py`
+- `src/aegisflow_core/runtime/temporal/worker.py`
+- `src/aegisflow_core/runtime/temporal/workflow.py`
 - `tests/gateway/policy/test_gate.py`
 - `tests/control_plane/test_approvals.py`
 - `tests/gateway/sandbox/test_runner.py`
@@ -293,6 +306,15 @@
 - `tests/runtime/context/test_chunking_embedder.py`
 - `tests/runtime/context/test_ingestion.py`
 - `tests/runtime/context/test_pgvector_retriever.py`
+- `tests/runtime/checkpoint/__init__.py`
+- `tests/runtime/checkpoint/test_postgres.py`
+- `tests/runtime/temporal/__init__.py`
+- `tests/runtime/temporal/test_boundaries.py`
+- `tests/runtime/temporal/test_contracts.py`
+- `tests/runtime/temporal/test_idempotent_activity.py`
+- `tests/runtime/temporal/test_ownership.py`
+- `tests/runtime/temporal/test_policies.py`
+- `tests/runtime/temporal/test_workflow.py`
 - `uv.lock`
 - `src/aegisflow_core/control_plane/domain/idempotency.py`
 - `src/aegisflow_core/control_plane/idempotency_ledger.py`

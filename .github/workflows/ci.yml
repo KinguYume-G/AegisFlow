@@ -35,6 +35,12 @@ jobs:
     env:
       APP_ENV: test
       DATABASE_URL: postgresql+asyncpg://aegisflow_ci:aegisflow_ci@localhost:5432/aegisflow_ci
+      LANGGRAPH_DATABASE_URL: postgresql://aegisflow_ci:aegisflow_ci@localhost:5432/aegisflow_ci
+      LANGGRAPH_STRICT_MSGPACK: "true"
+      TEMPORAL_ADDRESS: localhost:7233
+      POSTGRES_USER: aegisflow_ci
+      POSTGRES_PASSWORD: aegisflow_ci
+      POSTGRES_DB: aegisflow_ci
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,6 +57,9 @@ jobs:
 
       - name: Synchronize locked dependencies
         run: uv sync --locked
+
+      - name: Start pinned Temporal test service
+        run: docker compose up -d --wait temporal
 
       - name: Apply database migrations
         run: uv run --locked alembic upgrade head
@@ -70,10 +79,14 @@ jobs:
       - name: Verify migration reapply
         run: uv run --locked alembic upgrade head
 
-      - name: Build Core and sandbox broker container images
+      - name: Build Core, Temporal worker, and sandbox broker container images
         env:
           APP_ENV: test
           POSTGRES_USER: ci-placeholder
           POSTGRES_PASSWORD: ci-placeholder-only
           POSTGRES_DB: aegisflow_ci
-        run: docker compose build core sandbox-broker
+        run: docker compose build core temporal-worker sandbox-broker
+
+      - name: Stop Temporal test service
+        if: always()
+        run: docker compose stop temporal temporal-postgres
