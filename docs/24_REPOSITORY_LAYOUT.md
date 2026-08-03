@@ -2,7 +2,7 @@
 
 > M2 implementation update: AF-203–AF-207 were human-merged in PR #96. AF-208–AF-210 add authorized Draft PR writes, a PostgreSQL fencing ledger, transactional runtime facts, and the asynchronous Gate 1B graph; real GitHub evidence still requires the protected Fixture/App environment.
 
-> M3 implementation update: AF-301–AF-311 add durable Temporal/Signal/checkpoint ownership, Saga compensation, real worker-loss fault injection, an isolated LiteLLM adapter, and tenant-scoped PostgreSQL circuit state. AF-312 publication remains separate.
+> M3 implementation update: AF-301–AF-311 add durable Temporal/Signal/checkpoint ownership, Saga compensation, real worker-loss fault injection, an isolated LiteLLM adapter, and tenant-scoped PostgreSQL circuit state. AF-312 adds the reviewed Gate 2 evidence package; Gate acceptance remains a Human Review decision.
 
 本文件是仓库目录结构与每个文件分类的权威清单，随文档架构整理一并建立。新增、移动或归档文件时，需同步更新本表与 `docs/index.md`、根目录 `MANIFEST.md`。
 
@@ -114,6 +114,7 @@
 | AF-210.md | AI流程 | 异步 Gate 1B E2E Design Note（**Draft v2**） |
 | M3-DURABLE-RUNTIME-BUNDLE.md | 可靠性 | AF-301–AF-307 Durable Runtime 批次 Design Note（**Approved v1**） |
 | M3-RELIABILITY-MODEL-BUNDLE.md | 可靠性/模型网关 | AF-308–AF-311 Saga、故障注入、LiteLLM 与熔断回退 Design Note（**Approved v1**） |
+| AF-312.md | 可靠性/治理 | Gate 2 报告、Blog 与 Demo Runbook 的证据边界和发布流程（**Approved v1**） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -142,6 +143,15 @@
 | AF-210.md | 质量 | Gate 1B E2E 配套 Test Plan（**Draft v2**，真实 E2E 需要外部资源） |
 | M3-DURABLE-RUNTIME-BUNDLE.md | 质量/可靠性 | AF-301–AF-307 Durable Runtime 配套 Test Plan（**Approved v1**） |
 | M3-RELIABILITY-MODEL-BUNDLE.md | 质量/可靠性 | AF-308–AF-311 可靠性与模型运行时配套 Test Plan（**Approved v1**） |
+| AF-312.md | 质量/可靠性 | Gate 2 证据一致性、链接、Secret 和限制声明验证（**Approved v1**） |
+
+## docs/reports/（已验证 Gate 证据与演示材料）
+
+| 文件 | 分类 | 用途 |
+|---|---|---|
+| GATE2_RELIABILITY_REPORT.md | 可靠性/治理 | M3 环境、20 次故障结果、Provider Smoke、限制与 Gate 2 建议 |
+| GATE2_RELIABILITY_BLOG.md | 文档/可靠性 | 面向读者的 Gate 2 技术总结，不扩大证据结论 |
+| GATE2_DEMO_RUNBOOK.md | 运行/可靠性 | 可重复的受保护工作流演示、核验清单与停止条件 |
 
 ## src/aegisflow_core/（AF-101–AF-110 与 AF-201–AF-210 模块化单体、DeliveryPack 和 Gate 1B 实现）
 
