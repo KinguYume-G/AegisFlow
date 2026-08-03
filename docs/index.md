@@ -133,6 +133,8 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 - [`reports/GATE2_DEMO_RUNBOOK.md`](reports/GATE2_DEMO_RUNBOOK.md)：受保护工作流的可重复演示步骤与停止条件。
 - [`design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`](design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md)：AF-401–AF-413 租户、身份、RBAC、Policy、Audit、MCP、Sandbox 与 Gate 3 共享契约，**Approved v1**。
 - [`test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`](test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md)：M4 五个依赖波次的安全与隔离总 Test Plan，**Approved v1**。
+- [`reports/GATE3_GOVERNANCE_SECURITY_REPORT.md`](reports/GATE3_GOVERNANCE_SECURITY_REPORT.md)：Gate 3 自动化安全回归、证据要求与限制。
+- [`reports/GATE3_DEMO_RUNBOOK.md`](reports/GATE3_DEMO_RUNBOOK.md)：无需真实 Secret 或强制录屏的可重复 Gate 3 验收步骤。
 - [`design-notes/M5-EVALUATION-FOUNDATION.md`](design-notes/M5-EVALUATION-FOUNDATION.md)：AF-501–AF-505 评测数据与 Baseline 契约。
 - [`test-plans/M5-EVALUATION-FOUNDATION.md`](test-plans/M5-EVALUATION-FOUNDATION.md)：AF-501–AF-505 配套验证计划。
 - [`design-notes/M5-OBSERVABILITY-BUNDLE.md`](design-notes/M5-OBSERVABILITY-BUNDLE.md)：AF-508、AF-509、AF-511、AF-514 可观测性批次契约。

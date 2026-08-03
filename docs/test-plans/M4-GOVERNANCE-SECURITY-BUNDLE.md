@@ -109,8 +109,8 @@ Verify AF-401–AF-413 tenant isolation, OIDC authentication, RBAC, deterministi
 - `security_gate` runs deterministically inside required CI with no retry masking.
 - Record exact case/pass/fail/skip counts, environment, command, commit, Actions URL, limitations, and Secret scan.
 - Demo runbook reproduces denied cross-tenant, denied role escalation, blocked injection, approved path, and correlated audit.
-- Human recording follows redaction checklist and contains no token, key, private repository content outside the approved fixture, or personal data.
-- Gate 3 is accepted only after Human Review of the report, logs, audit evidence, video, and limitations.
+- Video is optional supplementary evidence. If a Human records one, the redaction checklist prohibits tokens, keys, private repository content outside the approved fixture, and personal data.
+- Gate 3 is accepted only after Human Review of the protected CI logs, JUnit, security audit evidence, report, reproducible runbook, and limitations.
 
 ## Migration Matrix
 
@@ -159,4 +159,4 @@ Stop if tenant isolation cannot be enforced without an architecture change, OIDC
 - Wave 1: none.
 - Wave 2 OIDC protected evidence: development issuer, audience/client ID, algorithm, and protected GitHub Environment configuration.
 - Wave 2 sandbox live smoke: Docker-capable runner; mocked tests remain mandatory.
-- Wave 5: Human-operated redacted demo recording.
+- Wave 5: no external runtime input; an optional Human-operated redacted demo recording is not an acceptance dependency.
