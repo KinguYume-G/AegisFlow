@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 374
-- Active project files: 367
+- Repository files: 378
+- Active project files: 371
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 137
-- Test files: 96
+- Application source files: 139
+- Test files: 98
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -309,7 +309,9 @@
 - `src/aegisflow_core/gateway/policy/__init__.py`
 - `src/aegisflow_core/gateway/policy/config.py`
 - `src/aegisflow_core/gateway/policy/contextual.py`
+- `src/aegisflow_core/gateway/policy/injection.py`
 - `src/aegisflow_core/gateway/policy/gate.py`
+- `src/aegisflow_core/gateway/tenant.py`
 - `src/aegisflow_core/gateway/mcp/__init__.py`
 - `src/aegisflow_core/gateway/mcp/gate.py`
 - `src/aegisflow_core/gateway/sandbox/__init__.py`
@@ -352,6 +354,8 @@
 - `src/aegisflow_core/runtime/temporal/workflow.py`
 - `tests/gateway/policy/test_gate.py`
 - `tests/gateway/policy/test_contextual.py`
+- `tests/gateway/policy/test_injection.py`
+- `tests/security/test_cross_tenant_isolation.py`
 - `tests/gateway/mcp/test_registry_gate.py`
 - `tests/control_plane/test_approvals.py`
 - `tests/control_plane/test_audit_service.py`

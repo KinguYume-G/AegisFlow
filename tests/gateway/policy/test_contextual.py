@@ -48,7 +48,6 @@ def policy_input(**overrides: object) -> PolicyInput:
         ({"tool_registered": False}, "tool_registration_scope"),
         ({"requested_scope": "repository:write"}, "tool_registration_scope"),
         ({"risk_level": "L3"}, "risk_injection"),
-        ({"injection_severity": "high"}, "risk_injection"),
         ({"injection_severity": "unknown"}, "risk_injection"),
         ({"risk_level": "L9"}, "risk_injection"),
         ({"contradictory_evidence": True}, "tenant_membership"),
@@ -85,6 +84,17 @@ def test_policy_requires_separate_human_approval_then_allows() -> None:
     )
     assert allowed.outcome is PolicyOutcome.ALLOW
     assert allowed.reason_code == "policy.allowed"
+
+
+def test_high_injection_allows_read_but_denies_write_or_high_risk() -> None:
+    read = ContextualPolicy().evaluate(policy_input(injection_severity="high"))
+    write = ContextualPolicy().evaluate(
+        policy_input(injection_severity="high", risk_level="L2")
+    )
+
+    assert read.outcome is PolicyOutcome.ALLOW
+    assert write.outcome is PolicyOutcome.DENY
+    assert write.reason_code == "risk_injection.unsafe_content"
 
 
 def test_policy_input_is_frozen_and_has_no_prompt_override_field() -> None:

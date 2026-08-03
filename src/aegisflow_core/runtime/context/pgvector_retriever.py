@@ -19,6 +19,10 @@ class RepositoryTarget:
         return f"{self.owner}/{self.repository}"
 
 
+class ContextIsolationViolation(PermissionError):
+    """A retrieval adapter returned data outside its trusted namespace."""
+
+
 class PgVectorContextRetriever:
     """Map already tenant/repository-filtered rows to exact citations."""
 
@@ -28,6 +32,12 @@ class PgVectorContextRetriever:
 
     def retrieve(self, request: NormalizedRequest) -> ContextPackage:
         rows = self._query(self._tenant_id, self._target.full_name, request.title, self._limit)
+        if any(
+            row.tenant_id != self._tenant_id
+            or row.repository.casefold() != self._target.full_name.casefold()
+            for row in rows
+        ):
+            raise ContextIsolationViolation("context namespace mismatch")
         snippets = [CitedSnippet(relative_path=row.file_path, start_line=row.start_line,
                                  end_line=row.end_line, content=row.content) for row in rows[:self._limit]]
         return ContextPackage(snippets=snippets, unsupported_notes=[] if snippets else ["no repository evidence found"],
