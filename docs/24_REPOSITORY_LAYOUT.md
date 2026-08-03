@@ -94,6 +94,17 @@
 | AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Approved v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
 | AF-109.md | AI流程 | Langfuse Tracing Design Note（**Approved v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
 | AF-110.md | AI流程 | Gate 1A E2E Design Note（**Approved v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
+| M2-SHARED-CONTRACTS.md | AI流程 | AF-201–AF-210 跨 Issue 契约（**Draft v2**）：设计决策已关闭，等待 Human Review |
+| AF-201.md | AI流程 | GitHub App/Webhook 签名与有界防重放 Design Note（**Draft v2**） |
+| AF-202.md | AI流程 | GitHub 只读工具 Design Note（**Draft v2**） |
+| AF-203.md | AI流程 | pgvector 摄取与精确 Citation Design Note（**Draft v2**） |
+| AF-204.md | AI流程 | Sandbox Broker 安全基线 Design Note（**Draft v2**） |
+| AF-207.md | AI流程 | 可信 ExecutionScope Policy Gate Design Note（**Draft v2**） |
+| AF-205.md | AI流程 | 受控 Executor Agent Contract Design Note（**Draft v2**） |
+| AF-206.md | AI流程 | Reviewer/Approval 状态机 Design Note（**Draft v2**） |
+| AF-208.md | AI流程 | 授权、原子幂等 GitHub Draft PR 工具 Design Note（**Draft v2**） |
+| AF-209.md | AI流程 | 带 lease/fencing 的 Idempotency Ledger Design Note（**Draft v2**） |
+| AF-210.md | AI流程 | 异步 Gate 1B E2E Design Note（**Draft v2**） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -110,8 +121,18 @@
 | AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Approved v4**） |
 | AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Approved v4**，mock CI + 人工真实 smoke） |
 | AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Approved v4**） |
+| AF-201.md | 质量 | GitHub App/Webhook 配套 Test Plan（**Draft v2**） |
+| AF-202.md | 质量 | GitHub 只读工具配套 Test Plan（**Draft v2**） |
+| AF-203.md | 质量 | 仓库知识摄取配套 Test Plan（**Draft v2**） |
+| AF-204.md | 质量 | Sandbox Broker 配套 Test Plan（**Draft v2**） |
+| AF-207.md | 质量 | Policy Gate 配套 Test Plan（**Draft v2**） |
+| AF-205.md | 质量 | Executor Agent 配套 Test Plan（**Draft v2**） |
+| AF-206.md | 质量 | Reviewer/Approval 配套 Test Plan（**Draft v2**） |
+| AF-208.md | 质量 | Draft PR 写工具配套 Test Plan（**Draft v2**） |
+| AF-209.md | 质量 | Idempotency Ledger 配套 Test Plan（**Draft v2**） |
+| AF-210.md | 质量 | Gate 1B E2E 配套 Test Plan（**Draft v2**，真实 E2E 需要外部资源） |
 
-## src/aegisflow_core/（AF-101–AF-110 模块化单体与 DeliveryPack 契约）
+## src/aegisflow_core/（AF-101–AF-110 模块化单体与 DeliveryPack 契约；AF-201–AF-210 尚处 Draft 设计阶段，未写代码）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -263,3 +284,4 @@
 
 - `archive/phase0-gap-patch/` 的合并需要先形成对应的 Design Note 和 ADR-0013/0014 的正式 Accepted 状态，再走一次独立的 PR，不与本次目录整理混在一起。
 - AF-110 已将未追踪的根目录外部输入 `gemini-code-1785679381247.md` 映射为 `tests/fixtures/gate1a/` 下三个结构化 JSON，并在映射测试通过后删除本地源文件；该源文件从未成为仓库事实源。
+- M2 Design Bundle 当前为 Draft v2，尚未写业务代码。设计决策已关闭；Human Review 后可按严格顺序实施。AF-210 真实 E2E 仍需独立私有 Fixture 仓库与开发 GitHub App。

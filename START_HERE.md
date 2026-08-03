@@ -9,7 +9,7 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** is a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. / AegisFlow 是面向可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制的生产级 Agent Control Plane。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- The repository is in **M1 implementation**; AF-101 through AF-109 and CI-001 are verified. AF-110 is the only active implementation Issue. / 仓库处于 **M1 实施阶段**；AF-101 至 AF-109 与 CI-001 均已验证，AF-110 是当前唯一实施中的 Issue。
+- The repository is entering **M2 Gate 1B**; AF-101 through AF-110 and CI-001 are verified. The approved M2 Design Bundle Draft v2 must be human-merged before AF-201 implementation. / 仓库正进入 **M2 Gate 1B**；AF-101 至 AF-110 与 CI-001 已验证。AF-201 实施前，已批准的 M2 Design Bundle Draft v2 必须先完成人工合并。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
 - GitHub import and M0 verification are complete. AF-101 through AF-109 and CI-001 are verified; the AF-104–AF-110 Design Bundle v4 was human-merged in PR #84. / GitHub 导入与 M0 验证已完成；AF-101 至 AF-109 与 CI-001 已验证；AF-104–AF-110 Design Bundle v4 已通过 PR #84 人工合并。
 
@@ -99,15 +99,15 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0, AF-101 through AF-109, CI-001, and the M1 Design Bundle review are complete. The project is now implementing **AF-110**. / Phase 0、AF-101 至 AF-109、CI-001 与 M1 Design Bundle 审查均已完成；项目当前正在实施 **AF-110**。
+Phase 0, M1, AF-101 through AF-110, and CI-001 are complete. The project is entering **M2 Gate 1B**. / Phase 0、M1、AF-101 至 AF-110 与 CI-001 均已完成；项目正进入 **M2 Gate 1B**。
 
 Current work / 当前工作：
 
-- Implement only the approved AF-110 in-process Gate 1A graph, safe resume contract, and deterministic fixtures / 仅实施已批准的 AF-110 进程内 Gate 1A 图、安全恢复契约与确定性 Fixture；
-- Do not start M2 until AF-110 is Human Merged and verified / AF-110 完成人工合并与验证前不得启动 M2；
+- Human-merge the approved M2 Design Bundle Draft v2 / 人工合并已批准的 M2 Design Bundle Draft v2；
+- Then implement AF-201 through AF-210 in dependency order / 随后按依赖顺序实施 AF-201 至 AF-210；
 - Continue One Issue → One Branch → One PR → Human Review/Merge / 继续严格执行单 Issue、单分支、单 PR 与人工审查合并。
 
-Only AF-110 implementation is currently authorized; M2 remains gated. / 当前仅授权实施 AF-110；M2 仍受门禁约束。
+M2 implementation is authorized after the Design Bundle is human-merged; each Issue still requires its own branch, PR, and Human Merge. / M2 已获实施授权，但必须先人工合并 Design Bundle，且每个 Issue 仍需独立分支、PR 与人工合并。
 
 ## Pull Request Exit Criteria / PR 退出标准
 
