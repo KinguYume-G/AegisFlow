@@ -45,5 +45,11 @@ def test_planner_and_contracts_are_framework_independent() -> None:
         assert _imports(source_file).isdisjoint(PROHIBITED_IMPORT_ROOTS)
 
 
-def test_af_109_does_not_create_later_issue_modules() -> None:
-    assert not PACKAGE_ROOT.parents[1].joinpath("runtime", "state.py").exists()
+def test_af_110_runtime_assembly_does_not_change_planner_boundaries() -> None:
+    runtime_root = PACKAGE_ROOT.parents[1] / "runtime"
+
+    assert runtime_root.joinpath("state.py").is_file()
+    assert runtime_root.joinpath("graph.py").is_file()
+    assert _imports(PACKAGE_ROOT / "planner" / "agent.py").isdisjoint(
+        PROHIBITED_IMPORT_ROOTS
+    )

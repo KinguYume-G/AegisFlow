@@ -93,7 +93,7 @@
 | AF-107.md | AI流程 | Planner Agent Contract Design Note（**Approved v4**，稳定能力枚举与固定四任务算法） |
 | AF-108.md | AI流程 | Clarification HITL Interface Design Note（**Approved v4**，`clarifier/hitl.py`、run 隔离、replay 幂等） |
 | AF-109.md | AI流程 | Langfuse Tracing Design Note（**Approved v4**，诚实计量、确定性 trace correlation、真实 auth/flush/query smoke） |
-| AF-110.md | AI流程 | Gate 1A E2E Design Note（**Draft v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
+| AF-110.md | AI流程 | Gate 1A E2E Design Note（**Approved v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -109,9 +109,9 @@
 | AF-107.md | 质量 | Planner 配套 Test Plan（**Approved v4**） |
 | AF-108.md | 质量 | HITL Interface 配套 Test Plan（**Approved v4**） |
 | AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Approved v4**，mock CI + 人工真实 smoke） |
-| AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Draft v4**） |
+| AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Approved v4**） |
 
-## src/aegisflow_core/（AF-101–AF-109 模块化单体与 DeliveryPack 契约）
+## src/aegisflow_core/（AF-101–AF-110 模块化单体与 DeliveryPack 契约）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -126,6 +126,8 @@
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
+| runtime/state.py | 代码/状态 | AF-110 Gate 1A `AgentState`；强制 run/trace identity 并承载四 Agent 的版本化契约 |
+| runtime/graph.py | 代码/编排/安全 | AF-110 LangGraph 进程内图、原生 interrupt/resume、安全 thread 校验、节点错误定位与 Trace 记录 |
 | runtime/tracing.py | 可观测/安全 | AF-109 诚实 token/cost 契约、prompt 脱敏、确定性关联与 NoOp/InMemory/Langfuse Recorder |
 | runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包占位 |
@@ -156,7 +158,7 @@
 | packs/delivery/planner/fakes.py | 代码/安全 | 固定四任务、L1/L3 风险与诚实预算的确定性 Reasoner |
 | packs/delivery/planner/agent.py | 代码 | Clarifier 充分性门禁、Planner 委派与异常传播 |
 
-## tests/（AF-101–AF-109 测试）
+## tests/（AF-101–AF-110 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
@@ -175,6 +177,8 @@
 | domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
 | runtime/__init__.py | 质量 | Runtime 测试包标记 |
 | runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
+| e2e/__init__.py | 质量 | Gate 1A 端到端测试包标记 |
+| e2e/test_gate1a.py | 质量/安全/可靠性 | AF-110 真实 interrupt/resume、错误 thread、幂等、可重复性、Trace 与节点失败定位门禁 |
 | packs/__init__.py | 质量 | Application Pack 测试包标记，避免同名测试模块冲突 |
 | packs/delivery/__init__.py | 质量 | DeliveryPack 测试包标记 |
 | packs/delivery/clarifier/__init__.py | 质量 | Clarifier 测试包标记 |
@@ -191,6 +195,12 @@
 | packs/delivery/intake/__init__.py | 质量 | Intake 测试包标记 |
 | fixtures/context/retrieval_contract.md | 质量/Fixture | Citation 与 unsupported-note 基础检索材料 |
 | fixtures/context/tenant_guard.py | 质量/Fixture | 合成 tenant guard 检索材料，不作为应用代码导入 |
+| fixtures/context/refund_tenant_isolation.py | 质量/Fixture | Gate 1A 租户隔离检索材料 |
+| fixtures/context/refund_celery_export.py | 质量/Fixture | Gate 1A Celery 异步导出检索材料 |
+| fixtures/context/refund_audit_security.md | 质量/Fixture | Gate 1A 审计与安全检索材料 |
+| fixtures/gate1a/sample_request.json | 质量/Fixture | 脱敏退款审计 CSV 请求、验收标准与 sanitization 记录 |
+| fixtures/gate1a/expected_clarification.json | 质量/Fixture | 五个确定性 Clarification 问题的外部契约 |
+| fixtures/gate1a/fixed_clarification_response.json | 质量/Fixture | Gate 恢复使用的七项固定非空回答 |
 | packs/delivery/intake/test_determinism.py | 质量 | Clock/IdGenerator UTC、UUID4 与可复现 UUID5 测试 |
 | packs/delivery/intake/test_normalized_request.py | 质量/Schema | source type、长度、UTC、hash 格式与 canonical 向量测试 |
 | packs/delivery/intake/test_agent.py | 质量/安全 | 规范化、幂等、注入边界与 prompt-like 数据测试 |
@@ -252,4 +262,4 @@
 ## 已知待办（不在本次分类范围内，供后续 Issue 参考）
 
 - `archive/phase0-gap-patch/` 的合并需要先形成对应的 Design Note 和 ADR-0013/0014 的正式 Accepted 状态，再走一次独立的 PR，不与本次目录整理混在一起。
-- 仓库根目录存在一个**未追踪、未登记进本文件与 MANIFEST.md 的外部输入文件** `gemini-code-1785679381247.md`（AF-110 Gate 1A Fixture 草稿内容）。按 `docs/design-notes/M1-SHARED-CONTRACTS.md` v4 第 12 节，这个文件只是设计输入，不是仓库事实源；AF-110 实现 PR 必须把内容迁移为 `tests/fixtures/gate1a/` 下的三个结构化 JSON 文件，完成映射验证后删除本地根文件。
+- AF-110 已将未追踪的根目录外部输入 `gemini-code-1785679381247.md` 映射为 `tests/fixtures/gate1a/` 下三个结构化 JSON，并在映射测试通过后删除本地源文件；该源文件从未成为仓库事实源。
