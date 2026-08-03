@@ -28,6 +28,7 @@ from aegisflow_core.gateway.github.pull_request import (
 from aegisflow_core.gateway.github.webhook import WebhookVerificationResult
 from aegisflow_core.gateway.policy.config import PolicyConfig
 from aegisflow_core.gateway.policy.gate import ExecutionScope, PolicyGate
+from aegisflow_core.gateway.policy.injection import InjectionPolicyGuard, Severity
 from aegisflow_core.gateway.sandbox.runner import SandboxRunner
 from aegisflow_core.packs.delivery.clarifier.hitl import InMemoryClarificationGateway
 from aegisflow_core.packs.delivery.clarifier.ports import ClarificationReasoner
@@ -120,6 +121,12 @@ def build_gate1b_graph(
         trace_recorder=trace_recorder,
     )
     policy_gate = PolicyGate(policy_config)
+    class UnitOfWorkInjectionAudit:
+        async def record(self, **fields: object) -> None:
+            async with unit_of_work_factory() as uow:
+                await uow.record_audit(**fields)
+
+    injection_guard = InjectionPolicyGuard(audit=UnitOfWorkInjectionAudit())
     executor = ExecutorAgent(patch_reasoner)
     reviewer = ReviewerAgent(review_reasoner)
 
@@ -135,7 +142,27 @@ def build_gate1b_graph(
             plan = state.get("plan")
             if plan is None:
                 raise ValueError("plan state is required")
-            decision = policy_gate.evaluate(plan, execution_scope)
+            severity_rank = {"none": 0, "low": 1, "medium": 2, "high": 3, "unknown": 4}
+            injection_severity: Severity = "none"
+            context = state.get("context")
+            if context is not None:
+                for snippet in context.snippets:
+                    assessment = await injection_guard.assess(
+                        content=snippet.content,
+                        source_reference=(
+                            f"{snippet.relative_path}:{snippet.start_line}-{snippet.end_line}"
+                        ),
+                        tenant_id=_tenant_id(state),
+                        actor="policy_gate",
+                        trace_id=_trace_id(state),
+                    )
+                    if severity_rank[assessment.maximum_severity] > severity_rank[injection_severity]:
+                        injection_severity = assessment.maximum_severity
+            decision = policy_gate.evaluate(
+                plan,
+                execution_scope,
+                injection_severity=injection_severity,
+            )
             await _record_step(unit_of_work_factory, id_generator, state, "policy_gate", 5, "completed")
             async with unit_of_work_factory() as uow:
                 await uow.record_audit(

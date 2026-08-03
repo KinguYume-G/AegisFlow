@@ -90,12 +90,19 @@ class ContextualPolicy:
             return self._decision(PolicyOutcome.DENY, "tool_registration_scope", "unregistered")
         if not value.requested_scope.strip() or value.requested_scope not in value.registered_scopes:
             return self._decision(PolicyOutcome.DENY, "tool_registration_scope", "scope_denied")
-        if value.injection_severity not in {"none", "low", "medium"}:
-            return self._decision(PolicyOutcome.DENY, "risk_injection", "unsafe_content")
         requested_risk = _RISK.get(value.risk_level)
         maximum_risk = _RISK.get(value.max_risk_level)
         if requested_risk is None or maximum_risk is None:
             return self._decision(PolicyOutcome.DENY, "risk_injection", "invalid_risk")
+        if value.injection_severity == "unknown":
+            return self._decision(PolicyOutcome.DENY, "risk_injection", "classification_unknown")
+        if value.injection_severity not in {"none", "low", "medium", "high"}:
+            return self._decision(PolicyOutcome.DENY, "risk_injection", "unsafe_content")
+        read_only_scope = value.requested_scope.casefold().endswith(":read")
+        if value.injection_severity == "high" and (
+            requested_risk >= _RISK["L2"] or not read_only_scope
+        ):
+            return self._decision(PolicyOutcome.DENY, "risk_injection", "unsafe_content")
         if requested_risk > maximum_risk:
             return self._decision(PolicyOutcome.DENY, "risk_injection", "risk_ceiling")
         if value.approval_required and not value.approval_granted:

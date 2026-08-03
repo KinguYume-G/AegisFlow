@@ -259,6 +259,15 @@ class InMemoryTraceRecorder:
     def record(self, step: StepTraceRecord) -> None:
         self._records.append(step.model_copy(deep=True))
 
+    def records_for_tenant(self, tenant_id: UUID) -> tuple[StepTraceRecord, ...]:
+        if not isinstance(tenant_id, UUID):
+            raise ValueError("tenant_id is required")
+        return tuple(
+            record.model_copy(deep=True)
+            for record in self._records
+            if record.tenant_id == tenant_id
+        )
+
 
 class _Observation(Protocol):
     def end(self) -> None: ...
