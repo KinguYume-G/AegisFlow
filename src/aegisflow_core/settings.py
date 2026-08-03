@@ -50,6 +50,8 @@ class Settings:
     oidc_cache_ttl_seconds: int = 300
     oidc_max_cached_keys: int = 16
     oidc_http_timeout_seconds: float = 5.0
+    otel_exporter_otlp_endpoint: str | None = None
+    otel_service_name: str = "aegisflow-core"
 
     @property
     def github_app_configured(self) -> bool:
@@ -197,6 +199,15 @@ def get_settings() -> Settings:
             "GITHUB_API_TIMEOUT_SECONDS must be a positive number"
         )
 
+    otel_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT") or None
+    if otel_endpoint is not None and not otel_endpoint.startswith(("http://", "https://")):
+        raise ConfigurationError("OTEL_EXPORTER_OTLP_ENDPOINT must be an HTTP URL")
+    if app_env == "production" and otel_endpoint is not None and not otel_endpoint.startswith("https://"):
+        raise ConfigurationError("production OTLP export must use HTTPS")
+    otel_service_name = (os.environ.get("OTEL_SERVICE_NAME") or "aegisflow-core").strip()
+    if not otel_service_name or len(otel_service_name) > 100:
+        raise ConfigurationError("OTEL_SERVICE_NAME is invalid")
+
     return Settings(
         app_env=app_env,
         app_base_url=app_base_url,
@@ -226,4 +237,6 @@ def get_settings() -> Settings:
             os.environ.get("LANGGRAPH_DATABASE_URL")
             or database_url.replace("postgresql+asyncpg://", "postgresql://", 1)
         ),
+        otel_exporter_otlp_endpoint=otel_endpoint,
+        otel_service_name=otel_service_name,
     )

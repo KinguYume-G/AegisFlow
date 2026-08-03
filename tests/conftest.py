@@ -36,6 +36,8 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "OIDC_CACHE_TTL_SECONDS",
         "OIDC_MAX_CACHED_KEYS",
         "OIDC_HTTP_TIMEOUT_SECONDS",
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "OTEL_SERVICE_NAME",
     ):
         monkeypatch.delenv(name, raising=False)
 

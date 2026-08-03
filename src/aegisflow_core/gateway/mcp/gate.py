@@ -21,6 +21,7 @@ from aegisflow_core.packs.delivery.contracts.idempotency import (
     InProgress,
     Reuse,
 )
+from aegisflow_core.runtime.observability import Correlation, operation_span
 
 
 class Registry(Protocol):
@@ -110,6 +111,18 @@ class McpInvocationGate:
         self._injection_guard = InjectionPolicyGuard(audit=audit, policy=self._policy)
 
     async def invoke(self, request: InvocationRequest) -> object:
+        with operation_span(
+            "mcp.invoke",
+            Correlation(
+                tenant_id=str(request.tenant_id),
+                run_id=str(request.run_id),
+                trace_id=request.trace_id,
+                step_id=str(request.step_id),
+            ),
+        ):
+            return await self._invoke(request)
+
+    async def _invoke(self, request: InvocationRequest) -> object:
         if request.policy_input.tenant_id != request.tenant_id:
             return await self._deny(request, "authorization.denied", "tenant_membership.mismatch")
         caller = self._policy.evaluate_caller(request.policy_input)

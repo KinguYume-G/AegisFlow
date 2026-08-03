@@ -212,6 +212,28 @@ def test_partial_or_unsafe_oidc_configuration_fails_closed(
     monkeypatch.setenv("OIDC_ISSUER", "https://issuer.example.test")
     with pytest.raises(ConfigurationError, match="OIDC"):
         get_settings()
+
+
+def test_otel_configuration_is_optional_and_bounded(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    settings = get_settings()
+    assert settings.otel_exporter_otlp_endpoint is None
+    assert settings.otel_service_name == "aegisflow-core"
+    monkeypatch.setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "https://otel.example.test/v1/traces")
+    monkeypatch.setenv("OTEL_SERVICE_NAME", "aegisflow-test")
+    settings = get_settings()
+    assert settings.otel_exporter_otlp_endpoint == "https://otel.example.test/v1/traces"
+    assert settings.otel_service_name == "aegisflow-test"
+
+
+def test_otel_configuration_rejects_unsafe_production_export(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel.example.test")
+    with pytest.raises(ConfigurationError, match="HTTPS"):
+        get_settings()
     for name, value in {
         "OIDC_AUDIENCE": "aegisflow-dev",
         "OIDC_JWKS_URL": "https://issuer.example.test/jwks",

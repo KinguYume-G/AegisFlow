@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-
 from temporalio.client import Client
 from temporalio.worker import Worker
 
@@ -16,6 +15,7 @@ from aegisflow_core.runtime.temporal.activities import (
 )
 from aegisflow_core.runtime.temporal.client import connect_temporal
 from aegisflow_core.runtime.temporal.workflow import DeliveryWorkflow
+from aegisflow_core.runtime.observability import configure_tracer
 
 
 def build_worker(
@@ -44,10 +44,21 @@ async def run_worker(graph: DurableGraphPort | None = None) -> None:
     )
     if not checkpoint_url:
         raise RuntimeError("LANGGRAPH_DATABASE_URL or DATABASE_URL is required")
+    provider = configure_tracer(
+        service_name="aegisflow-temporal-worker",
+        endpoint=os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT") or None,
+    )
     await PostgresCheckpointManager(checkpoint_url).setup()
     client = await connect_temporal(address, namespace)
-    worker = build_worker(client, graph or UnconfiguredGraphPort(), task_queue=task_queue)
-    await worker.run()
+    worker = build_worker(
+        client,
+        graph or UnconfiguredGraphPort(),
+        task_queue=task_queue,
+    )
+    try:
+        await worker.run()
+    finally:
+        provider.shutdown()
 
 
 def main() -> None:

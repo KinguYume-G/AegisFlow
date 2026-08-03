@@ -13,6 +13,7 @@ from aegisflow_core.models.contracts import (
     ProviderResult,
     RouteAttempt,
 )
+from aegisflow_core.runtime.metrics import observe_model_cost
 
 
 class ProviderError(RuntimeError):
@@ -75,7 +76,7 @@ class ModelGateway:
                 raise BudgetExceededError("request exceeds budget", ())
 
         attempts: list[RouteAttempt] = []
-        for route in self._routes:
+        for route_index, route in enumerate(self._routes):
             permit = await self._breaker.acquire(request.tenant_id, route.name)
             if not permit.allowed:
                 attempts.append(
@@ -100,6 +101,13 @@ class ModelGateway:
                 raise ModelGatewayError("model request failed final", tuple(attempts)) from None
             await self._breaker.success(request.tenant_id, route.name, permit)
             attempts.append(RouteAttempt(route.name, route.model, "succeeded"))
+            if result.cost.source != "not_available":
+                assert result.cost.amount is not None and result.cost.currency is not None
+                observe_model_cost(
+                    "primary" if route_index == 0 else "fallback",
+                    result.cost.currency,
+                    float(result.cost.amount),
+                )
             return ModelResponse(
                 content=result.content,
                 resolved_model=result.resolved_model,
