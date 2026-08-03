@@ -115,6 +115,7 @@
 | M3-DURABLE-RUNTIME-BUNDLE.md | 可靠性 | AF-301–AF-307 Durable Runtime 批次 Design Note（**Approved v1**） |
 | M3-RELIABILITY-MODEL-BUNDLE.md | 可靠性/模型网关 | AF-308–AF-311 Saga、故障注入、LiteLLM 与熔断回退 Design Note（**Approved v1**） |
 | AF-312.md | 可靠性/治理 | Gate 2 报告、Blog 与 Demo Runbook 的证据边界和发布流程（**Approved v1**） |
+| M4-GOVERNANCE-SECURITY-BUNDLE.md | 安全/治理 | AF-401–AF-413 五波次租户、身份、RBAC、Policy、Audit、MCP、Sandbox 与 Gate 3 契约（**Approved v1**） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -144,6 +145,7 @@
 | M3-DURABLE-RUNTIME-BUNDLE.md | 质量/可靠性 | AF-301–AF-307 Durable Runtime 配套 Test Plan（**Approved v1**） |
 | M3-RELIABILITY-MODEL-BUNDLE.md | 质量/可靠性 | AF-308–AF-311 可靠性与模型运行时配套 Test Plan（**Approved v1**） |
 | AF-312.md | 质量/可靠性 | Gate 2 证据一致性、链接、Secret 和限制声明验证（**Approved v1**） |
+| M4-GOVERNANCE-SECURITY-BUNDLE.md | 质量/安全 | AF-401–AF-413 隔离、拒绝、迁移、回归与 Gate 3 总 Test Plan（**Approved v1**） |
 
 ## docs/reports/（已验证 Gate 证据与演示材料）
 
@@ -172,6 +174,10 @@
 | control_plane/migrations/versions/0005_add_idempotency_ledger.py | 数据/迁移 | AF-209 Ledger 表与约束迁移 |
 | control_plane/domain/model_routing.py | 代码/数据/可靠性 | AF-311 tenant-route Circuit 状态、failure count 与 fenced Half-Open probe 模型 |
 | control_plane/migrations/versions/0006_add_model_circuit_state.py | 数据/迁移 | AF-308 compensation scope 与 AF-311 Circuit 状态表迁移 |
+| control_plane/domain/versioning.py | 代码/数据/治理 | AF-410 Prompt series/version 和 Run 精确绑定模型 |
+| control_plane/tenants/ | 代码/安全 | AF-401 显式 tenant scope、自动 ORM 过滤与 fail-closed 写入边界 |
+| control_plane/versions/ | 代码/治理 | AF-410/411 并发安全的 immutable Prompt/Workflow publish、rollback 与 binding 服务 |
+| control_plane/migrations/versions/0007_add_tenant_version_foundations.py | 数据/迁移/安全 | AF-401/410/411 版本事实、不可变触发器与 active Workflow 唯一约束 |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
@@ -248,6 +254,8 @@
 | domain/test_migration_config.py | 质量/数据 | Alembic 根入口、完整 metadata 与默认 schema 测试 |
 | domain/test_session.py | 质量/数据 | SQLAlchemy async engine/session factory 测试 |
 | domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
+| control_plane/test_tenant_scope.py | 质量/安全 | AF-401 tenant 自动过滤、跨租户写拒绝、root/raw SQL fail-closed 测试 |
+| control_plane/test_versioning.py | 质量/治理/数据 | AF-410/411 并发分配、幂等冲突、rollback、Run binding 与数据库不可变触发器测试 |
 | runtime/__init__.py | 质量 | Runtime 测试包标记 |
 | runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
 | runtime/test_fault_injection.py | 质量/可靠性 | AF-309 固定 20 次矩阵、验收、百分位与 JSONL 证据测试 |

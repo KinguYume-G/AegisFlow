@@ -8,8 +8,11 @@ from aegisflow_core.control_plane.domain import (
     Base,
     IdempotencyRecord,
     ModelCircuitState,
+    PromptSeries,
+    PromptVersion,
     Run,
     RepositoryChunk,
+    RunPromptVersion,
     Step,
     Tenant,
     Workflow,
@@ -20,6 +23,9 @@ MODELS = (
     Tenant, Workflow, Run, Step, Approval, AuditEvent, RepositoryChunk,
     IdempotencyRecord,
     ModelCircuitState,
+    PromptSeries,
+    PromptVersion,
+    RunPromptVersion,
 )
 
 
@@ -42,6 +48,9 @@ def test_all_tables_declared() -> None:
         "repository_chunks",
         "idempotency_records",
         "model_circuit_states",
+        "prompt_series",
+        "prompt_versions",
+        "run_prompt_versions",
     }
     assert {model.__tablename__ for model in MODELS} == set(Base.metadata.tables)
 
@@ -72,6 +81,12 @@ def test_named_check_and_unique_constraints_exist() -> None:
         Workflow, UniqueConstraint
     )
     assert "uq_steps_tenant_run_id" in _constraint_names(Step, UniqueConstraint)
+    assert "uq_prompt_versions_tenant_name_version" in _constraint_names(
+        PromptVersion, UniqueConstraint
+    )
+    assert "uq_run_prompt_versions_binding" in _constraint_names(
+        RunPromptVersion, UniqueConstraint
+    )
 
 
 def test_tenant_scoped_foreign_keys_are_declared() -> None:

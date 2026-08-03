@@ -30,5 +30,8 @@ def test_alembic_metadata_is_complete() -> None:
         "repository_chunks",
         "idempotency_records",
         "model_circuit_states",
+        "prompt_series",
+        "prompt_versions",
+        "run_prompt_versions",
     }
     assert all(table.schema is None for table in Base.metadata.tables.values())
