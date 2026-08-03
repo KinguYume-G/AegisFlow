@@ -30,7 +30,7 @@
 | Planner Agent Contract | DeliveryPack / Planner | ADR-0007 | AF-107 | Measurement/Plan v1; stable capability allowlist; deterministic tasks/risk; Clarifier gate; `tests/packs/delivery/planner/` |
 | Clarification HITL Interface | DeliveryPack / Clarifier | ADR-0002 | AF-108 | In-memory replay idempotency; run isolation; atomic answer transition; duplicate rejection; `test_hitl.py` |
 | Gate 1A End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0008 | AF-110 | Native LangGraph interrupt/resume; validated run/thread identity; deterministic fixture-to-Plan path; four correlated node traces; `tests/e2e/test_gate1a.py` |
-| GitHub App / Webhook Verification | Gateway (GitHub) | — | AF-201 | Draft v2 — bounded replay guard; pending Human Review; no implementation |
+| GitHub App / Webhook Verification | Gateway (GitHub) / PostgreSQL Audit | — | AF-201 | Signed `repository_dispatch`; bounded atomic replay guard; safe installation-token cache; bootstrap and allow/deny audit; `tests/gateway/github/`, `tests/control_plane/test_bootstrap.py` |
 | GitHub MCP Read Tools | Gateway (GitHub) | ADR-0007 | AF-202 | Draft v2 — explicit truncation/reconciliation reads; no implementation |
 | Repository Knowledge Ingestion | Runtime (Context) / PostgreSQL+pgvector | — | AF-203 | Draft v2 — line-accurate citations and secret quarantine; no implementation |
 | Docker Sandbox Baseline | Gateway (Sandbox) | ADR-0009 | AF-204 | Draft v2 — narrow Sandbox Broker; no implementation |

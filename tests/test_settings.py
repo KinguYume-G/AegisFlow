@@ -81,3 +81,51 @@ def test_database_url_passthrough(monkeypatch: pytest.MonkeyPatch) -> None:
     settings = get_settings()
 
     assert settings.database_url == database_url
+
+
+def test_github_app_configuration_is_optional(valid_env: None) -> None:
+    settings = get_settings()
+
+    assert settings.github_app_configured is False
+
+
+def test_complete_github_app_configuration_is_accepted(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    values = {
+        "GITHUB_APP_ID": "123",
+        "GITHUB_APP_PRIVATE_KEY": "private-key",
+        "GITHUB_WEBHOOK_SECRET": "webhook-secret",
+        "GITHUB_INSTALLATION_ID": "456",
+    }
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+
+    settings = get_settings()
+
+    assert settings.github_app_configured is True
+    assert settings.github_installation_id == "456"
+
+
+@pytest.mark.parametrize(
+    "configured_names",
+    [
+        ("GITHUB_APP_ID",),
+        ("GITHUB_APP_ID", "GITHUB_APP_PRIVATE_KEY"),
+        (
+            "GITHUB_APP_ID",
+            "GITHUB_APP_PRIVATE_KEY",
+            "GITHUB_WEBHOOK_SECRET",
+        ),
+    ],
+)
+def test_partial_github_app_configuration_is_rejected(
+    valid_env: None,
+    monkeypatch: pytest.MonkeyPatch,
+    configured_names: tuple[str, ...],
+) -> None:
+    for name in configured_names:
+        monkeypatch.setenv(name, "configured")
+
+    with pytest.raises(ConfigurationError):
+        get_settings()

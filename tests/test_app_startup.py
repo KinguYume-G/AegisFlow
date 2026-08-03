@@ -12,7 +12,24 @@ from aegisflow_core.settings import ConfigurationError
 
 
 def test_create_app_succeeds_with_valid_env(valid_env: None) -> None:
-    assert isinstance(create_app(), FastAPI)
+    app = create_app()
+
+    assert isinstance(app, FastAPI)
+    assert app.state.github_token_provider is None
+
+
+def test_create_app_registers_github_token_provider(
+    valid_env: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GITHUB_APP_ID", "123")
+    monkeypatch.setenv("GITHUB_APP_PRIVATE_KEY", "private-key")
+    monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", "webhook-secret")
+    monkeypatch.setenv("GITHUB_INSTALLATION_ID", "456")
+
+    app = create_app()
+
+    assert app.state.github_token_provider is not None
 
 
 def test_create_app_fails_fast_without_app_env(

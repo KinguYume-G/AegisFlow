@@ -15,6 +15,14 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "postgresql+asyncpg://aegisflow_test:aegisflow_test@localhost/aegisflow_test",
     )
     monkeypatch.delenv("APP_BASE_URL", raising=False)
+    for name in (
+        "GITHUB_APP_ID",
+        "GITHUB_APP_PRIVATE_KEY",
+        "GITHUB_WEBHOOK_SECRET",
+        "GITHUB_INSTALLATION_ID",
+        "AEGISFLOW_BOOTSTRAP_TENANT_SLUG",
+    ):
+        monkeypatch.delenv(name, raising=False)
 
 
 @pytest.fixture
