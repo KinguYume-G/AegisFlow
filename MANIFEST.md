@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 362
-- Active project files: 355
+- Repository files: 374
+- Active project files: 367
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 129
-- Test files: 92
+- Application source files: 137
+- Test files: 96
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -164,6 +164,7 @@
 - `src/aegisflow_core/control_plane/domain/access.py`
 - `src/aegisflow_core/control_plane/domain/approval.py`
 - `src/aegisflow_core/control_plane/domain/audit.py`
+- `src/aegisflow_core/control_plane/domain/registry.py`
 - `src/aegisflow_core/control_plane/domain/base.py`
 - `src/aegisflow_core/control_plane/domain/execution.py`
 - `src/aegisflow_core/control_plane/domain/session.py`
@@ -176,9 +177,13 @@
 - `src/aegisflow_core/control_plane/migrations/versions/0002_normalize_check_names.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0007_add_tenant_version_foundations.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0008_add_identity_rbac.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0009_add_tool_registry.py`
+- `src/aegisflow_core/control_plane/audit.py`
 - `src/aegisflow_core/control_plane/identity/__init__.py`
 - `src/aegisflow_core/control_plane/identity/oidc.py`
 - `src/aegisflow_core/control_plane/rbac.py`
+- `src/aegisflow_core/control_plane/registries/__init__.py`
+- `src/aegisflow_core/control_plane/registries/service.py`
 - `src/aegisflow_core/control_plane/tenants/__init__.py`
 - `src/aegisflow_core/control_plane/tenants/scope.py`
 - `src/aegisflow_core/control_plane/versions/__init__.py`
@@ -303,7 +308,10 @@
 - `src/aegisflow_core/control_plane/migrations/versions/0004_protect_approval_decisions.py`
 - `src/aegisflow_core/gateway/policy/__init__.py`
 - `src/aegisflow_core/gateway/policy/config.py`
+- `src/aegisflow_core/gateway/policy/contextual.py`
 - `src/aegisflow_core/gateway/policy/gate.py`
+- `src/aegisflow_core/gateway/mcp/__init__.py`
+- `src/aegisflow_core/gateway/mcp/gate.py`
 - `src/aegisflow_core/gateway/sandbox/__init__.py`
 - `src/aegisflow_core/gateway/sandbox/broker.py`
 - `src/aegisflow_core/gateway/sandbox/docker_runner.py`
@@ -343,7 +351,11 @@
 - `src/aegisflow_core/runtime/temporal/worker.py`
 - `src/aegisflow_core/runtime/temporal/workflow.py`
 - `tests/gateway/policy/test_gate.py`
+- `tests/gateway/policy/test_contextual.py`
+- `tests/gateway/mcp/test_registry_gate.py`
 - `tests/control_plane/test_approvals.py`
+- `tests/control_plane/test_audit_service.py`
+- `tests/control_plane/test_registry_service.py`
 - `tests/gateway/sandbox/test_runner.py`
 - `tests/packs/delivery/executor/test_agent.py`
 - `tests/packs/delivery/reviewer/test_reviewer.py`

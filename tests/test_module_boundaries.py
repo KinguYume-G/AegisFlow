@@ -99,6 +99,9 @@ def test_domain_packages_contain_only_approved_modules() -> None:
             PACKAGE_ROOT / "gateway" / "policy" / "__init__.py",
             PACKAGE_ROOT / "gateway" / "policy" / "config.py",
             PACKAGE_ROOT / "gateway" / "policy" / "gate.py",
+            PACKAGE_ROOT / "gateway" / "policy" / "contextual.py",
+            PACKAGE_ROOT / "gateway" / "mcp" / "__init__.py",
+            PACKAGE_ROOT / "gateway" / "mcp" / "gate.py",
         PACKAGE_ROOT / "models" / "__init__.py",
         PACKAGE_ROOT / "models" / "contracts.py",
         PACKAGE_ROOT / "models" / "circuit_breaker.py",
@@ -179,6 +182,10 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("domain/access.py"),
                 Path("approvals.py"),
                 Path("rbac.py"),
+                Path("audit.py"),
+                Path("registries/__init__.py"),
+                Path("registries/service.py"),
+                Path("domain/registry.py"),
                 Path("idempotency_ledger.py"),
                 Path("runtime_uow.py"),
                 Path("tenants/__init__.py"),
@@ -196,6 +203,7 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("migrations/versions/0006_add_model_circuit_state.py"),
                 Path("migrations/versions/0007_add_tenant_version_foundations.py"),
                 Path("migrations/versions/0008_add_identity_rbac.py"),
+                Path("migrations/versions/0009_add_tool_registry.py"),
     }
     actual_relative_files = {
         path.relative_to(control_plane)

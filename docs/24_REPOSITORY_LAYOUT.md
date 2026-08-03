@@ -182,6 +182,12 @@
 | control_plane/domain/access.py | 代码/数据/安全 | AF-403 tenant membership 与 revocable fixed-role assignment facts |
 | control_plane/rbac.py | 代码/安全 | AF-403 六角色固定 capability matrix、tenant-local evaluator 与审计 assignment/revocation |
 | control_plane/migrations/versions/0008_add_identity_rbac.py | 数据/迁移/安全 | AF-403 membership/role schema、复合租户外键、active-role 唯一约束与 mutation guard |
+| control_plane/audit.py | 代码/审计/安全 | AF-405 完整字段校验、credential redaction、transactional append 与 tenant-scoped query |
+| control_plane/domain/registry.py | 代码/数据/安全 | AF-406 immutable tool registration 与独立 disablement facts |
+| control_plane/registries/ | 代码/治理 | AF-406 tenant-local registration、disablement、active lookup 与审计服务 |
+| control_plane/migrations/versions/0009_add_tool_registry.py | 数据/迁移/安全 | AF-406 registry/disablement schema、复合租户外键与 append-only triggers |
+| gateway/policy/contextual.py | 代码/安全 | AF-404 固定顺序、版本化、可解释的 allow/deny/require-approval policy evaluator |
+| gateway/mcp/ | 代码/安全/集成 | AF-406 registry→policy→schema→internal adapter→audit 调用门；credential 仅在 adapter 内解析 |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
