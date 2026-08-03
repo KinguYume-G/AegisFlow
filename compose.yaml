@@ -69,6 +69,8 @@ services:
       target: sandbox-broker
     environment:
       SANDBOX_WORKSPACE_ROOT: /workspaces
+    group_add:
+      - ${DOCKER_SOCKET_GID:-0}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - sandbox_workspaces:/workspaces

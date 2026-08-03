@@ -118,6 +118,7 @@ def test_only_broker_has_docker_socket(compose_config: dict[str, object]) -> Non
     assert all(mount["source"] != "/var/run/docker.sock" for mount in core_mounts)
     broker_mounts = services["sandbox-broker"]["volumes"]
     assert any(mount["source"] == "/var/run/docker.sock" for mount in broker_mounts)
+    assert services["sandbox-broker"]["group_add"] == ["0"]
 
 
 def test_required_values_fail_during_compose_interpolation() -> None:
