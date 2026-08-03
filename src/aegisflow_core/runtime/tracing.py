@@ -138,7 +138,7 @@ class StepTraceRecord(BaseModel):
     step_id: UUID | None
     trace_id: UUID
     event_id: UUID
-    agent: Literal["intake", "clarifier", "context", "planner"]
+    agent: Literal["intake", "clarifier", "context", "planner", "executor", "reviewer"]
     prompt: str
     model: str
     token_usage: TokenUsage
@@ -205,7 +205,7 @@ def build_step_trace_record(
     run_id: UUID,
     step_id: UUID | None,
     trace_id: UUID,
-    agent: Literal["intake", "clarifier", "context", "planner"],
+    agent: Literal["intake", "clarifier", "context", "planner", "executor", "reviewer"],
     raw_prompt: str,
     model: str,
     token_usage: TokenUsage,

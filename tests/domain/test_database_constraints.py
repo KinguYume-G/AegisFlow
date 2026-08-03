@@ -105,7 +105,7 @@ async def test_schema_and_triggers_exist(db_connection: AsyncConnection) -> None
                     WHERE schemaname = 'public'
                       AND tablename IN (
                         'tenants', 'workflows', 'runs', 'steps',
-                        'approvals', 'audit_events'
+                        'approvals', 'audit_events', 'repository_chunks'
                       )
                     """
                 )
@@ -121,7 +121,8 @@ async def test_schema_and_triggers_exist(db_connection: AsyncConnection) -> None
                     WHERE NOT tgisinternal
                       AND tgname IN (
                         'trg_workflows_prevent_mutation',
-                        'trg_audit_events_prevent_mutation'
+                        'trg_audit_events_prevent_mutation',
+                        'trg_approvals_protect_decision'
                       )
                     """
                 )
@@ -152,10 +153,12 @@ async def test_schema_and_triggers_exist(db_connection: AsyncConnection) -> None
         "steps",
         "approvals",
         "audit_events",
+        "repository_chunks",
     }
     assert triggers == {
         "trg_workflows_prevent_mutation",
         "trg_audit_events_prevent_mutation",
+        "trg_approvals_protect_decision",
     }
     assert check_constraints == {
         "ck_workflows_status",

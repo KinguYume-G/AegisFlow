@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 240
-- Active project files: 233
+- Repository files: 276
+- Active project files: 269
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 56
-- Test files: 57
+- Application source files: 84
+- Test files: 65
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -257,4 +257,40 @@
 - `tests/test_logging.py`
 - `tests/test_module_boundaries.py`
 - `tests/test_settings.py`
+- `src/aegisflow_core/control_plane/approvals.py`
+- `src/aegisflow_core/control_plane/domain/knowledge.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0003_add_knowledge_chunks.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0004_protect_approval_decisions.py`
+- `src/aegisflow_core/gateway/policy/__init__.py`
+- `src/aegisflow_core/gateway/policy/config.py`
+- `src/aegisflow_core/gateway/policy/gate.py`
+- `src/aegisflow_core/gateway/sandbox/__init__.py`
+- `src/aegisflow_core/gateway/sandbox/broker.py`
+- `src/aegisflow_core/gateway/sandbox/docker_runner.py`
+- `src/aegisflow_core/gateway/sandbox/runner.py`
+- `src/aegisflow_core/packs/delivery/contracts/execution_result.py`
+- `src/aegisflow_core/packs/delivery/contracts/policy_decision.py`
+- `src/aegisflow_core/packs/delivery/contracts/review_decision.py`
+- `src/aegisflow_core/packs/delivery/executor/__init__.py`
+- `src/aegisflow_core/packs/delivery/executor/agent.py`
+- `src/aegisflow_core/packs/delivery/executor/fakes.py`
+- `src/aegisflow_core/packs/delivery/executor/ports.py`
+- `src/aegisflow_core/packs/delivery/reviewer/__init__.py`
+- `src/aegisflow_core/packs/delivery/reviewer/agent.py`
+- `src/aegisflow_core/packs/delivery/reviewer/fakes.py`
+- `src/aegisflow_core/packs/delivery/reviewer/ports.py`
+- `src/aegisflow_core/runtime/context/__init__.py`
+- `src/aegisflow_core/runtime/context/chunking.py`
+- `src/aegisflow_core/runtime/context/embedder.py`
+- `src/aegisflow_core/runtime/context/ingestion.py`
+- `src/aegisflow_core/runtime/context/pgvector_retriever.py`
+- `src/aegisflow_core/runtime/context/store.py`
+- `tests/gateway/policy/test_gate.py`
+- `tests/control_plane/test_approvals.py`
+- `tests/gateway/sandbox/test_runner.py`
+- `tests/packs/delivery/executor/test_agent.py`
+- `tests/packs/delivery/reviewer/test_reviewer.py`
+- `tests/runtime/context/test_chunking_embedder.py`
+- `tests/runtime/context/test_ingestion.py`
+- `tests/runtime/context/test_pgvector_retriever.py`
 - `uv.lock`

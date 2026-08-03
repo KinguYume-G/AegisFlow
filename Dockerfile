@@ -38,3 +38,11 @@ USER appuser
 EXPOSE 8000
 
 CMD ["uvicorn", "aegisflow_core.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+FROM runtime AS sandbox-broker
+
+USER root
+RUN mkdir -p /workspaces && chown appuser:appgroup /workspaces
+USER appuser
+EXPOSE 8081
+CMD ["uvicorn", "aegisflow_core.gateway.sandbox.broker:app", "--host", "0.0.0.0", "--port", "8081"]

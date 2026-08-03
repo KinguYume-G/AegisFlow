@@ -5,6 +5,8 @@
 .idea
 .vscode
 .venv
+.test-tmp
+.uv-cache
 __pycache__
 *.py[cod]
 .coverage

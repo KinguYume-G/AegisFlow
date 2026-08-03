@@ -98,7 +98,7 @@
 
 ## Git 规则
 
-- One Issue, One Branch, One PR；
+- 默认 One Issue、One Branch、One PR；仅在 Project Owner 明确批准时，可将最多 10 个依赖闭合 Issue 合并为一个批次 Branch/PR，并逐 Issue 保留 AC、测试证据、Traceability 与回滚边界；
 - Branch：`type/AF-xxx-short-name`；
 - Conventional Commits；
 - AI 不得直接推送 main；

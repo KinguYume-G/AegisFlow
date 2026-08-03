@@ -56,7 +56,7 @@ def test_compose_declares_only_approved_services(
 ) -> None:
     services = compose_config["services"]
     assert isinstance(services, dict)
-    assert set(services) == {"core", "postgres", "redis"}
+    assert set(services) == {"core", "postgres", "redis", "sandbox-broker"}
 
 
 def test_service_images_are_immutable(compose_config: dict[str, object]) -> None:
@@ -84,6 +84,7 @@ def test_core_environment_is_allowlisted(compose_config: dict[str, object]) -> N
         "APP_BASE_URL",
         "APP_ENV",
         "DATABASE_URL",
+        "SANDBOX_BROKER_URL",
     }
     assert services["core"]["environment"]["DATABASE_URL"] == (
         "postgresql+asyncpg://aegisflow:local-placeholder-only@postgres:5432/"
@@ -106,7 +107,17 @@ def test_healthchecks_and_startup_dependencies_are_explicit(
     assert services["core"]["depends_on"] == {
         "postgres": {"condition": "service_healthy", "required": True},
         "redis": {"condition": "service_healthy", "required": True},
+        "sandbox-broker": {"condition": "service_healthy", "required": True},
     }
+
+
+def test_only_broker_has_docker_socket(compose_config: dict[str, object]) -> None:
+    services = compose_config["services"]
+    assert isinstance(services, dict)
+    core_mounts = services["core"]["volumes"]
+    assert all(mount["source"] != "/var/run/docker.sock" for mount in core_mounts)
+    broker_mounts = services["sandbox-broker"]["volumes"]
+    assert any(mount["source"] == "/var/run/docker.sock" for mount in broker_mounts)
 
 
 def test_required_values_fail_during_compose_interpolation() -> None:

@@ -40,6 +40,13 @@
 - 初始六表使用租户复合外键、数据库 `CHECK`、Workflow 不可变触发器与 append-only Audit 触发器；迁移 up/down 和负向约束测试进入 Required CI。
 - 该技术选择由 canonical Issue AF-103 解决 `ORM/migration` 待决项，不需要新增 ADR；未来若改变持久化系统或状态所有权，仍必须走 ADR。
 
+### Owner-approved dependency-closed batch delivery (2026-08-03)
+
+- One Issue → One Branch → One PR remains the default unless the Project Owner explicitly approves a batch before implementation.
+- An approved batch may contain at most 10 dependency-closed Issues on one branch and one PR. Every included Issue retains independent acceptance criteria, test evidence, traceability, and rollback boundaries.
+- Batch approval changes delivery granularity only; architecture, security, CI, Human Review/Human Merge, and the prohibition on AI self-approval/self-merge remain mandatory.
+- The first approved batch is AF-203 through AF-207. AF-208 through AF-210 stay outside this batch because GitHub writes, persistent idempotency, and real end-to-end effects require a separate review boundary.
+
 ## Open
 
 Python/Node 精确版本、OIDC provider、Policy representation、Object storage、Langfuse hosting、k3s environment 和 Model providers 必须通过 Issue/ADR 决定。

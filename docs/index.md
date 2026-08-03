@@ -1,5 +1,7 @@
 # AegisFlow 文档总入口
 
+> 当前实现批次：AF-203–AF-207 是 Project Owner 明确批准的依赖闭合批次；每个 Issue 仍须保留独立验收证据，并经过 Human Review/Merge。
+
 本页是 AegisFlow 的文档导航与当前状态入口。首次进入仓库时必须先阅读根目录的 [`START_HERE.md`](../START_HERE.md)，再依次阅读 `README.md`、`AGENTS.md` 和本页；开始具体任务前，再按本页加载当前 Issue、相关 ADR、测试策略与最近 Handoff。
 
 ## 当前状态

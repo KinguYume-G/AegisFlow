@@ -33,7 +33,7 @@ Commands and results:
 ## Rollback
 
 ## Checklist
-- [ ] One Issue, One PR
+- [ ] One Issue, One PR; or Project Owner-approved dependency-closed batch with every Issue listed
 - [ ] No real secrets
 - [ ] No unrelated refactor
 - [ ] Tests pass
