@@ -46,12 +46,12 @@ async def test_route_is_unavailable_without_github_configuration(
 @pytest.mark.database
 @pytest.mark.anyio
 async def test_route_audits_allow_deny_and_replay(
-    valid_env: None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     database_url = os.environ.get("DATABASE_URL")
     if not database_url:
         pytest.skip("DATABASE_URL is required")
+    monkeypatch.setenv("APP_ENV", "test")
     slug = f"af201-router-{uuid4()}"
     delivery = f"delivery-{uuid4()}"
     monkeypatch.setenv("GITHUB_APP_ID", "123")
