@@ -56,8 +56,8 @@ async def test_route_audits_allow_deny_and_replay(
     delivery = f"delivery-{uuid4()}"
     monkeypatch.setenv("GITHUB_APP_ID", "123")
     monkeypatch.setenv("GITHUB_APP_PRIVATE_KEY", "test-private-key")
-    monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", SECRET)
-    monkeypatch.setenv("GITHUB_INSTALLATION_ID", "42")
+    monkeypatch.setenv("GITHUB_APP_WEBHOOK_SECRET", SECRET)
+    monkeypatch.setenv("GITHUB_APP_INSTALLATION_ID", "42")
     monkeypatch.setenv("AEGISFLOW_BOOTSTRAP_TENANT_SLUG", slug)
 
     from aegisflow_core.app import create_app

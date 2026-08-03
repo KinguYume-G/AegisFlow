@@ -25,8 +25,8 @@ def test_create_app_registers_github_token_provider(
 ) -> None:
     monkeypatch.setenv("GITHUB_APP_ID", "123")
     monkeypatch.setenv("GITHUB_APP_PRIVATE_KEY", "private-key")
-    monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", "webhook-secret")
-    monkeypatch.setenv("GITHUB_INSTALLATION_ID", "456")
+    monkeypatch.setenv("GITHUB_APP_WEBHOOK_SECRET", "webhook-secret")
+    monkeypatch.setenv("GITHUB_APP_INSTALLATION_ID", "456")
 
     app = create_app()
 
@@ -41,8 +41,8 @@ async def test_app_lifespan_closes_owned_github_http_client(
 ) -> None:
     monkeypatch.setenv("GITHUB_APP_ID", "123")
     monkeypatch.setenv("GITHUB_APP_PRIVATE_KEY", "private-key")
-    monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", "webhook-secret")
-    monkeypatch.setenv("GITHUB_INSTALLATION_ID", "456")
+    monkeypatch.setenv("GITHUB_APP_WEBHOOK_SECRET", "webhook-secret")
+    monkeypatch.setenv("GITHUB_APP_INSTALLATION_ID", "456")
     app = create_app()
     read_client = app.state.github_read_client
 

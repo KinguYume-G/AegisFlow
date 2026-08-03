@@ -78,8 +78,8 @@ def get_settings() -> Settings:
     github_values = {
         "github_app_id": os.environ.get("GITHUB_APP_ID") or None,
         "github_app_private_key": os.environ.get("GITHUB_APP_PRIVATE_KEY") or None,
-        "github_webhook_secret": os.environ.get("GITHUB_WEBHOOK_SECRET") or None,
-        "github_installation_id": os.environ.get("GITHUB_INSTALLATION_ID") or None,
+        "github_webhook_secret": os.environ.get("GITHUB_APP_WEBHOOK_SECRET") or None,
+        "github_installation_id": os.environ.get("GITHUB_APP_INSTALLATION_ID") or None,
     }
     github_configured_count = sum(
         value is not None for value in github_values.values()
