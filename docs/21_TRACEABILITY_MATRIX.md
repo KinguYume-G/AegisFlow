@@ -40,11 +40,11 @@
 | Gate 1A End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0008 | AF-110 | Native LangGraph interrupt/resume; validated run/thread identity; deterministic fixture-to-Plan path; four correlated node traces; `tests/e2e/test_gate1a.py` |
 | GitHub App / Webhook Verification | Gateway (GitHub) / PostgreSQL Audit | — | AF-201 | Signed `repository_dispatch`; bounded atomic replay guard; safe installation-token cache; bootstrap and allow/deny audit; `tests/gateway/github/`, `tests/control_plane/test_bootstrap.py` |
 | GitHub MCP Read Tools | Gateway (GitHub) | ADR-0007 | AF-202 | Five async GET-only tools; strict v1 schemas; bounded response/file/patch sizes; explicit pagination truncation; safe error mapping and PR reconciliation; `tests/gateway/github/test_read_tools.py` |
-| Repository Knowledge Ingestion | Runtime (Context) / PostgreSQL+pgvector | — | AF-203 | Draft v2 — line-accurate citations and secret quarantine; no implementation |
-| Docker Sandbox Baseline | Gateway (Sandbox) | ADR-0009 | AF-204 | Draft v2 — narrow Sandbox Broker; no implementation |
-| Executor Agent Contract | DeliveryPack / Executor | — | AF-205 | Draft v2 — controlled TestProfile/path/size limits; no implementation |
-| Reviewer Agent Contract | DeliveryPack / Reviewer | ADR-0002 | AF-206 | Draft v2 — valid async approval state machine; no implementation |
-| Deterministic Policy Gate v0 | Gateway (Policy) | ADR-0007 | AF-207 | Draft v2 — trusted ExecutionScope; no implementation |
-| GitHub Draft PR Write Tool | Gateway (GitHub) | ADR-0007 | AF-208 | Draft v2 — verified authorization and atomic claim; no implementation |
-| Webhook/Tool-call Idempotency (M2 scope) | Ledger | ADR-0002 | AF-209 | Draft v2 — lease/fencing ClaimResult; no implementation |
-| Gate 1B End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0007, ADR-0009 | AF-210 | Draft v2 — pending Human Review; real E2E requires Fixture repository and development GitHub App |
+| Repository Knowledge Ingestion | Runtime (Context) / PostgreSQL+pgvector | — | AF-203 | PR #96 human-merged; line-accurate chunks, deterministic embeddings, isolation and secret quarantine |
+| Docker Sandbox Baseline | Gateway (Sandbox) | ADR-0009 | AF-204 | PR #96 human-merged; narrow broker, digest/non-root/no-network/resource enforcement and live lifecycle smoke |
+| Executor Agent Contract | DeliveryPack / Executor | — | AF-205 | PR #96 human-merged; bounded path/file/patch handling and structured sandbox evidence |
+| Reviewer Agent Contract | DeliveryPack / Reviewer | ADR-0002 | AF-206 | PR #96 human-merged; async approval state machine and immutable PostgreSQL decisions |
+| Deterministic Policy Gate v0 | Gateway (Policy) | ADR-0007 | AF-207 | PR #96 human-merged; trusted repository/capability/risk default-deny rules |
+| GitHub Draft PR Write Tool | Gateway (GitHub) | ADR-0007 | AF-208 | Exact-scope approval, structured Git Data writes, atomic claim and remote Marker reconciliation; `test_pull_request.py` |
+| Webhook/Tool-call Idempotency (M2 scope) | Ledger | ADR-0002 | AF-209 | Migration 0005; tenant/scope key, lease/fencing token, concurrent claim and stale-writer tests |
+| Gate 1B End-to-End | Runtime / DeliveryPack | ADR-0002, ADR-0007, ADR-0009 | AF-210 | Async Policy→Executor→Reviewer→Human Approval→Draft PR graph; local/DB E2E passes; real GitHub evidence waits on protected Fixture/App environment |
