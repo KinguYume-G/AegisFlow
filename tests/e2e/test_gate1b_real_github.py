@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 import os
+from pathlib import Path
 from uuid import uuid4
 
 import httpx
@@ -27,6 +28,18 @@ from aegisflow_core.gateway.github.read_tools import GitHubReadClient
 from aegisflow_core.gateway.policy.gate import RepositoryTarget
 from aegisflow_core.packs.delivery.contracts.determinism import SystemClock
 from aegisflow_core.packs.delivery.contracts.review_decision import ReviewFinding
+
+
+def test_gate1b_workflow_maps_github_safe_environment_names() -> None:
+    """GitHub rejects variable and secret names that start with ``GITHUB_``."""
+    workflow = (
+        Path(__file__).parents[2] / ".github" / "workflows" / "gate1b-e2e.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "vars.AEGISFLOW_GITHUB_APP_ID" in workflow
+    assert "vars.AEGISFLOW_GITHUB_APP_INSTALLATION_ID" in workflow
+    assert "secrets.AEGISFLOW_APP_PRIVATE_KEY" in workflow
+    assert "secrets.AEGISFLOW_APP_WEBHOOK_SECRET" in workflow
 
 
 @pytest.mark.real_github
