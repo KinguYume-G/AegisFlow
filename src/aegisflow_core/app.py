@@ -18,6 +18,7 @@ from aegisflow_core.gateway.github.webhook import (
     router as github_webhook_router,
 )
 from aegisflow_core.gateway.github.auth import InstallationTokenProvider
+from aegisflow_core.gateway.github.read_tools import GitHubReadClient
 from aegisflow_core.logging import configure_logging
 from aegisflow_core.settings import get_settings
 from aegisflow_core.packs.delivery.contracts.determinism import SystemClock
@@ -28,10 +29,13 @@ def create_app() -> FastAPI:
     configure_logging()
     settings = get_settings()
     database_engine = create_database_engine(settings)
+    github_read_client: GitHubReadClient | None = None
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         yield
+        if github_read_client is not None:
+            await github_read_client.aclose()
         await database_engine.dispose()
 
     app = FastAPI(title="AegisFlow Core", lifespan=lifespan)
@@ -50,6 +54,15 @@ def create_app() -> FastAPI:
         if settings.github_app_configured
         else None
     )
+    github_read_client = (
+        GitHubReadClient(
+            token_provider=app.state.github_token_provider,
+            timeout_seconds=settings.github_api_timeout_seconds,
+        )
+        if app.state.github_token_provider is not None
+        else None
+    )
+    app.state.github_read_client = github_read_client
     logger = logging.getLogger("aegisflow")
 
     @app.exception_handler(Exception)

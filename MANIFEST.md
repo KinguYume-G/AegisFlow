@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 238
-- Active project files: 231
+- Repository files: 240
+- Active project files: 233
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 55
-- Test files: 56
+- Application source files: 56
+- Test files: 57
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -163,6 +163,7 @@
 - `src/aegisflow_core/gateway/__init__.py`
 - `src/aegisflow_core/gateway/github/__init__.py`
 - `src/aegisflow_core/gateway/github/auth.py`
+- `src/aegisflow_core/gateway/github/read_tools.py`
 - `src/aegisflow_core/gateway/github/webhook.py`
 - `src/aegisflow_core/health/__init__.py`
 - `src/aegisflow_core/health/router.py`
@@ -214,6 +215,7 @@
 - `tests/gateway/__init__.py`
 - `tests/gateway/github/__init__.py`
 - `tests/gateway/github/test_auth.py`
+- `tests/gateway/github/test_read_tools.py`
 - `tests/gateway/github/test_router.py`
 - `tests/gateway/github/test_webhook.py`
 - `tests/fixtures/context/refund_audit_security.md`

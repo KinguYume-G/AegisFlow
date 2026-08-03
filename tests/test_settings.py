@@ -129,3 +129,24 @@ def test_partial_github_app_configuration_is_rejected(
 
     with pytest.raises(ConfigurationError):
         get_settings()
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "nan", "inf", "not-a-number"])
+def test_github_api_timeout_must_be_positive(
+    valid_env: None,
+    monkeypatch: pytest.MonkeyPatch,
+    value: str,
+) -> None:
+    monkeypatch.setenv("GITHUB_API_TIMEOUT_SECONDS", value)
+
+    with pytest.raises(ConfigurationError):
+        get_settings()
+
+
+def test_github_api_timeout_is_configurable(
+    valid_env: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GITHUB_API_TIMEOUT_SECONDS", "2.5")
+
+    assert get_settings().github_api_timeout_seconds == 2.5

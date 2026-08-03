@@ -96,7 +96,7 @@
 | AF-110.md | AI流程 | Gate 1A E2E Design Note（**Approved v4**，真实 interrupt/resume、安全 resume helper、Fixture 迁移） |
 | M2-SHARED-CONTRACTS.md | AI流程 | AF-201–AF-210 跨 Issue 契约（**Draft v2**）：设计决策已关闭，等待 Human Review |
 | AF-201.md | AI流程 | GitHub App/Webhook 签名与有界防重放 Design Note（**Draft v2**） |
-| AF-202.md | AI流程 | GitHub 只读工具 Design Note（**Draft v2**） |
+| AF-202.md | AI流程 | GitHub 只读工具 Design Note（**Approved v2 / Implemented for Human Review**） |
 | AF-203.md | AI流程 | pgvector 摄取与精确 Citation Design Note（**Draft v2**） |
 | AF-204.md | AI流程 | Sandbox Broker 安全基线 Design Note（**Draft v2**） |
 | AF-207.md | AI流程 | 可信 ExecutionScope Policy Gate Design Note（**Draft v2**） |
@@ -122,7 +122,7 @@
 | AF-109.md | 质量 | Langfuse Tracing 配套 Test Plan（**Approved v4**，mock CI + 人工真实 smoke） |
 | AF-110.md | 质量 | Gate 1A E2E 配套 Test Plan（**Approved v4**） |
 | AF-201.md | 质量 | GitHub App/Webhook 配套 Test Plan（**Draft v2**） |
-| AF-202.md | 质量 | GitHub 只读工具配套 Test Plan（**Draft v2**） |
+| AF-202.md | 质量 | GitHub 只读工具配套 Test Plan（**Approved v2 / Executed for Human Review**） |
 | AF-203.md | 质量 | 仓库知识摄取配套 Test Plan（**Draft v2**） |
 | AF-204.md | 质量 | Sandbox Broker 配套 Test Plan（**Draft v2**） |
 | AF-207.md | 质量 | Policy Gate 配套 Test Plan（**Draft v2**） |
@@ -138,7 +138,7 @@
 |---|---|---|
 | app.py | 代码 | FastAPI 应用工厂、路由挂载与安全异常信封 |
 | main.py | 代码 | ASGI 入口 `aegisflow_core.main:app` |
-| settings.py | 配置 | 应用/数据库、Langfuse 与 GitHub App all-or-none 的 fail-fast 配置 |
+| settings.py | 配置 | 应用/数据库、Langfuse、GitHub App all-or-none 与有限正数 API timeout 的 fail-fast 配置 |
 | logging.py | 可观测 | 幂等 JSON stdout 日志基础 |
 | __init__.py | 代码边界 | `aegisflow_core` 根包标记 |
 | health/__init__.py | 代码边界 | Health 子包标记 |
@@ -154,6 +154,7 @@
 | runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包标记 |
 | gateway/github/auth.py | 代码/安全 | AF-201 GitHub App JWT 与 Installation Token 安全缓存 |
+| gateway/github/read_tools.py | 代码/安全/集成 | AF-202 五个 GET-only GitHub 工具、显式截断、有限响应和稳定错误映射 |
 | gateway/github/webhook.py | 代码/安全/可靠性 | AF-201 签名优先校验、Schema、防重放、审计与异步 dispatch seam |
 | models/__init__.py | 代码边界 | Models 顶层包占位 |
 | evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
@@ -189,7 +190,7 @@
 | __init__.py | 质量 | 测试包标记 |
 | conftest.py | 质量 | 隔离环境变量与 ASGI async client fixtures |
 | control_plane/test_bootstrap.py | 质量/数据 | AF-201 Bootstrap 幂等、并发唯一与不可变数据事务回滚测试 |
-| gateway/github/ | 质量/安全/可靠性 | AF-201 验签、Schema、防重放、Token 缓存、HTTP 状态与 PostgreSQL 审计测试 |
+| gateway/github/ | 质量/安全/可靠性 | AF-201 验签/审计及 AF-202 只读工具、分页、限流、超时与 reconciliation 测试 |
 | test_module_boundaries.py | 质量 | 包存在性、空边界与禁止依赖静态护栏 |
 | test_settings.py | 质量 | 合法、缺失和非法配置测试 |
 | test_app_startup.py | 质量/安全 | 应用构造、fail-fast 与安全异常信封测试 |

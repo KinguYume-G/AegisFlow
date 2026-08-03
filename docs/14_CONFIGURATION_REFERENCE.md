@@ -13,7 +13,7 @@
 | Redis | REDIS_URL | Usually |
 | Temporal | Address、Namespace、Queue | Maybe |
 | OIDC | Issuer、Client ID/Secret | Yes |
-| GitHub App | App ID、Private Key、Webhook Secret | Yes |
+| GitHub App | App ID、Private Key、Webhook Secret、Installation ID、API Timeout | Yes（凭据项） |
 | Model | Names、API Key | Yes |
 | Langfuse | Host、Keys | Yes |
 | OTel | Export endpoint | Maybe |
