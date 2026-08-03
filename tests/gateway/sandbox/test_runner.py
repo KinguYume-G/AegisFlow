@@ -57,6 +57,7 @@ def test_broker_runs_with_fixed_security_parameters(tmp_path: Path, monkeypatch:
 
     class Client:
         def __init__(self): self.host = None; self.removed = False
+        def pull(self, image): assert image == PROFILE.image
         def create_host_config(self, **kwargs): self.host = kwargs; return kwargs
         def create_container(self, **kwargs): self.created = kwargs; return {"Id":"owned"}
         def put_archive(self, *args): assert args[1] == "/workspace"

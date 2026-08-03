@@ -42,6 +42,9 @@ def _run(request: SandboxRequest) -> SandboxResult:
     started = monotonic()
     try:
         command = ["python", "-m", "pytest", request.test_profile.test_path, "-q"]
+        # Pulling the already digest-validated reference avoids tag drift and
+        # matches Docker CLI behavior without accepting a mutable image name.
+        client.pull(request.test_profile.image)
         host = client.create_host_config(
             network_mode="none", read_only=True, cap_drop=["ALL"], security_opt=["no-new-privileges"],
             mem_limit=f"{request.memory_limit_mb}m", nano_cpus=int(request.cpu_limit * 1_000_000_000),
