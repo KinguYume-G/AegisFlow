@@ -17,6 +17,8 @@ from aegisflow_core.control_plane.domain import (
     Step,
     Tenant,
     TenantMembership,
+    ToolDisablement,
+    ToolRegistration,
     Workflow,
 )
 
@@ -30,6 +32,8 @@ MODELS = (
     RunPromptVersion,
     TenantMembership,
     RoleAssignment,
+    ToolRegistration,
+    ToolDisablement,
 )
 
 
@@ -57,6 +61,8 @@ def test_all_tables_declared() -> None:
         "run_prompt_versions",
         "tenant_memberships",
         "role_assignments",
+        "tool_registrations",
+        "tool_disablements",
     }
     assert {model.__tablename__ for model in MODELS} == set(Base.metadata.tables)
 
@@ -131,6 +137,12 @@ def test_tenant_scoped_foreign_keys_are_declared() -> None:
         if isinstance(constraint, ForeignKeyConstraint)
     }
     assert ("tenant_id", "membership_id") in role_foreign_keys
+    disablement_foreign_keys = {
+        tuple(element.parent.name for element in constraint.elements)
+        for constraint in ToolDisablement.__table__.constraints
+        if isinstance(constraint, ForeignKeyConstraint)
+    }
+    assert ("tenant_id", "registration_id") in disablement_foreign_keys
 
 
 def test_audit_events_are_structurally_append_only() -> None:

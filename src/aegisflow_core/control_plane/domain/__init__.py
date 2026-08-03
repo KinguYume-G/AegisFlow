@@ -8,6 +8,7 @@ from aegisflow_core.control_plane.domain.execution import Run, Step
 from aegisflow_core.control_plane.domain.idempotency import IdempotencyRecord
 from aegisflow_core.control_plane.domain.knowledge import RepositoryChunk
 from aegisflow_core.control_plane.domain.model_routing import ModelCircuitState
+from aegisflow_core.control_plane.domain.registry import ToolDisablement, ToolRegistration
 from aegisflow_core.control_plane.domain.tenant import Tenant
 from aegisflow_core.control_plane.domain.versioning import (
     PromptSeries,
@@ -31,5 +32,7 @@ __all__ = [
     "Step",
     "Tenant",
     "TenantMembership",
+    "ToolDisablement",
+    "ToolRegistration",
     "Workflow",
 ]
