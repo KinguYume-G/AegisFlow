@@ -29,6 +29,13 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "GITHUB_APP_INSTALLATION_ID",
         "GITHUB_API_TIMEOUT_SECONDS",
         "AEGISFLOW_BOOTSTRAP_TENANT_SLUG",
+        "OIDC_ISSUER",
+        "OIDC_AUDIENCE",
+        "OIDC_JWKS_URL",
+        "OIDC_ALGORITHM",
+        "OIDC_CACHE_TTL_SECONDS",
+        "OIDC_MAX_CACHED_KEYS",
+        "OIDC_HTTP_TIMEOUT_SECONDS",
     ):
         monkeypatch.delenv(name, raising=False)
 

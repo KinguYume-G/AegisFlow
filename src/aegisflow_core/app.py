@@ -12,6 +12,7 @@ from aegisflow_core.control_plane.domain.session import (
     create_database_engine,
     create_session_factory,
 )
+from aegisflow_core.control_plane.identity import HttpJwksResolver, OidcVerifier
 from aegisflow_core.gateway.github.webhook import (
     InMemoryReplayGuard,
     NoOpWebhookDispatcher,
@@ -30,12 +31,27 @@ def create_app() -> FastAPI:
     settings = get_settings()
     database_engine = create_database_engine(settings)
     github_read_client: GitHubReadClient | None = None
+    oidc_resolver = (
+        HttpJwksResolver(
+            settings.oidc_config.jwks_url,
+            settings.oidc_config.http_timeout_seconds,
+        )
+        if settings.oidc_config is not None
+        else None
+    )
+    oidc_verifier = (
+        OidcVerifier(settings.oidc_config, oidc_resolver)
+        if settings.oidc_config is not None and oidc_resolver is not None
+        else None
+    )
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         yield
         if github_read_client is not None:
             await github_read_client.aclose()
+        if oidc_resolver is not None:
+            await oidc_resolver.aclose()
         await database_engine.dispose()
 
     app = FastAPI(title="AegisFlow Core", lifespan=lifespan)
@@ -63,6 +79,7 @@ def create_app() -> FastAPI:
         else None
     )
     app.state.github_read_client = github_read_client
+    app.state.oidc_verifier = oidc_verifier
     logger = logging.getLogger("aegisflow")
 
     @app.exception_handler(Exception)

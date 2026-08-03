@@ -1,6 +1,7 @@
 """Core-domain persistence models owned by the control plane."""
 
 from aegisflow_core.control_plane.domain.approval import Approval
+from aegisflow_core.control_plane.domain.access import RoleAssignment, TenantMembership
 from aegisflow_core.control_plane.domain.audit import AuditEvent
 from aegisflow_core.control_plane.domain.base import Base
 from aegisflow_core.control_plane.domain.execution import Run, Step
@@ -23,10 +24,12 @@ __all__ = [
     "ModelCircuitState",
     "PromptSeries",
     "PromptVersion",
+    "RoleAssignment",
     "Run",
     "RepositoryChunk",
     "RunPromptVersion",
     "Step",
     "Tenant",
+    "TenantMembership",
     "Workflow",
 ]

@@ -12,7 +12,7 @@
 | PostgreSQL | DATABASE_URL | Yes |
 | Redis | REDIS_URL | Usually |
 | Temporal | Address、Namespace、Queue | Maybe |
-| OIDC | Issuer、Client ID/Secret | Yes |
+| OIDC | `OIDC_ISSUER`、`OIDC_AUDIENCE`、`OIDC_JWKS_URL`、asymmetric `OIDC_ALGORITHM`、bounded cache/timeout | No（AF-402 仅验证外部 Token，不持有 Client Secret） |
 | GitHub App | App ID、Private Key、Webhook Secret、Installation ID、API Timeout | Yes（凭据项） |
 | Model | Names、API Key | Yes |
 | Langfuse | Host、Keys | Yes |
@@ -31,6 +31,8 @@
 - 可选域名
 
 未提供时对应 Issue 保持 blocked，不得编造。
+
+AF-402 的本地与 CI 验证使用运行时生成的测试密钥，不提交凭据。真实 Provider 参数只通过环境配置注入；Bearer Token 不得进入日志、Trace、异常或仓库文件。
 
 ## Redaction
 

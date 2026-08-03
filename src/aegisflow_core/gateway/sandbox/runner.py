@@ -1,11 +1,13 @@
 """Strict schemas and a non-executing sandbox fake."""
 
 from pathlib import Path
+import re
 from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeFloat, model_validator
 
 _MAX_OUTPUT = 65_536
+_DIGEST_IMAGE = re.compile(r"^[^\s@]+@sha256:[0-9a-f]{64}$")
 
 
 class TestProfile(BaseModel):
@@ -17,7 +19,7 @@ class TestProfile(BaseModel):
 
     @model_validator(mode="after")
     def image_must_be_digest_pinned(self) -> "TestProfile":
-        if "@sha256:" not in self.image:
+        if not _DIGEST_IMAGE.fullmatch(self.image):
             raise ValueError("sandbox image must be pinned by sha256 digest")
         if self.test_path.startswith(('/', '\\')) or ".." in Path(self.test_path).parts:
             raise ValueError("test_path must remain relative")

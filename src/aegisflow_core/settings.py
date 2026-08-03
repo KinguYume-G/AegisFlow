@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import math
 import os
 
+from aegisflow_core.control_plane.identity import OidcConfig
+
 _ALLOWED_APP_ENVS = frozenset({"development", "test", "production"})
 
 
@@ -41,6 +43,13 @@ class Settings:
     model_primary_api_key_env: str | None = None
     model_fallback_name: str | None = None
     model_fallback_api_key_env: str | None = None
+    oidc_issuer: str | None = None
+    oidc_audience: str | None = None
+    oidc_jwks_url: str | None = None
+    oidc_algorithm: str | None = None
+    oidc_cache_ttl_seconds: int = 300
+    oidc_max_cached_keys: int = 16
+    oidc_http_timeout_seconds: float = 5.0
 
     @property
     def github_app_configured(self) -> bool:
@@ -64,6 +73,24 @@ class Settings:
                 self.model_fallback_name,
                 self.model_fallback_api_key_env,
             )
+        )
+
+    @property
+    def oidc_configured(self) -> bool:
+        return all((self.oidc_issuer, self.oidc_audience, self.oidc_jwks_url, self.oidc_algorithm))
+
+    @property
+    def oidc_config(self) -> OidcConfig | None:
+        if not self.oidc_configured:
+            return None
+        return OidcConfig(
+            issuer=self.oidc_issuer or "",
+            audience=self.oidc_audience or "",
+            jwks_url=self.oidc_jwks_url or "",
+            algorithm=self.oidc_algorithm or "",
+            cache_ttl_seconds=self.oidc_cache_ttl_seconds,
+            max_cached_keys=self.oidc_max_cached_keys,
+            http_timeout_seconds=self.oidc_http_timeout_seconds,
         )
 
 
@@ -128,6 +155,34 @@ def get_settings() -> Settings:
     ):
         raise ConfigurationError("Primary and fallback model names must be distinct")
 
+    oidc_values = {
+        "oidc_issuer": os.environ.get("OIDC_ISSUER") or None,
+        "oidc_audience": os.environ.get("OIDC_AUDIENCE") or None,
+        "oidc_jwks_url": os.environ.get("OIDC_JWKS_URL") or None,
+        "oidc_algorithm": os.environ.get("OIDC_ALGORITHM") or None,
+    }
+    oidc_configured_count = sum(value is not None for value in oidc_values.values())
+    if oidc_configured_count not in (0, len(oidc_values)):
+        raise ConfigurationError(
+            "OIDC configuration must provide issuer, audience, JWKS URL, and algorithm or none"
+        )
+    try:
+        oidc_cache_ttl_seconds = int(os.environ.get("OIDC_CACHE_TTL_SECONDS") or "300")
+        oidc_max_cached_keys = int(os.environ.get("OIDC_MAX_CACHED_KEYS") or "16")
+        oidc_http_timeout_seconds = float(os.environ.get("OIDC_HTTP_TIMEOUT_SECONDS") or "5")
+        if oidc_configured_count:
+            OidcConfig(
+                issuer=oidc_values["oidc_issuer"] or "",
+                audience=oidc_values["oidc_audience"] or "",
+                jwks_url=oidc_values["oidc_jwks_url"] or "",
+                algorithm=oidc_values["oidc_algorithm"] or "",
+                cache_ttl_seconds=oidc_cache_ttl_seconds,
+                max_cached_keys=oidc_max_cached_keys,
+                http_timeout_seconds=oidc_http_timeout_seconds,
+            )
+    except (TypeError, ValueError) as exc:
+        raise ConfigurationError("OIDC configuration is invalid") from exc
+
     raw_github_timeout = os.environ.get("GITHUB_API_TIMEOUT_SECONDS") or "10"
     try:
         github_api_timeout_seconds = float(raw_github_timeout)
@@ -149,6 +204,10 @@ def get_settings() -> Settings:
         **langfuse_values,
         **github_values,
         **model_values,
+        **oidc_values,
+        oidc_cache_ttl_seconds=oidc_cache_ttl_seconds,
+        oidc_max_cached_keys=oidc_max_cached_keys,
+        oidc_http_timeout_seconds=oidc_http_timeout_seconds,
         github_api_timeout_seconds=github_api_timeout_seconds,
         aegisflow_bootstrap_tenant_slug=(
             os.environ.get("AEGISFLOW_BOOTSTRAP_TENANT_SLUG") or "gate1b-default"
