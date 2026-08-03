@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 405
-- Active project files: 398
+- Repository files: 408
+- Active project files: 401
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
 - Application source files: 148
-- Test files: 109
+- Test files: 110
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -139,6 +139,8 @@
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
+- `docs/reports/GATE3_DEMO_RUNBOOK.md`
+- `docs/reports/GATE3_GOVERNANCE_SECURITY_REPORT.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`
@@ -380,6 +382,7 @@
 - `tests/gateway/policy/test_contextual.py`
 - `tests/gateway/policy/test_injection.py`
 - `tests/security/test_cross_tenant_isolation.py`
+- `tests/security/test_gate3_contract.py`
 - `tests/gateway/mcp/test_registry_gate.py`
 - `tests/control_plane/test_approvals.py`
 - `tests/control_plane/test_audit_service.py`

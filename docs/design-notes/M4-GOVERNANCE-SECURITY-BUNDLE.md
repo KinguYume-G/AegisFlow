@@ -33,7 +33,7 @@ This document is the shared contract for AF-401–AF-413. Approval authorizes im
 2. **Identity and execution boundary — AF-402, AF-403, AF-407**: OIDC verification, fixed RBAC, and sandbox hardening.
 3. **Decision and tool governance — AF-404, AF-405, AF-406**: contextual policy, audit service, and scoped registry.
 4. **Adversarial evidence — AF-408, AF-409**: injection detection and cross-tenant isolation suite.
-5. **Gate 3 — AF-412, AF-413**: regression suite, evidence report, demo runbook, and human-recorded demo.
+5. **Gate 3 — AF-412, AF-413**: regression suite, evidence report, and reproducible demo runbook; video is optional supplementary evidence.
 
 Dependencies are satisfied inside each wave in issue order. No downstream wave is marked ready before its required upstream PR is Human Merged.
 
@@ -193,7 +193,7 @@ Publish a governance report and demo runbook that demonstrates:
 - authorized, approved path succeeds;
 - audit correlation reconstructs the decision.
 
-Logs and audit evidence are repository/GitHub artifacts. The final video is a Human-operated recording because it may expose private repository UI; AI supplies the exact runbook and redaction checklist but does not fabricate a recording.
+CI logs, JUnit, security audit evidence, limitations, and the reproducible runbook are the formal Gate 3 acceptance evidence. A Human-operated video is optional because recording a private repository UI can expose unrelated content; AI neither requires nor fabricates a recording.
 
 ## Migration and Rollback Rules
 
@@ -213,9 +213,7 @@ Before AF-402 protected evidence:
 - expected asymmetric signing algorithm;
 - GitHub Environment holding any provider credential by Secret reference.
 
-Before AF-413 completion:
-
-- Project Owner performs or delegates the private-repository screen recording using the approved runbook.
+AF-413 requires no external input beyond Human Review of the protected CI evidence and runbook. A Project Owner may optionally perform or delegate a redacted recording using the approved runbook.
 
 ## Stop Conditions
 
@@ -233,4 +231,4 @@ Each Issue satisfies its canonical acceptance criteria, tests precede implementa
 4. Approve fixed code-owned roles/capabilities and no general ABAC/role builder.
 5. Approve deterministic injection rules and policy denial; no LLM detector.
 6. Confirm OIDC provider details may be supplied later, before Wave 2 protected evidence.
-7. Confirm the Project Owner will perform the final AF-413 screen recording from the runbook.
+7. Resolved 2026-08-04: the Project Owner made video optional and accepted CI logs, JUnit, security audit evidence, limitations, and a reproducible runbook as the formal Gate 3 evidence.

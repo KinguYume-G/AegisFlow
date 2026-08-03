@@ -45,7 +45,7 @@
 | ISSUE_TEMPLATE/adr.yml | 架构 | ADR 提案 Issue 表单 |
 | ISSUE_TEMPLATE/documentation.yml | 治理 | 文档 Issue 表单 |
 | PULL_REQUEST_TEMPLATE.md | 治理 | PR 模板，强制安全/测试/回滚章节 |
-| workflows/ci.yml | 质量/治理 | Required CI：锁定依赖、PostgreSQL 迁移 up/down/reapply、pytest 覆盖率门槛与 Core 镜像构建 |
+| workflows/ci.yml | 质量/治理/安全 | Required CI：锁定依赖、PostgreSQL 迁移 up/down/reapply、Gate 3 JUnit/日志/Secret 扫描证据、pytest 覆盖率门槛与镜像构建 |
 | workflows/langfuse-smoke.yml | 质量/可观测/安全 | AF-109 Human Merge 后人工触发的 Langfuse auth/write/flush/bounded-query smoke；使用受保护 Environment |
 | workflows/gate1b-e2e.yml | 质量/安全/集成 | AF-210 受保护 Environment 手动真实 Draft PR、幂等与 Marker 清理验收 |
 | workflows/gate2-fault-injection.yml | 质量/可靠性 | AF-309 手动执行四类故障点 × 五次真实 worker crash/restart，并上传 JSONL 证据 |
@@ -147,13 +147,15 @@
 | AF-312.md | 质量/可靠性 | Gate 2 证据一致性、链接、Secret 和限制声明验证（**Approved v1**） |
 | M4-GOVERNANCE-SECURITY-BUNDLE.md | 质量/安全 | AF-401–AF-413 隔离、拒绝、迁移、回归与 Gate 3 总 Test Plan（**Approved v1**） |
 
-## docs/reports/（已验证 Gate 证据与演示材料）
+## docs/reports/（Gate 证据、限制与可重复验收材料）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
 | GATE2_RELIABILITY_REPORT.md | 可靠性/治理 | M3 环境、20 次故障结果、Provider Smoke、限制与 Gate 2 建议 |
 | GATE2_RELIABILITY_BLOG.md | 文档/可靠性 | 面向读者的 Gate 2 技术总结，不扩大证据结论 |
 | GATE2_DEMO_RUNBOOK.md | 运行/可靠性 | 可重复的受保护工作流演示、核验清单与停止条件 |
+| GATE3_GOVERNANCE_SECURITY_REPORT.md | 安全/治理 | AF-412/413 自动回归范围、正式证据、限制与 Human Review 验收条件 |
+| GATE3_DEMO_RUNBOOK.md | 运行/安全 | 无真实 Secret、无需强制录屏的 Gate 3 可重复验证步骤与停止条件 |
 
 ## src/aegisflow_core/（模块化单体、DeliveryPack、Durable Runtime 与 Governance/Security 实现）
 
@@ -269,6 +271,7 @@
 | control_plane/test_oidc.py | 质量/身份/安全 | AF-402 signature/claim/header/algorithm 负向矩阵、rotation、bounded cache 与 sanitized JWKS failure 测试 |
 | control_plane/test_rbac.py | 质量/安全/数据 | AF-403 固定 matrix、tenant isolation、self-approval denial、审计 grant/revoke 与数据库 trigger 测试 |
 | gateway/sandbox/test_runner.py | 质量/安全 | AF-204/407 Broker schema、Docker hardening、归档攻击、credential、cleanup、timeout 与错误脱敏测试 |
+| security/test_gate3_contract.py | 质量/安全/治理 | Required CI 的 Gate 3 套件、JUnit、日志、环境、Secret 扫描、artifact 与无重试静态护栏 |
 | runtime/__init__.py | 质量 | Runtime 测试包标记 |
 | runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
 | runtime/test_fault_injection.py | 质量/可靠性 | AF-309 固定 20 次矩阵、验收、百分位与 JSONL 证据测试 |

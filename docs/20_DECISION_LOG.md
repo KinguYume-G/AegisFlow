@@ -47,6 +47,12 @@
 - Batch approval changes delivery granularity only; architecture, security, CI, Human Review/Human Merge, and the prohibition on AI self-approval/self-merge remain mandatory.
 - The first approved batch is AF-203 through AF-207. AF-208 through AF-210 stay outside this batch because GitHub writes, persistent idempotency, and real end-to-end effects require a separate review boundary.
 
+### Gate 3 machine-verifiable acceptance evidence (2026-08-04)
+
+- The Project Owner removed mandatory screen recording from AF-413; video is optional supplementary evidence and is not a Gate 3 acceptance dependency.
+- Protected CI logs, JUnit results, security audit evidence, the limitations statement, and the reproducible runbook are the formal AF-412/AF-413 evidence set.
+- Human Review and Human Merge remain mandatory. This decision changes the evidence medium only and does not weaken any M4 control, test, or branch-protection requirement.
+
 ## Open
 
 Python/Node 精确版本、OIDC provider、Policy representation、Object storage、Langfuse hosting、k3s environment 和 Model providers 必须通过 Issue/ADR 决定。
