@@ -138,12 +138,13 @@
 |---|---|---|
 | app.py | 代码 | FastAPI 应用工厂、路由挂载与安全异常信封 |
 | main.py | 代码 | ASGI 入口 `aegisflow_core.main:app` |
-| settings.py | 配置 | 应用/数据库及四项 Langfuse all-or-none 的 fail-fast 配置 |
+| settings.py | 配置 | 应用/数据库、Langfuse 与 GitHub App all-or-none 的 fail-fast 配置 |
 | logging.py | 可观测 | 幂等 JSON stdout 日志基础 |
 | __init__.py | 代码边界 | `aegisflow_core` 根包标记 |
 | health/__init__.py | 代码边界 | Health 子包标记 |
 | health/router.py | 代码 | 稳定的 `GET /health` 契约 |
 | control_plane/__init__.py | 代码边界 | Control Plane 顶层包标记 |
+| control_plane/bootstrap.py | 代码/数据 | AF-201 并发安全的 Bootstrap Tenant/Workflow get-or-create |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
@@ -151,7 +152,9 @@
 | runtime/graph.py | 代码/编排/安全 | AF-110 LangGraph 进程内图、原生 interrupt/resume、安全 thread 校验、节点错误定位与 Trace 记录 |
 | runtime/tracing.py | 可观测/安全 | AF-109 诚实 token/cost 契约、prompt 脱敏、确定性关联与 NoOp/InMemory/Langfuse Recorder |
 | runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
-| gateway/__init__.py | 代码边界 | Gateway 顶层包占位 |
+| gateway/__init__.py | 代码边界 | Gateway 顶层包标记 |
+| gateway/github/auth.py | 代码/安全 | AF-201 GitHub App JWT 与 Installation Token 安全缓存 |
+| gateway/github/webhook.py | 代码/安全/可靠性 | AF-201 签名优先校验、Schema、防重放、审计与异步 dispatch seam |
 | models/__init__.py | 代码边界 | Models 顶层包占位 |
 | evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
@@ -179,12 +182,14 @@
 | packs/delivery/planner/fakes.py | 代码/安全 | 固定四任务、L1/L3 风险与诚实预算的确定性 Reasoner |
 | packs/delivery/planner/agent.py | 代码 | Clarifier 充分性门禁、Planner 委派与异常传播 |
 
-## tests/（AF-101–AF-110 测试）
+## tests/（AF-101–AF-201 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
 | __init__.py | 质量 | 测试包标记 |
 | conftest.py | 质量 | 隔离环境变量与 ASGI async client fixtures |
+| control_plane/test_bootstrap.py | 质量/数据 | AF-201 Bootstrap 幂等、并发唯一与不可变数据事务回滚测试 |
+| gateway/github/ | 质量/安全/可靠性 | AF-201 验签、Schema、防重放、Token 缓存、HTTP 状态与 PostgreSQL 审计测试 |
 | test_module_boundaries.py | 质量 | 包存在性、空边界与禁止依赖静态护栏 |
 | test_settings.py | 质量 | 合法、缺失和非法配置测试 |
 | test_app_startup.py | 质量/安全 | 应用构造、fail-fast 与安全异常信封测试 |

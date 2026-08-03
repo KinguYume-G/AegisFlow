@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 227
-- Active project files: 220
+- Repository files: 238
+- Active project files: 231
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 51
-- Test files: 49
+- Application source files: 55
+- Test files: 56
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -146,6 +146,7 @@
 - `src/aegisflow_core/__init__.py`
 - `src/aegisflow_core/app.py`
 - `src/aegisflow_core/control_plane/__init__.py`
+- `src/aegisflow_core/control_plane/bootstrap.py`
 - `src/aegisflow_core/control_plane/domain/__init__.py`
 - `src/aegisflow_core/control_plane/domain/approval.py`
 - `src/aegisflow_core/control_plane/domain/audit.py`
@@ -160,6 +161,9 @@
 - `src/aegisflow_core/control_plane/migrations/versions/0002_normalize_check_names.py`
 - `src/aegisflow_core/evaluation/__init__.py`
 - `src/aegisflow_core/gateway/__init__.py`
+- `src/aegisflow_core/gateway/github/__init__.py`
+- `src/aegisflow_core/gateway/github/auth.py`
+- `src/aegisflow_core/gateway/github/webhook.py`
 - `src/aegisflow_core/health/__init__.py`
 - `src/aegisflow_core/health/router.py`
 - `src/aegisflow_core/logging.py`
@@ -197,6 +201,8 @@
 - `src/aegisflow_core/settings.py`
 - `tests/__init__.py`
 - `tests/conftest.py`
+- `tests/control_plane/__init__.py`
+- `tests/control_plane/test_bootstrap.py`
 - `tests/domain/__init__.py`
 - `tests/domain/conftest.py`
 - `tests/domain/test_database_constraints.py`
@@ -205,6 +211,11 @@
 - `tests/domain/test_session.py`
 - `tests/e2e/__init__.py`
 - `tests/e2e/test_gate1a.py`
+- `tests/gateway/__init__.py`
+- `tests/gateway/github/__init__.py`
+- `tests/gateway/github/test_auth.py`
+- `tests/gateway/github/test_router.py`
+- `tests/gateway/github/test_webhook.py`
 - `tests/fixtures/context/refund_audit_security.md`
 - `tests/fixtures/context/refund_celery_export.py`
 - `tests/fixtures/context/refund_tenant_isolation.py`

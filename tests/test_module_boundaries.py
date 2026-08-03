@@ -60,6 +60,9 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "runtime" / "state.py",
         PACKAGE_ROOT / "runtime" / "tracing.py",
         PACKAGE_ROOT / "gateway" / "__init__.py",
+        PACKAGE_ROOT / "gateway" / "github" / "__init__.py",
+        PACKAGE_ROOT / "gateway" / "github" / "auth.py",
+        PACKAGE_ROOT / "gateway" / "github" / "webhook.py",
         PACKAGE_ROOT / "models" / "__init__.py",
         PACKAGE_ROOT / "evaluation" / "__init__.py",
         PACKAGE_ROOT / "packs" / "__init__.py",
@@ -101,10 +104,11 @@ def test_domain_packages_contain_only_approved_modules() -> None:
     assert actual_files == expected_files
 
 
-def test_control_plane_contains_only_approved_af_103_modules() -> None:
+def test_control_plane_contains_only_approved_modules() -> None:
     control_plane = PACKAGE_ROOT / "control_plane"
     expected_relative_files = {
         Path("__init__.py"),
+        Path("bootstrap.py"),
         Path("domain/__init__.py"),
         Path("domain/base.py"),
         Path("domain/tenant.py"),
@@ -122,6 +126,17 @@ def test_control_plane_contains_only_approved_af_103_modules() -> None:
         for path in control_plane.rglob("*.py")
     }
     assert actual_relative_files == expected_relative_files
+
+
+def test_delivery_and_domain_code_do_not_import_github_client_libraries() -> None:
+    prohibited = {"cryptography", "httpx", "jwt"}
+    guarded_roots = (
+        PACKAGE_ROOT / "packs" / "delivery",
+        PACKAGE_ROOT / "control_plane" / "domain",
+    )
+    for root in guarded_roots:
+        for source_file in root.rglob("*.py"):
+            assert _imports(source_file).isdisjoint(prohibited)
 
 
 def test_application_layer_imports_are_explicit() -> None:

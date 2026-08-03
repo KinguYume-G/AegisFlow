@@ -21,6 +21,23 @@ class Settings:
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None
     langfuse_tracing_environment: str | None = None
+    github_app_id: str | None = None
+    github_app_private_key: str | None = None
+    github_webhook_secret: str | None = None
+    github_installation_id: str | None = None
+    aegisflow_bootstrap_tenant_slug: str = "gate1b-default"
+
+    @property
+    def github_app_configured(self) -> bool:
+        """Whether the complete GitHub App boundary is configured."""
+        return all(
+            (
+                self.github_app_id,
+                self.github_app_private_key,
+                self.github_webhook_secret,
+                self.github_installation_id,
+            )
+        )
 
 
 def get_settings() -> Settings:
@@ -51,9 +68,27 @@ def get_settings() -> Settings:
             "Langfuse configuration must provide all four required fields or none"
         )
 
+    github_values = {
+        "github_app_id": os.environ.get("GITHUB_APP_ID") or None,
+        "github_app_private_key": os.environ.get("GITHUB_APP_PRIVATE_KEY") or None,
+        "github_webhook_secret": os.environ.get("GITHUB_WEBHOOK_SECRET") or None,
+        "github_installation_id": os.environ.get("GITHUB_INSTALLATION_ID") or None,
+    }
+    github_configured_count = sum(
+        value is not None for value in github_values.values()
+    )
+    if github_configured_count not in (0, len(github_values)):
+        raise ConfigurationError(
+            "GitHub App configuration must provide all four required fields or none"
+        )
+
     return Settings(
         app_env=app_env,
         app_base_url=app_base_url,
         database_url=database_url,
         **langfuse_values,
+        **github_values,
+        aegisflow_bootstrap_tenant_slug=(
+            os.environ.get("AEGISFLOW_BOOTSTRAP_TENANT_SLUG") or "gate1b-default"
+        ),
     )
