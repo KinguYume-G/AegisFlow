@@ -61,6 +61,8 @@ jobs:
             --host http://127.0.0.1:8765 \
             --csv load-results --html load-report.html \
             --only-summary --exit-code-on-error 1
+          ps -p "$server_pid" -o pid,pcpu,pmem,rss,vsz,etime > resource-usage.txt
+          cat resource-usage.txt
           cat load-results_stats.csv
 
       - name: Upload load evidence
@@ -71,6 +73,7 @@ jobs:
           path: |
             load-results*.csv
             load-report.html
+            resource-usage.txt
             uvicorn.log
           if-no-files-found: error
           retention-days: 14
