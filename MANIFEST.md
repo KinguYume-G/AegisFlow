@@ -1,7 +1,7 @@
 # Engineering System Manifest
 
-- Repository files: 340
-- Active project files: 333
+- Repository files: 345
+- Active project files: 338
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
@@ -102,6 +102,7 @@
 - `docs/design-notes/AF-208.md`
 - `docs/design-notes/AF-209.md`
 - `docs/design-notes/AF-210.md`
+- `docs/design-notes/AF-312.md`
 - `docs/design-notes/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
@@ -125,8 +126,12 @@
 - `docs/test-plans/AF-208.md`
 - `docs/test-plans/AF-209.md`
 - `docs/test-plans/AF-210.md`
+- `docs/test-plans/AF-312.md`
 - `docs/test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`
+- `docs/reports/GATE2_DEMO_RUNBOOK.md`
+- `docs/reports/GATE2_RELIABILITY_BLOG.md`
+- `docs/reports/GATE2_RELIABILITY_REPORT.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`

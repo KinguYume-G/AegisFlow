@@ -126,6 +126,11 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 - [`test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`](test-plans/M3-DURABLE-RUNTIME-BUNDLE.md)：AF-301–AF-307 配套 Test Plan，**Approved v1**。
 - [`design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`](design-notes/M3-RELIABILITY-MODEL-BUNDLE.md)：AF-308–AF-311 可靠性与模型运行时批次契约，**Approved v1**。
 - [`test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`](test-plans/M3-RELIABILITY-MODEL-BUNDLE.md)：AF-308–AF-311 配套 Test Plan，**Approved v1**。
+- [`design-notes/AF-312.md`](design-notes/AF-312.md)：Gate 2 可靠性证据发布方案，**Approved v1**。
+- [`test-plans/AF-312.md`](test-plans/AF-312.md)：Gate 2 报告、Blog 与 Demo Runbook 验证计划，**Approved v1**。
+- [`reports/GATE2_RELIABILITY_REPORT.md`](reports/GATE2_RELIABILITY_REPORT.md)：Gate 2 工程证据、指标、限制与验收建议。
+- [`reports/GATE2_RELIABILITY_BLOG.md`](reports/GATE2_RELIABILITY_BLOG.md)：面向读者的可靠性技术总结。
+- [`reports/GATE2_DEMO_RUNBOOK.md`](reports/GATE2_DEMO_RUNBOOK.md)：受保护工作流的可重复演示步骤与停止条件。
 
 ## 维护规则
 
