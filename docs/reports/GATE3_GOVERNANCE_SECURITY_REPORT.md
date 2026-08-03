@@ -4,7 +4,7 @@
 
 **Issues:** AF-412 and AF-413
 
-**Evidence status:** Proposed — requires successful protected CI and Human Review
+**Evidence status:** CI verified — requires Human Review and Human Merge
 
 ## Result
 
@@ -34,7 +34,20 @@ For the reviewed commit, the required GitHub Actions `test` job must provide:
 - `environment.txt` containing the commit, runner, Python, and uv versions;
 - the immutable Actions run URL and `gate3-security-evidence-<run-id>` artifact name.
 
-The PR and workflow run are intentionally not pre-recorded here. Human Review must use the immutable evidence from the exact commit being merged; results must never be invented or copied from a different commit.
+## Verified CI Evidence
+
+| Evidence | Result |
+|---|---|
+| Draft PR | [PR #108](https://github.com/KinguYume-G/AegisFlow/pull/108) |
+| Evidence-producing implementation commit | `8b79531ef7ecf0df2fbad19f2a23ea20638ad90f` |
+| Required CI | [Actions run 30831661867](https://github.com/KinguYume-G/AegisFlow/actions/runs/30831661867), passed in 2m15s |
+| Gate 3 matrix | 83 passed in 2.36s; 0 failed, 0 errored, 0 skipped |
+| Full repository suite | 526 passed, 1 protected-environment skip |
+| Coverage | 90.86%; required 90% gate passed |
+| Credential-signature scan | 0 findings in scanned tracked files |
+| Evidence artifact | `gate3-security-evidence-30831661867`, artifact ID `8863182478`, 3,060 bytes, not expired at report update |
+
+These results apply to the evidence-producing implementation commit. The PR's final head must also pass Required CI; its current status is authoritative and avoids a self-referential documentation-only commit SHA.
 
 ## Security Properties
 
