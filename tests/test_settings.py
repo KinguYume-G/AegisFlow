@@ -150,3 +150,37 @@ def test_github_api_timeout_is_configurable(
     monkeypatch.setenv("GITHUB_API_TIMEOUT_SECONDS", "2.5")
 
     assert get_settings().github_api_timeout_seconds == 2.5
+
+
+def test_complete_model_gateway_references_are_accepted(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("MODEL_PRIMARY_NAME", "provider/model-a")
+    monkeypatch.setenv("MODEL_PRIMARY_API_KEY_ENV", "PRIMARY_PROVIDER_KEY")
+    monkeypatch.setenv("MODEL_FALLBACK_NAME", "provider/model-b")
+    monkeypatch.setenv("MODEL_FALLBACK_API_KEY_ENV", "FALLBACK_PROVIDER_KEY")
+    settings = get_settings()
+    assert settings.model_gateway_configured
+    assert settings.model_primary_api_key_env == "PRIMARY_PROVIDER_KEY"
+
+
+def test_partial_model_gateway_references_fail_closed(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("MODEL_PRIMARY_NAME", "provider/model-a")
+    with pytest.raises(ConfigurationError, match="Model gateway"):
+        get_settings()
+
+
+def test_primary_and_fallback_model_must_be_distinct(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name, value in {
+        "MODEL_PRIMARY_NAME": "provider/same",
+        "MODEL_PRIMARY_API_KEY_ENV": "PRIMARY_KEY",
+        "MODEL_FALLBACK_NAME": "provider/same",
+        "MODEL_FALLBACK_API_KEY_ENV": "FALLBACK_KEY",
+    }.items():
+        monkeypatch.setenv(name, value)
+    with pytest.raises(ConfigurationError, match="distinct"):
+        get_settings()

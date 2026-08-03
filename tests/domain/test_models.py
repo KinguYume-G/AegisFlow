@@ -7,6 +7,7 @@ from aegisflow_core.control_plane.domain import (
     AuditEvent,
     Base,
     IdempotencyRecord,
+    ModelCircuitState,
     Run,
     RepositoryChunk,
     Step,
@@ -18,6 +19,7 @@ from aegisflow_core.control_plane.domain import (
 MODELS = (
     Tenant, Workflow, Run, Step, Approval, AuditEvent, RepositoryChunk,
     IdempotencyRecord,
+    ModelCircuitState,
 )
 
 
@@ -39,6 +41,7 @@ def test_all_tables_declared() -> None:
         "audit_events",
         "repository_chunks",
         "idempotency_records",
+        "model_circuit_states",
     }
     assert {model.__tablename__ for model in MODELS} == set(Base.metadata.tables)
 

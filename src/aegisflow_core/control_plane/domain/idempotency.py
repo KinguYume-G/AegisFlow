@@ -18,7 +18,9 @@ class IdempotencyRecord(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
             name="uq_idempotency_records_tenant_scope_key",
         ),
         UniqueConstraint("claim_token", name="uq_idempotency_records_claim_token"),
-        CheckConstraint("scope IN ('webhook_delivery','tool_call')", name="scope"),
+        CheckConstraint(
+            "scope IN ('webhook_delivery','tool_call','compensation')", name="scope"
+        ),
         CheckConstraint(
             "status IN ('executing','succeeded','failed_retryable','failed_final','compensated')",
             name="status",

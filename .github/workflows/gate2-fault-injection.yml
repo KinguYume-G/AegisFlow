@@ -1,0 +1,61 @@
+name: Gate 2 fault injection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate2-fault-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fault-injection:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      APP_ENV: test
+      POSTGRES_USER: gate2_fault_placeholder
+      POSTGRES_PASSWORD: gate2_fault_placeholder_only
+      POSTGRES_DB: gate2_fault_placeholder
+      TEMPORAL_ADDRESS: localhost:7233
+      TEMPORAL_NAMESPACE: default
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned Python and uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.31"
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Synchronize locked dependencies
+        run: uv sync --locked
+
+      - name: Start pinned Temporal service
+        run: docker compose up -d --wait temporal
+
+      - name: Run real twenty-iteration worker-loss matrix
+        run: >-
+          uv run --locked python -m aegisflow_core.runtime.fault_injection_cli
+          --work-root "$RUNNER_TEMP/aegisflow-fault-$GITHUB_RUN_ID"
+          --output "$RUNNER_TEMP/gate2-fault-evidence.jsonl"
+
+      - name: Upload fault evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gate2-fault-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/gate2-fault-evidence.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Stop Temporal service
+        if: always()
+        run: docker compose stop temporal temporal-postgres

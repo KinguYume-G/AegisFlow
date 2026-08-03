@@ -41,7 +41,7 @@ class IdempotencyLedger:
     async def begin(
         self,
         *,
-        scope: Literal["webhook_delivery", "tool_call"],
+        scope: Literal["webhook_delivery", "tool_call", "compensation"],
         idempotency_key: str,
         tenant_id: UUID,
         arguments_hash: str,
@@ -141,6 +141,34 @@ class IdempotencyLedger:
             result_reference=None,
             failure_reason=reason,
         )
+
+    async def mark_compensated(
+        self,
+        idempotency_key: str,
+        *,
+        tenant_id: UUID,
+        result_reference: str,
+    ) -> None:
+        """Mark one successfully created effect as compensated exactly once."""
+        async with self._factory() as session, session.begin():
+            row = await session.scalar(
+                select(IdempotencyRecord)
+                .where(
+                    IdempotencyRecord.tenant_id == tenant_id,
+                    IdempotencyRecord.scope == "tool_call",
+                    IdempotencyRecord.idempotency_key == idempotency_key,
+                )
+                .with_for_update()
+            )
+            if row is None:
+                raise ValueError("original external effect does not exist")
+            if row.status == "compensated":
+                return
+            if row.status != "succeeded":
+                raise ValueError("only a succeeded external effect can be compensated")
+            row.status = "compensated"
+            row.result_reference = result_reference
+            row.updated_at = self._clock.now()
 
     async def _transition(
         self,

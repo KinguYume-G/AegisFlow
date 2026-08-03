@@ -7,7 +7,7 @@ from uuid import UUID
 
 @dataclass(frozen=True, slots=True)
 class IdempotentCommand:
-    scope: Literal["webhook_delivery", "tool_call"]
+    scope: Literal["webhook_delivery", "tool_call", "compensation"]
     idempotency_key: str
     arguments_hash: str
     tenant_id: UUID

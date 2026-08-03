@@ -17,6 +17,7 @@ dependencies = [
     "langfuse>=4.14,<5",
     "langgraph>=1.2,<2",
     "langgraph-checkpoint-postgres>=3.1,<4",
+    "litellm==1.94.0",
     "pyjwt[crypto]>=2.10,<3",
     "pydantic>=2.13,<3",
     "pgvector>=0.4,<1",
@@ -50,6 +51,14 @@ markers = [
 [tool.coverage.run]
 branch = true
 source = ["aegisflow_core"]
+# These process entrypoints are exercised by protected/manual integration
+# workflows (real worker termination and real provider smoke), not in-process CI.
+omit = [
+    "*/models/smoke.py",
+    "*/runtime/fault_injection_cli.py",
+    "*/runtime/fault_probe.py",
+    "*/runtime/fault_probe_worker.py",
+]
 
 [tool.coverage.report]
 fail_under = 90
