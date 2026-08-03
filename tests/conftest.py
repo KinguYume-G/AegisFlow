@@ -18,8 +18,8 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
     for name in (
         "GITHUB_APP_ID",
         "GITHUB_APP_PRIVATE_KEY",
-        "GITHUB_WEBHOOK_SECRET",
-        "GITHUB_INSTALLATION_ID",
+        "GITHUB_APP_WEBHOOK_SECRET",
+        "GITHUB_APP_INSTALLATION_ID",
         "GITHUB_API_TIMEOUT_SECONDS",
         "AEGISFLOW_BOOTSTRAP_TENANT_SLUG",
     ):

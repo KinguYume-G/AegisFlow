@@ -95,8 +95,8 @@ def test_complete_github_app_configuration_is_accepted(
     values = {
         "GITHUB_APP_ID": "123",
         "GITHUB_APP_PRIVATE_KEY": "private-key",
-        "GITHUB_WEBHOOK_SECRET": "webhook-secret",
-        "GITHUB_INSTALLATION_ID": "456",
+        "GITHUB_APP_WEBHOOK_SECRET": "webhook-secret",
+        "GITHUB_APP_INSTALLATION_ID": "456",
     }
     for name, value in values.items():
         monkeypatch.setenv(name, value)
@@ -115,7 +115,7 @@ def test_complete_github_app_configuration_is_accepted(
         (
             "GITHUB_APP_ID",
             "GITHUB_APP_PRIVATE_KEY",
-            "GITHUB_WEBHOOK_SECRET",
+            "GITHUB_APP_WEBHOOK_SECRET",
         ),
     ],
 )
