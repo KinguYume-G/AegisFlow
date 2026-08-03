@@ -66,6 +66,8 @@ def test_domain_packages_contain_only_approved_modules() -> None:
             PACKAGE_ROOT / "runtime" / "gate1b.py",
         PACKAGE_ROOT / "runtime" / "state.py",
             PACKAGE_ROOT / "runtime" / "tracing.py",
+            PACKAGE_ROOT / "runtime" / "observability.py",
+            PACKAGE_ROOT / "runtime" / "metrics.py",
             PACKAGE_ROOT / "runtime" / "context" / "__init__.py",
             PACKAGE_ROOT / "runtime" / "context" / "chunking.py",
             PACKAGE_ROOT / "runtime" / "context" / "embedder.py",
@@ -172,6 +174,7 @@ def test_control_plane_contains_only_approved_modules() -> None:
     expected_relative_files = {
         Path("__init__.py"),
         Path("bootstrap.py"),
+        Path("run_graph.py"),
         Path("domain/__init__.py"),
         Path("domain/base.py"),
         Path("domain/tenant.py"),

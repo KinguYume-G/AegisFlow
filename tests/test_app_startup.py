@@ -18,6 +18,8 @@ def test_create_app_succeeds_with_valid_env(valid_env: None) -> None:
     assert app.state.github_token_provider is None
     assert app.state.github_read_client is None
     assert app.state.oidc_verifier is None
+    assert app.state.metrics is not None
+    assert app.state.tracer_provider is not None
 
 
 def test_create_app_registers_github_token_provider(
@@ -122,3 +124,16 @@ async def test_unhandled_exception_returns_structured_error(valid_env: None) -> 
     }
     assert "sensitive internal detail" not in response.text
     assert "Traceback" not in response.text
+
+
+@pytest.mark.anyio
+async def test_run_graph_fails_closed_without_identity(valid_env: None) -> None:
+    app = create_app()
+    transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get(
+            "/v1/tenants/00000000-0000-0000-0000-000000000001/"
+            "runs/00000000-0000-0000-0000-000000000002/graph"
+        )
+    assert response.status_code == 503
+    assert response.json() == {"error": {"code": "identity_not_configured"}}

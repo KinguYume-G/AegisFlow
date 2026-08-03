@@ -8,6 +8,7 @@ from temporalio import activity
 
 from aegisflow_core.runtime.temporal.contracts import AdvanceRequest, AdvanceResult
 from aegisflow_core.runtime.temporal.policies import as_application_error
+from aegisflow_core.runtime.observability import Correlation, operation_span
 
 
 class DurableGraphPort(Protocol):
@@ -20,10 +21,20 @@ class DeliveryActivities:
 
     @activity.defn(name="advance_gate1b")
     async def advance_gate1b(self, request: AdvanceRequest) -> AdvanceResult:
-        try:
-            return await self._graph.advance(request)
-        except Exception as error:
-            raise as_application_error(error) from None
+        identity = request.identity
+        with operation_span(
+            "temporal.advance_gate1b",
+            Correlation(
+                tenant_id=identity.tenant_id,
+                run_id=identity.run_id,
+                trace_id=identity.trace_id,
+                workflow_version=identity.workflow_version,
+            ),
+        ):
+            try:
+                return await self._graph.advance(request)
+            except Exception as error:
+                raise as_application_error(error) from None
 
 
 class UnconfiguredGraphPort:

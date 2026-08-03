@@ -73,3 +73,7 @@
 | Security Injection Dataset | Evaluation / Policy | ADR-0007, ADR-0010 | AF-503 | Fifteen deterministic truth cases across prompt, SQL, Secret, Token and authorization boundaries; placeholders only |
 | Historical Dataset Import | Evaluation | ADR-0010 | AF-504 | Strict sanitized XueMai/SynTour provenance and ground-truth validation implemented; real 5–10 case input remains externally blocked |
 | Single-Agent Baseline | Evaluation / Models | ADR-0008, ADR-0010 | AF-505 | Injected runner with identical case/model/token/cost/tool/timeout controls and explicit completion, cost, latency and unauthorized-tool evidence |
+| System Trace Correlation | API / Temporal / PostgreSQL / MCP / Sandbox | ADR-0008 | AF-508 | OTel API and SQLAlchemy instrumentation plus bounded tenant/run/trace/workflow/step correlation and error-type-only failure spans |
+| Prometheus Metrics | API / Runtime | ADR-0008 | AF-509 | `/metrics` exposes bounded outcome, latency, model cost, queue and resource instruments; arbitrary component/outcome labels fail closed |
+| Control-plane Load Profile | CI / API | ADR-0008 | AF-511 | Pinned 100-user Locust workflow emits CSV/HTML percentiles and process CPU/RSS evidence; first PR run: 2,000 requests, 0 failures, p50 76 ms, p95 130 ms, p99 150 ms |
+| Read-only Run Graph | Core / PostgreSQL / API | ADR-0007, ADR-0008 | AF-514 | OIDC and tenant-local `run:read` gate; ordered node status, duration, trace and persisted failure evidence; no write operation |

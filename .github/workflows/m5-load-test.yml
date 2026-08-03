@@ -1,0 +1,79 @@
+name: M5 control-plane load test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/aegisflow_core/runtime/metrics.py"
+      - "src/aegisflow_core/runtime/observability.py"
+      - "tests/performance/**"
+      - ".github/workflows/m5-load-test.yml"
+      - "pyproject.toml"
+      - "uv.lock"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m5-load-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  control-plane-100-users:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://placeholder:placeholder@127.0.0.1:59999/placeholder
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned Python and uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.31"
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Synchronize locked dependencies
+        run: uv sync --locked
+
+      - name: Run 100-user control-plane profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv run --locked uvicorn aegisflow_core.main:app --host 127.0.0.1 --port 8765 >uvicorn.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..40}; do
+            curl --fail --silent http://127.0.0.1:8765/health >/dev/null && break
+            if [[ "$attempt" == 40 ]]; then cat uvicorn.log; exit 1; fi
+            sleep 0.25
+          done
+          uv run --locked locust \
+            -f tests/performance/locustfile.py \
+            --headless --users 100 --spawn-rate 100 --run-time 20s \
+            --host http://127.0.0.1:8765 \
+            --csv load-results --html load-report.html \
+            --only-summary --exit-code-on-error 1
+          ps -p "$server_pid" -o pid,pcpu,pmem,rss,vsz,etime > resource-usage.txt
+          cat resource-usage.txt
+          cat load-results_stats.csv
+
+      - name: Upload load evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: m5-load-evidence-${{ github.run_id }}
+          path: |
+            load-results*.csv
+            load-report.html
+            resource-usage.txt
+            uvicorn.log
+          if-no-files-found: error
+          retention-days: 14

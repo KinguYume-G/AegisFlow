@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 388
-- Active project files: 381
+- Repository files: 405
+- Active project files: 398
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 142
-- Test files: 101
+- Application source files: 148
+- Test files: 109
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -35,6 +35,7 @@
 - `.github/workflows/gate2-fault-injection.yml`
 - `.github/workflows/langfuse-smoke.yml`
 - `.github/workflows/model-gateway-smoke.yml`
+- `.github/workflows/m5-load-test.yml`
 - `AGENTS.md`
 - `CONTRIBUTING.md`
 - `Dockerfile`
@@ -107,6 +108,7 @@
 - `docs/design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/design-notes/M5-EVALUATION-FOUNDATION.md`
+- `docs/design-notes/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -133,6 +135,7 @@
 - `docs/test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/test-plans/M5-EVALUATION-FOUNDATION.md`
+- `docs/test-plans/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
@@ -160,8 +163,12 @@
 - `project/MILESTONES.json`
 - `src/aegisflow_core/__init__.py`
 - `src/aegisflow_core/app.py`
+- `src/aegisflow_core/metrics_endpoint.py`
+- `src/aegisflow_core/run_graph_router.py`
+- `src/aegisflow_core/telemetry.py`
 - `src/aegisflow_core/control_plane/__init__.py`
 - `src/aegisflow_core/control_plane/bootstrap.py`
+- `src/aegisflow_core/control_plane/run_graph.py`
 - `src/aegisflow_core/control_plane/domain/__init__.py`
 - `src/aegisflow_core/control_plane/domain/access.py`
 - `src/aegisflow_core/control_plane/domain/approval.py`
@@ -239,6 +246,8 @@
 - `src/aegisflow_core/runtime/__init__.py`
 - `src/aegisflow_core/runtime/graph.py`
 - `src/aegisflow_core/runtime/langfuse_smoke.py`
+- `src/aegisflow_core/runtime/metrics.py`
+- `src/aegisflow_core/runtime/observability.py`
 - `src/aegisflow_core/runtime/state.py`
 - `src/aegisflow_core/runtime/tracing.py`
 - `src/aegisflow_core/settings.py`
@@ -297,6 +306,8 @@
 - `tests/packs/delivery/planner/test_reasoner.py`
 - `tests/runtime/__init__.py`
 - `tests/runtime/test_fault_injection.py`
+- `tests/runtime/test_metrics.py`
+- `tests/runtime/test_observability.py`
 - `tests/runtime/test_tracing.py`
 - `tests/models/__init__.py`
 - `tests/models/test_circuit_breaker.py`
@@ -304,11 +315,17 @@
 - `tests/models/test_litellm_adapter.py`
 - `tests/models/test_postgres_circuit.py`
 - `tests/test_app_startup.py`
+- `tests/test_run_graph_router.py`
 - `tests/test_docker_compose_config.py`
 - `tests/test_health.py`
 - `tests/test_logging.py`
 - `tests/test_module_boundaries.py`
 - `tests/test_settings.py`
+- `tests/control_plane/test_run_graph_read.py`
+- `tests/performance/__init__.py`
+- `tests/performance/locustfile.py`
+- `tests/performance/test_load_workflow.py`
+- `tests/performance/test_locust_profile.py`
 - `src/aegisflow_core/control_plane/approvals.py`
 - `src/aegisflow_core/control_plane/domain/knowledge.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0003_add_knowledge_chunks.py`
