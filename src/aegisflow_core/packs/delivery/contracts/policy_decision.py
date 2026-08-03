@@ -8,7 +8,13 @@ class PolicyDecision(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     schema_version: Literal[1] = 1
     decision: Literal["allow", "deny"]
-    violated_rule: Literal["repository_scope", "tool_capability_scope", "risk_ceiling"] | None = None
+    violated_rule: Literal[
+        "repository_scope",
+        "tool_capability_scope",
+        "risk_ceiling",
+        "prompt_injection",
+        "prompt_injection_unknown",
+    ] | None = None
     reasons: list[str]
 
     @model_validator(mode="after")

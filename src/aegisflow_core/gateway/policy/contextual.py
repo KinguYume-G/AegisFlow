@@ -98,7 +98,10 @@ class ContextualPolicy:
             return self._decision(PolicyOutcome.DENY, "risk_injection", "classification_unknown")
         if value.injection_severity not in {"none", "low", "medium", "high"}:
             return self._decision(PolicyOutcome.DENY, "risk_injection", "unsafe_content")
-        if value.injection_severity == "high" and requested_risk >= _RISK["L2"]:
+        read_only_scope = value.requested_scope.casefold().endswith(":read")
+        if value.injection_severity == "high" and (
+            requested_risk >= _RISK["L2"] or not read_only_scope
+        ):
             return self._decision(PolicyOutcome.DENY, "risk_injection", "unsafe_content")
         if requested_risk > maximum_risk:
             return self._decision(PolicyOutcome.DENY, "risk_injection", "risk_ceiling")

@@ -9,6 +9,11 @@ from typing import Mapping, Protocol
 from uuid import UUID
 
 from aegisflow_core.gateway.policy.contextual import ContextualPolicy, PolicyInput, PolicyOutcome
+from aegisflow_core.gateway.policy.injection import (
+    InjectionPolicyGuard,
+    Severity,
+    UntrustedContent,
+)
 from aegisflow_core.packs.delivery.contracts.idempotency import (
     Execute,
     FinalFailure,
@@ -76,6 +81,7 @@ class InvocationRequest:
     tool_version: str
     requested_scope: str
     arguments: dict[str, object]
+    untrusted_content: tuple[UntrustedContent, ...]
     policy_input: PolicyInput
     trace_id: str
     idempotency_key: str
@@ -101,6 +107,7 @@ class McpInvocationGate:
         self._idempotency = idempotency
         self._approval_verifier = approval_verifier
         self._policy = policy or ContextualPolicy()
+        self._injection_guard = InjectionPolicyGuard(audit=audit, policy=self._policy)
 
     async def invoke(self, request: InvocationRequest) -> object:
         if request.policy_input.tenant_id != request.tenant_id:
@@ -134,6 +141,18 @@ class McpInvocationGate:
                 step_id=request.step_id,
             )
         scopes = frozenset(str(value) for value in getattr(registration, "allowed_scopes", ()))
+        severity_rank = {"none": 0, "low": 1, "medium": 2, "high": 3, "unknown": 4}
+        injection_severity: Severity = "none"
+        for source in request.untrusted_content:
+            assessment = await self._injection_guard.assess(
+                content=source.content,
+                source_reference=source.source_reference,
+                tenant_id=request.tenant_id,
+                actor=request.policy_input.request_actor,
+                trace_id=request.trace_id,
+            )
+            if severity_rank[assessment.maximum_severity] > severity_rank[injection_severity]:
+                injection_severity = assessment.maximum_severity
         policy_input = replace(
             request.policy_input,
             tenant_id=request.tenant_id,
@@ -141,6 +160,7 @@ class McpInvocationGate:
             registered_scopes=scopes,
             requested_scope=request.requested_scope,
             risk_level=risk_level,
+            injection_severity=injection_severity,
             approval_required=approval_required,
             approval_granted=approved_by is not None,
             approval_actor=approved_by,

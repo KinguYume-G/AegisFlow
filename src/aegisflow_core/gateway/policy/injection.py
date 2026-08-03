@@ -23,6 +23,12 @@ _MAX_EXCERPT = 160
 
 
 @dataclass(frozen=True, slots=True)
+class UntrustedContent:
+    source_reference: str
+    content: str
+
+
+@dataclass(frozen=True, slots=True)
 class InjectionFinding:
     source_reference: str
     rule_id: str
@@ -141,23 +147,44 @@ class InjectionPolicyGuard:
     ) -> tuple[InjectionAssessment, ContextualPolicyDecision]:
         if not isinstance(policy_input.tenant_id, UUID):
             raise ValueError("authenticated tenant_id is required")
-        assessment = self._detector.detect_safely(
-            content, source_reference=source_reference
+        assessment = await self.assess(
+            content=content,
+            source_reference=source_reference,
+            tenant_id=policy_input.tenant_id,
+            actor=policy_input.request_actor,
+            trace_id=trace_id,
         )
         decision = self._policy.evaluate(
             replace(policy_input, injection_severity=assessment.maximum_severity)
+        )
+        return assessment, decision
+
+    async def assess(
+        self,
+        *,
+        content: str,
+        source_reference: str,
+        tenant_id: UUID,
+        actor: str,
+        trace_id: str,
+    ) -> InjectionAssessment:
+        """Classify one untrusted source and persist bounded evidence."""
+        if not isinstance(tenant_id, UUID):
+            raise ValueError("authenticated tenant_id is required")
+        assessment = self._detector.detect_safely(
+            content, source_reference=source_reference
         )
         if assessment.findings or assessment.status == "unknown":
             hashes = ",".join(item.evidence_hash for item in assessment.findings)
             rules = ",".join(item.rule_id for item in assessment.findings) or "unknown"
             await self._audit.record(
-                tenant_id=policy_input.tenant_id,
-                actor=policy_input.request_actor,
+                tenant_id=tenant_id,
+                actor=actor,
                 action="prompt_injection.detect",
                 resource_type="untrusted_content",
                 resource_id=source_reference,
-                decision=decision.outcome.value,
+                decision="detected",
                 reason=f"{assessment.maximum_severity};rules={rules};evidence={hashes}",
                 trace_id=trace_id,
             )
-        return assessment, decision
+        return assessment
