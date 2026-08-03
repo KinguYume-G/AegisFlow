@@ -1,17 +1,17 @@
 # AegisFlow 文档总入口
 
-> 当前实现批次：AF-203–AF-207 是 Project Owner 明确批准的依赖闭合批次；每个 Issue 仍须保留独立验收证据，并经过 Human Review/Merge。
+> 当前实现批次：AF-203–AF-207 已由 Human Merge（PR #96）；AF-208–AF-210 是 Project Owner 批准的依赖闭合批次，仍须通过 CI、真实外部验证与 Human Review/Merge。
 
 本页是 AegisFlow 的文档导航与当前状态入口。首次进入仓库时必须先阅读根目录的 [`START_HERE.md`](../START_HERE.md)，再依次阅读 `README.md`、`AGENTS.md` 和本页；开始具体任务前，再按本页加载当前 Issue、相关 ADR、测试策略与最近 Handoff。
 
 ## 当前状态
 
-- **阶段**：M1 已完成（Gate 1A 通过）；M2 Design Bundle（AF-201–AF-210，Gate 1B）已产出，处于 Draft，等待人工最终 Review
+- **阶段**：M1 已完成；M2 的 AF-201–AF-207 已实现，AF-208–AF-210 正在实现 Gate 1B 写入、幂等与端到端验收
 - **实现状态**：Phase 0、AF-101–AF-110、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，AF-110 通过 PR #91 Human Merge 且为 `CLOSED / status:verified`
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
 - **最近完成 Issue**：AF-110（GitHub #19，canonical），通过 PR #91 Human Merge，当前为 `CLOSED / status:verified`
-- **范围边界**：M2 Design Bundle（AF-201–AF-210）只完成 Draft v2 设计与测试计划，未写业务代码、未创建 PR、未修改 Issue 状态；实施仍需 Human Review 批准，并按 Issue 依赖逐项进行
+- **范围边界**：当前批次只实现 AF-208–AF-210，不开始 Temporal、真实 Model Provider、RBAC/多租户或 M3+ 能力
 - **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
 
 ## 权威顺序

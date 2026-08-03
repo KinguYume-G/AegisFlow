@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 276
-- Active project files: 269
+- Repository files: 292
+- Active project files: 285
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 84
-- Test files: 65
+- Application source files: 93
+- Test files: 71
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -294,3 +294,19 @@
 - `tests/runtime/context/test_ingestion.py`
 - `tests/runtime/context/test_pgvector_retriever.py`
 - `uv.lock`
+- `src/aegisflow_core/control_plane/domain/idempotency.py`
+- `src/aegisflow_core/control_plane/idempotency_ledger.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0005_add_idempotency_ledger.py`
+- `src/aegisflow_core/control_plane/runtime_uow.py`
+- `src/aegisflow_core/gateway/github/idempotency_guard.py`
+- `src/aegisflow_core/gateway/github/pull_request.py`
+- `src/aegisflow_core/packs/delivery/contracts/idempotency.py`
+- `src/aegisflow_core/packs/delivery/contracts/unit_of_work.py`
+- `src/aegisflow_core/runtime/gate1b.py`
+- `tests/control_plane/test_idempotency_ledger.py`
+- `tests/control_plane/test_runtime_uow.py`
+- `tests/e2e/test_gate1b.py`
+- `tests/gateway/github/test_idempotency_guard.py`
+- `tests/gateway/github/test_pull_request.py`
+- `.github/workflows/gate1b-e2e.yml`
+- `tests/e2e/test_gate1b_real_github.py`

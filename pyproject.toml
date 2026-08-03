@@ -40,6 +40,7 @@ markers = [
     "database: requires a real PostgreSQL database migrated to Alembic head",
     "docker: requires a reachable Docker sandbox broker",
     "asyncio: asynchronous unit or integration test",
+    "real_github: protected manual test that writes only to the configured Fixture repository",
 ]
 
 [tool.coverage.run]

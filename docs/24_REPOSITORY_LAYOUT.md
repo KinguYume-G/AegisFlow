@@ -1,6 +1,6 @@
 # 24 — Repository Layout & File Classification
 
-> M2 implementation update: `runtime/context/`, `gateway/sandbox/`, `gateway/policy/`, DeliveryPack `executor/` and `reviewer/`, migrations `0003`/`0004`, and their tests are active implementation owned by AF-203–AF-207. The Docker socket is available only to the isolated `sandbox-broker`; Core receives only its structured API.
+> M2 implementation update: AF-203–AF-207 were human-merged in PR #96. AF-208–AF-210 add authorized Draft PR writes, a PostgreSQL fencing ledger, transactional runtime facts, and the asynchronous Gate 1B graph; real GitHub evidence still requires the protected Fixture/App environment.
 
 本文件是仓库目录结构与每个文件分类的权威清单，随文档架构整理一并建立。新增、移动或归档文件时，需同步更新本表与 `docs/index.md`、根目录 `MANIFEST.md`。
 
@@ -45,6 +45,7 @@
 | PULL_REQUEST_TEMPLATE.md | 治理 | PR 模板，强制安全/测试/回滚章节 |
 | workflows/ci.yml | 质量/治理 | Required CI：锁定依赖、PostgreSQL 迁移 up/down/reapply、pytest 覆盖率门槛与 Core 镜像构建 |
 | workflows/langfuse-smoke.yml | 质量/可观测/安全 | AF-109 Human Merge 后人工触发的 Langfuse auth/write/flush/bounded-query smoke；使用受保护 Environment |
+| workflows/gate1b-e2e.yml | 质量/安全/集成 | AF-210 受保护 Environment 手动真实 Draft PR、幂等与 Marker 清理验收 |
 
 ## docs/（工程文档统一子目录）
 
@@ -134,7 +135,7 @@
 | AF-209.md | 质量 | Idempotency Ledger 配套 Test Plan（**Draft v2**） |
 | AF-210.md | 质量 | Gate 1B E2E 配套 Test Plan（**Draft v2**，真实 E2E 需要外部资源） |
 
-## src/aegisflow_core/（AF-101–AF-110 模块化单体与 DeliveryPack 契约；AF-201–AF-210 尚处 Draft 设计阶段，未写代码）
+## src/aegisflow_core/（AF-101–AF-110 与 AF-201–AF-210 模块化单体、DeliveryPack 和 Gate 1B 实现）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -147,17 +148,24 @@
 | health/router.py | 代码 | 稳定的 `GET /health` 契约 |
 | control_plane/__init__.py | 代码边界 | Control Plane 顶层包标记 |
 | control_plane/bootstrap.py | 代码/数据 | AF-201 并发安全的 Bootstrap Tenant/Workflow get-or-create |
+| control_plane/domain/idempotency.py | 代码/数据/可靠性 | AF-209 tenant/scope 幂等记录、lease 与 fencing token 模型 |
+| control_plane/idempotency_ledger.py | 代码/数据/可靠性 | AF-209 原子 claim、复用、失败和 stale-writer fencing 状态机 |
+| control_plane/runtime_uow.py | 代码/数据 | AF-210 Run/Step/Audit 事务边界 |
+| control_plane/migrations/versions/0005_add_idempotency_ledger.py | 数据/迁移 | AF-209 Ledger 表与约束迁移 |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
 | runtime/state.py | 代码/状态 | AF-110 Gate 1A `AgentState`；强制 run/trace identity 并承载四 Agent 的版本化契约 |
 | runtime/graph.py | 代码/编排/安全 | AF-110 LangGraph 进程内图、原生 interrupt/resume、安全 thread 校验、节点错误定位与 Trace 记录 |
+| runtime/gate1b.py | 代码/编排/安全/可靠性 | AF-210 异步 Gate 1B、Rework 上限、Human Approval 与 Draft PR 路径 |
 | runtime/tracing.py | 可观测/安全 | AF-109 诚实 token/cost 契约、prompt 脱敏、确定性关联与 NoOp/InMemory/Langfuse Recorder |
 | runtime/langfuse_smoke.py | 可观测/质量 | 严格的 Langfuse auth/write/flush/60 秒 bounded-query 人工 smoke 入口 |
 | gateway/__init__.py | 代码边界 | Gateway 顶层包标记 |
 | gateway/github/auth.py | 代码/安全 | AF-201 GitHub App JWT 与 Installation Token 安全缓存 |
 | gateway/github/read_tools.py | 代码/安全/集成 | AF-202 五个 GET-only GitHub 工具、显式截断、有限响应和稳定错误映射 |
 | gateway/github/webhook.py | 代码/安全/可靠性 | AF-201 签名优先校验、Schema、防重放、审计与异步 dispatch seam |
+| gateway/github/pull_request.py | 代码/安全/集成 | AF-208 精确授权、结构化 Git Data 写入、Marker reconciliation 与 Draft PR |
+| gateway/github/idempotency_guard.py | 代码/可靠性 | AF-209 Tool/Webhook 到 PostgreSQL Ledger 的 async adapter |
 | models/__init__.py | 代码边界 | Models 顶层包占位 |
 | evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
@@ -169,6 +177,8 @@
 | packs/delivery/contracts/measurement.py | 代码/Schema | AF-107 finite 非负 Measurement v1 与 not_available 不变量 |
 | packs/delivery/contracts/normalized_request.py | 代码/Schema | AF-104 NormalizedRequest v1、长度与 UTC/幂等键验证 |
 | packs/delivery/contracts/plan.py | 代码/Schema | AF-107 Plan/PlanTask/ToolRequirement v1 与稳定 capability allowlist |
+| packs/delivery/contracts/idempotency.py | 代码/Schema | AF-208/209 domain-neutral command 与四类 claim result |
+| packs/delivery/contracts/unit_of_work.py | 代码边界 | AF-210 Runtime 持久化端口 |
 | packs/delivery/clarifier/__init__.py | 代码边界 | Clarifier Agent 子包标记 |
 | packs/delivery/clarifier/ports.py | 代码边界 | ClarificationReasoner 显式注入端口 |
 | packs/delivery/clarifier/fakes.py | 代码 | 无外部调用的五规则确定性 Reasoner |
@@ -185,13 +195,15 @@
 | packs/delivery/planner/fakes.py | 代码/安全 | 固定四任务、L1/L3 风险与诚实预算的确定性 Reasoner |
 | packs/delivery/planner/agent.py | 代码 | Clarifier 充分性门禁、Planner 委派与异常传播 |
 
-## tests/（AF-101–AF-201 测试）
+## tests/（AF-101–AF-210 测试）
 
 | 文件 | 分类 | 用途 |
 |---|---|---|
 | __init__.py | 质量 | 测试包标记 |
 | conftest.py | 质量 | 隔离环境变量与 ASGI async client fixtures |
 | control_plane/test_bootstrap.py | 质量/数据 | AF-201 Bootstrap 幂等、并发唯一与不可变数据事务回滚测试 |
+| control_plane/test_idempotency_ledger.py | 质量/数据/可靠性 | AF-209 四类 claim、并发唯一、lease 接管与 stale token 测试 |
+| control_plane/test_runtime_uow.py | 质量/数据 | AF-210 真实 PostgreSQL Step/Audit/Run 事务测试 |
 | gateway/github/ | 质量/安全/可靠性 | AF-201 验签/审计及 AF-202 只读工具、分页、限流、超时与 reconciliation 测试 |
 | test_module_boundaries.py | 质量 | 包存在性、空边界与禁止依赖静态护栏 |
 | test_settings.py | 质量 | 合法、缺失和非法配置测试 |
@@ -208,6 +220,10 @@
 | runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
 | e2e/__init__.py | 质量 | Gate 1A 端到端测试包标记 |
 | e2e/test_gate1a.py | 质量/安全/可靠性 | AF-110 真实 interrupt/resume、错误 thread、幂等、可重复性、Trace 与节点失败定位门禁 |
+| e2e/test_gate1b.py | 质量/安全/可靠性 | AF-210 Policy 拒绝、Human 批准/拒绝、Draft PR 副作用门禁 |
+| e2e/test_gate1b_real_github.py | 质量/安全/集成 | 受保护手动环境中的真实 App 授权、Draft PR 去重及 Marker 资源清理 |
+| gateway/github/test_pull_request.py | 质量/安全/集成 | AF-208 授权、reconciliation、Git Data 调用顺序与安全错误映射 |
+| gateway/github/test_idempotency_guard.py | 质量/可靠性 | AF-209 Tool/Webhook Ledger adapter 与 dispatch 去重测试 |
 | packs/__init__.py | 质量 | Application Pack 测试包标记，避免同名测试模块冲突 |
 | packs/delivery/__init__.py | 质量 | DeliveryPack 测试包标记 |
 | packs/delivery/clarifier/__init__.py | 质量 | Clarifier 测试包标记 |
@@ -292,4 +308,4 @@
 
 - `archive/phase0-gap-patch/` 的合并需要先形成对应的 Design Note 和 ADR-0013/0014 的正式 Accepted 状态，再走一次独立的 PR，不与本次目录整理混在一起。
 - AF-110 已将未追踪的根目录外部输入 `gemini-code-1785679381247.md` 映射为 `tests/fixtures/gate1a/` 下三个结构化 JSON，并在映射测试通过后删除本地源文件；该源文件从未成为仓库事实源。
-- M2 Design Bundle 当前为 Draft v2，尚未写业务代码。设计决策已关闭；Human Review 后可按严格顺序实施。AF-210 真实 E2E 仍需独立私有 Fixture 仓库与开发 GitHub App。
+- M2 Design Bundle v2 的 AF-201–AF-207 已实现；AF-208–AF-210 位于当前依赖闭合批次。AF-210 的本地/数据库链路已验证，真实 E2E 仍需独立私有 Fixture 仓库与开发 GitHub App。

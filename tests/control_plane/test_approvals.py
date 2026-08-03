@@ -5,7 +5,12 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from aegisflow_core.control_plane.approvals import PostgresApprovalGateway
+from aegisflow_core.control_plane.approvals import (
+    PostgresApprovalAuthorizer,
+    PostgresApprovalGateway,
+)
+from aegisflow_core.gateway.github.pull_request import WriteAuthorization
+from aegisflow_core.gateway.policy.gate import RepositoryTarget
 from aegisflow_core.packs.delivery.contracts.review_decision import ReviewFinding
 from aegisflow_core.packs.delivery.reviewer.fakes import DuplicateApprovalDecisionError
 
@@ -34,6 +39,17 @@ async def test_postgres_approval_gateway_is_idempotent_and_terminal() -> None:
     assert await gateway.get_status(approval) == "pending"
     outcome = await gateway.submit_decision(approval,run,"approved","human")
     assert outcome.decision == "approved" and await gateway.get_status(approval) == "approved"
+    authorizer = PostgresApprovalAuthorizer(async_sessionmaker(engine, expire_on_commit=False))
+    authorization = WriteAuthorization(
+        approval_id=approval, tenant_id=tenant, run_id=run, step_id=step,
+        repository_target=RepositoryTarget("owner", "fixture"), base_sha="a" * 40,
+        content_digest="b" * 64,
+    )
+    await authorizer.verify(authorization, "b" * 64)
+    with pytest.raises(PermissionError):
+        await authorizer.verify(authorization, "c" * 64)
+    with pytest.raises(PermissionError):
+        await authorizer.verify(authorization.model_copy(update={"tenant_id": uuid4()}), "b" * 64)
     with pytest.raises(DuplicateApprovalDecisionError):
         await gateway.submit_decision(approval,run,"rejected","human")
     await engine.dispose()

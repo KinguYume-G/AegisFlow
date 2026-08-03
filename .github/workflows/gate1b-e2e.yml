@@ -1,0 +1,72 @@
+name: Gate 1B real GitHub E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate1b-real-github
+  cancel-in-progress: false
+
+jobs:
+  gate1b-real-github:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: gate1b-development
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16@sha256:a36250871de0833b8757561c72f2477ef1ddd1101afa4e617fb552e0de514c6b
+        env:
+          POSTGRES_USER: aegisflow_e2e
+          POSTGRES_PASSWORD: aegisflow_e2e
+          POSTGRES_DB: aegisflow_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aegisflow_e2e -d aegisflow_e2e"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://aegisflow_e2e:aegisflow_e2e@localhost:5432/aegisflow_e2e
+      GITHUB_APP_ID: ${{ vars.GITHUB_APP_ID }}
+      GITHUB_APP_INSTALLATION_ID: ${{ vars.GITHUB_APP_INSTALLATION_ID }}
+      GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
+      GITHUB_APP_WEBHOOK_SECRET: ${{ secrets.GITHUB_APP_WEBHOOK_SECRET }}
+      AEGISFLOW_TEST_REPOSITORY: ${{ vars.AEGISFLOW_TEST_REPOSITORY }}
+      AEGISFLOW_BOOTSTRAP_TENANT_SLUG: ${{ vars.AEGISFLOW_BOOTSTRAP_TENANT_SLUG }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned Python and uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.31"
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Require protected environment inputs
+        shell: bash
+        run: |
+          test -n "$GITHUB_APP_ID"
+          test -n "$GITHUB_APP_INSTALLATION_ID"
+          test -n "$GITHUB_APP_PRIVATE_KEY"
+          test -n "$GITHUB_APP_WEBHOOK_SECRET"
+          test -n "$AEGISFLOW_TEST_REPOSITORY"
+          test -n "$AEGISFLOW_BOOTSTRAP_TENANT_SLUG"
+
+      - name: Synchronize locked dependencies
+        run: uv sync --locked
+
+      - name: Apply database migrations
+        run: uv run --locked alembic upgrade head
+
+      - name: Create, deduplicate, and clean up marked Draft PR
+        run: uv run --locked python -m pytest tests/e2e/test_gate1b_real_github.py -m real_github -v
