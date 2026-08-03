@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     ForeignKeyConstraint,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -34,6 +35,9 @@ class Approval(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
             ["runs.tenant_id", "runs.id"],
             name="fk_approvals_tenant_run",
             ondelete="RESTRICT",
+        ),
+        UniqueConstraint(
+            "tenant_id", "run_id", "step_id", name="uq_approvals_tenant_run_step"
         ),
         ForeignKeyConstraint(
             ["tenant_id", "run_id", "step_id"],

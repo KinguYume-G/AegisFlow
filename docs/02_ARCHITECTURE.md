@@ -1,5 +1,7 @@
 # 02 — Architecture
 
+> Implementation status (non-normative): AF-203 materializes the existing `runtime/context` boundary with tenant-isolated pgvector ingestion and retrieval. This does not change the frozen ownership model below.
+
 ## 架构目标
 
 采用模块化单体，以最小复杂度证明可靠执行、状态恢复、幂等、工具治理、审批、评测、可观测性、成本控制和多租户隔离。

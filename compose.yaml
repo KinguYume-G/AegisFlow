@@ -38,12 +38,17 @@ services:
       APP_ENV: ${APP_ENV:?APP_ENV is required}
       APP_BASE_URL: ${APP_BASE_URL:-}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      SANDBOX_BROKER_URL: http://sandbox-broker:8081
     ports:
       - "127.0.0.1:${CORE_HOST_PORT:-8000}:8000"
+    volumes:
+      - sandbox_workspaces:/workspaces
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      sandbox-broker:
         condition: service_healthy
     healthcheck:
       test:
@@ -57,5 +62,25 @@ services:
       retries: 10
       start_period: 10s
 
+  sandbox-broker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: sandbox-broker
+    environment:
+      SANDBOX_WORKSPACE_ROOT: /workspaces
+    group_add:
+      - ${DOCKER_SOCKET_GID:-0}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - sandbox_workspaces:/workspaces
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8081/openapi.json', timeout=3).status == 200"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
 volumes:
   postgres_data:
+  sandbox_workspaces:

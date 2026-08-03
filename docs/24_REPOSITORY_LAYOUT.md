@@ -1,5 +1,7 @@
 # 24 — Repository Layout & File Classification
 
+> M2 implementation update: `runtime/context/`, `gateway/sandbox/`, `gateway/policy/`, DeliveryPack `executor/` and `reviewer/`, migrations `0003`/`0004`, and their tests are active implementation owned by AF-203–AF-207. The Docker socket is available only to the isolated `sandbox-broker`; Core receives only its structured API.
+
 本文件是仓库目录结构与每个文件分类的权威清单，随文档架构整理一并建立。新增、移动或归档文件时，需同步更新本表与 `docs/index.md`、根目录 `MANIFEST.md`。
 
 ## 设计原则

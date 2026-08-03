@@ -57,7 +57,7 @@ Do not write business code during Phase 0 or before all readiness gates pass. / 
 ## Golden Rules / 黄金规则
 
 - Do not change the frozen product direction or bypass an Accepted ADR. / 不改变冻结产品方向，不绕过 Accepted ADR。
-- One Issue, one branch, one PR; keep changes minimal and scoped. / One Issue、One Branch、One PR；改动必须最小且不越界。
+- Default: one Issue, one branch, one PR. A Project Owner may explicitly approve a dependency-closed batch of up to 10 Issues; the batch must preserve per-Issue acceptance evidence, traceability, and rollback boundaries. / 默认 One Issue、One Branch、One PR；Project Owner 可明确批准最多 10 个依赖闭合 Issue 的批次，但每个 Issue 必须保留独立验收证据、追踪和回滚边界。
 - Test first; provide commands, results, failures, and limitations as evidence. / 测试先行；以命令、结果、失败和限制作为证据。
 - Never expose or invent secrets; use references and placeholders only. / 不暴露或编造 Secret，只使用引用与占位符。
 - Never describe TARGET metrics or untested capabilities as achieved facts. / 不把 TARGET 指标或未测试能力写成已实现事实。
@@ -105,7 +105,7 @@ Current work / 当前工作：
 
 - Human-merge the approved M2 Design Bundle Draft v2 / 人工合并已批准的 M2 Design Bundle Draft v2；
 - Then implement AF-201 through AF-210 in dependency order / 随后按依赖顺序实施 AF-201 至 AF-210；
-- Continue One Issue → One Branch → One PR → Human Review/Merge / 继续严格执行单 Issue、单分支、单 PR 与人工审查合并。
+- Continue the default single-Issue flow, or an explicitly Owner-approved dependency-closed batch, followed by Human Review/Merge. / 继续默认单 Issue 流程，或执行 Owner 明确批准的依赖闭合批次，且始终由 Human Review/Merge。
 
 M2 implementation is authorized after the Design Bundle is human-merged; each Issue still requires its own branch, PR, and Human Merge. / M2 已获实施授权，但必须先人工合并 Design Bundle，且每个 Issue 仍需独立分支、PR 与人工合并。
 
@@ -113,7 +113,7 @@ M2 implementation is authorized after the Design Bundle is human-merged; each Is
 
 A PR is ready to leave review only when all applicable items are true / PR 只有在所有适用项满足后才能退出 Review：
 
-- [ ] Linked to one Issue and limited to one-PR scope / 关联一个 Issue，范围可由一个 PR 完成
+- [ ] Linked to one Issue, or every Issue in an explicitly approved dependency-closed batch; PR scope remains bounded / 关联一个 Issue，或明确获批依赖闭合批次中的全部 Issue；PR 范围仍须有界
 - [ ] Objective, non-goals, acceptance criteria, and approved design are clear / 目标、非目标、验收标准与获批设计明确
 - [ ] Required tests pass; commands and results are recorded / 必需测试通过，命令与结果已记录
 - [ ] Failure, security, tenant isolation, idempotency, retry, compensation, and rollback paths are covered where applicable / 适用时覆盖失败、安全、租户隔离、幂等、重试、补偿与回滚路径

@@ -28,6 +28,11 @@ class Settings:
     github_installation_id: str | None = None
     github_api_timeout_seconds: float = 10.0
     aegisflow_bootstrap_tenant_slug: str = "gate1b-default"
+    sandbox_broker_url: str | None = None
+    sandbox_default_timeout_seconds: int = 120
+    sandbox_default_memory_limit_mb: int = 512
+    sandbox_default_cpu_limit: float = 1.0
+    sandbox_default_pids_limit: int = 128
 
     @property
     def github_app_configured(self) -> bool:
@@ -108,4 +113,9 @@ def get_settings() -> Settings:
         aegisflow_bootstrap_tenant_slug=(
             os.environ.get("AEGISFLOW_BOOTSTRAP_TENANT_SLUG") or "gate1b-default"
         ),
+        sandbox_broker_url=os.environ.get("SANDBOX_BROKER_URL") or None,
+        sandbox_default_timeout_seconds=int(os.environ.get("SANDBOX_DEFAULT_TIMEOUT_SECONDS") or "120"),
+        sandbox_default_memory_limit_mb=int(os.environ.get("SANDBOX_DEFAULT_MEMORY_LIMIT_MB") or "512"),
+        sandbox_default_cpu_limit=float(os.environ.get("SANDBOX_DEFAULT_CPU_LIMIT") or "1"),
+        sandbox_default_pids_limit=int(os.environ.get("SANDBOX_DEFAULT_PIDS_LIMIT") or "128"),
     )

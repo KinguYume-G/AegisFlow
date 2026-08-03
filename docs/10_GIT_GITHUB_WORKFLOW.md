@@ -12,6 +12,8 @@ draft → ready → in-progress → review → changes-requested → approved �
 
 ## One Issue, One PR
 
+这是默认规则。Project Owner 可以在开工前明确批准一个最多 10 个 Issue 的依赖闭合批次，共用一个 Branch 和一个 PR。批次不得包含未满足的外部依赖或无关重构，并必须在 PR 中逐项列出 Objective、Acceptance Criteria、测试证据、Traceability 和回滚边界。AI 不得自行推断或扩大批次授权，也不得自行批准或合并批次 PR。
+
 例外仅限紧急安全修复、自动依赖更新和拼写修复，即使例外也要后补 Issue。
 
 ## Branch Protection（main 已生效）

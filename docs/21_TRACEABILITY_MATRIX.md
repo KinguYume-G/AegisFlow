@@ -1,5 +1,13 @@
 # 21 — Requirements Traceability Matrix
 
+## AF-203–AF-207 implementation evidence (batch PR)
+
+- AF-203: migration 0003, exact-line chunks, deterministic embeddings, isolation and secret-quarantine tests.
+- AF-204: structured broker boundary, digest/resource validation, Core without Docker socket, adapter tests.
+- AF-205: bounded paths/content/patches, structured TestProfile/evidence, deterministic Executor tests.
+- AF-206: async memory/PostgreSQL approval gateways, migration 0004 terminal protection, Reviewer tests.
+- AF-207: trusted ExecutionScope, fixed repository/capability/risk rule order, default-deny tests.
+
 | Requirement | Architecture | ADR | Issues | Evidence |
 |---|---|---|---|---|
 | Demand-to-Delivery | DeliveryPack | — | AF-104–AF-211 | Gate 1 |
