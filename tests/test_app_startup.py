@@ -16,6 +16,7 @@ def test_create_app_succeeds_with_valid_env(valid_env: None) -> None:
 
     assert isinstance(app, FastAPI)
     assert app.state.github_token_provider is None
+    assert app.state.github_read_client is None
 
 
 def test_create_app_registers_github_token_provider(
@@ -30,6 +31,25 @@ def test_create_app_registers_github_token_provider(
     app = create_app()
 
     assert app.state.github_token_provider is not None
+    assert app.state.github_read_client is not None
+
+
+@pytest.mark.anyio
+async def test_app_lifespan_closes_owned_github_http_client(
+    valid_env: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("GITHUB_APP_ID", "123")
+    monkeypatch.setenv("GITHUB_APP_PRIVATE_KEY", "private-key")
+    monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", "webhook-secret")
+    monkeypatch.setenv("GITHUB_INSTALLATION_ID", "456")
+    app = create_app()
+    read_client = app.state.github_read_client
+
+    async with app.router.lifespan_context(app):
+        assert read_client._http_client.is_closed is False
+
+    assert read_client._http_client.is_closed is True
 
 
 def test_create_app_fails_fast_without_app_env(

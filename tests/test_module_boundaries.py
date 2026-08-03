@@ -62,6 +62,7 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "gateway" / "__init__.py",
         PACKAGE_ROOT / "gateway" / "github" / "__init__.py",
         PACKAGE_ROOT / "gateway" / "github" / "auth.py",
+        PACKAGE_ROOT / "gateway" / "github" / "read_tools.py",
         PACKAGE_ROOT / "gateway" / "github" / "webhook.py",
         PACKAGE_ROOT / "models" / "__init__.py",
         PACKAGE_ROOT / "evaluation" / "__init__.py",

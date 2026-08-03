@@ -20,6 +20,7 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "GITHUB_APP_PRIVATE_KEY",
         "GITHUB_WEBHOOK_SECRET",
         "GITHUB_INSTALLATION_ID",
+        "GITHUB_API_TIMEOUT_SECONDS",
         "AEGISFLOW_BOOTSTRAP_TENANT_SLUG",
     ):
         monkeypatch.delenv(name, raising=False)
