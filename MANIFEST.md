@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 378
-- Active project files: 371
+- Repository files: 388
+- Active project files: 381
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 139
-- Test files: 98
+- Application source files: 142
+- Test files: 101
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -106,6 +106,7 @@
 - `docs/design-notes/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`
+- `docs/design-notes/M5-EVALUATION-FOUNDATION.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -131,6 +132,7 @@
 - `docs/test-plans/M3-DURABLE-RUNTIME-BUNDLE.md`
 - `docs/test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`
+- `docs/test-plans/M5-EVALUATION-FOUNDATION.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
@@ -189,6 +191,11 @@
 - `src/aegisflow_core/control_plane/versions/__init__.py`
 - `src/aegisflow_core/control_plane/versions/service.py`
 - `src/aegisflow_core/evaluation/__init__.py`
+- `src/aegisflow_core/evaluation/baseline.py`
+- `src/aegisflow_core/evaluation/contracts.py`
+- `src/aegisflow_core/evaluation/datasets.py`
+- `src/aegisflow_core/evaluation/data/security_injection_v1.jsonl`
+- `src/aegisflow_core/evaluation/data/swebench_verified_python_v1.json`
 - `src/aegisflow_core/gateway/__init__.py`
 - `src/aegisflow_core/gateway/github/__init__.py`
 - `src/aegisflow_core/gateway/github/auth.py`
@@ -396,3 +403,6 @@
 - `tests/gateway/github/test_pull_request.py`
 - `.github/workflows/gate1b-e2e.yml`
 - `tests/e2e/test_gate1b_real_github.py`
+- `tests/evaluation/test_baseline.py`
+- `tests/evaluation/test_contracts.py`
+- `tests/evaluation/test_datasets.py`
