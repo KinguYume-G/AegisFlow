@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aegisflow_core.control_plane.domain.audit import AuditEvent
+from aegisflow_core.control_plane.tenants.scope import TenantScope, TenantScopeViolation
 
 _BOUNDS = {
     "actor": 2304,
@@ -23,9 +24,21 @@ _SENSITIVE = re.compile(
     r"(?i)(authorization\s*[=:]\s*(?:bearer\s+)?|bearer\s+|"
     r"(?:api[_-]?key|token|password|secret)\s*[=:]\s*)[^\s,;]+"
 )
+_PEM = re.compile(
+    r"-----BEGIN [^-\r\n]+-----.*?-----END [^-\r\n]+-----",
+    re.IGNORECASE | re.DOTALL,
+)
+_STANDALONE_TOKEN = re.compile(
+    r"(?i)\b(?:gh[pousr]_[a-z0-9]{20,}|github_pat_[a-z0-9_]{20,}|"
+    r"(?:sk|pk)-(?:lf-)?[a-z0-9_-]{8,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20,})\b"
+)
+_URI_CREDENTIAL = re.compile(r"(?i)(\b[a-z][a-z0-9+.-]*://)[^\s/@:]+:[^\s/@]+@")
 
 
 def redact_audit_text(value: str) -> str:
+    value = _PEM.sub("[REDACTED]", value)
+    value = _URI_CREDENTIAL.sub(r"\1[REDACTED]@", value)
+    value = _STANDALONE_TOKEN.sub("[REDACTED]", value)
     return _SENSITIVE.sub(lambda match: f"{match.group(1)}[REDACTED]", value)
 
 
@@ -39,8 +52,9 @@ def _field(name: str, value: str) -> str:
 
 
 class AuditService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, scope: TenantScope | None = None) -> None:
         self._session = session
+        self._scope = scope
 
     async def append(
         self,
@@ -72,6 +86,10 @@ class AuditService:
         await self.append(**fields)  # type: ignore[arg-type]
 
     async def list_for_tenant(self, tenant_id: UUID, *, limit: int = 100) -> list[AuditEvent]:
+        if self._scope is None:
+            raise TenantScopeViolation("authenticated tenant scope is required for audit reads")
+        if tenant_id != self._scope.tenant_id:
+            raise TenantScopeViolation("audit tenant does not match authenticated scope")
         if limit < 1 or limit > 500:
             raise ValueError("audit query limit must be between 1 and 500")
         return list(

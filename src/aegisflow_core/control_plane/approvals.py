@@ -43,6 +43,35 @@ class PostgresApprovalAuthorizer:
                 raise PermissionError("write approval was not verified")
 
 
+class PostgresToolApprovalVerifier:
+    """Resolve an approved, tenant/run/step-bound Human decision for one tool call."""
+
+    def __init__(self, session_factory: Callable[[], AsyncSession]) -> None:
+        self._factory = session_factory
+
+    async def approved_by(
+        self,
+        *,
+        approval_id: UUID,
+        tenant_id: UUID,
+        run_id: UUID,
+        step_id: UUID,
+    ) -> str | None:
+        async with self._factory() as session:
+            row = await session.get(Approval, approval_id)
+            if (
+                row is None
+                or row.tenant_id != tenant_id
+                or row.run_id != run_id
+                or row.step_id != step_id
+                or row.decision != "approved"
+                or not row.decided_by
+                or row.decided_at is None
+            ):
+                return None
+            return row.decided_by
+
+
 class PostgresApprovalGateway:
     def __init__(self, session_factory: Callable[[], AsyncSession]) -> None:
         self._factory = session_factory

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from aegisflow_core.control_plane.approvals import (
     PostgresApprovalAuthorizer,
     PostgresApprovalGateway,
+    PostgresToolApprovalVerifier,
 )
 from aegisflow_core.gateway.github.pull_request import WriteAuthorization
 from aegisflow_core.gateway.policy.gate import RepositoryTarget
@@ -52,4 +53,14 @@ async def test_postgres_approval_gateway_is_idempotent_and_terminal() -> None:
         await authorizer.verify(authorization.model_copy(update={"tenant_id": uuid4()}), "b" * 64)
     with pytest.raises(DuplicateApprovalDecisionError):
         await gateway.submit_decision(approval,run,"rejected","human")
+    verifier = PostgresToolApprovalVerifier(async_sessionmaker(engine, expire_on_commit=False))
+    assert await verifier.approved_by(
+        approval_id=approval, tenant_id=tenant, run_id=run, step_id=step
+    ) == "human"
+    assert await verifier.approved_by(
+        approval_id=approval, tenant_id=uuid4(), run_id=run, step_id=step
+    ) is None
+    assert await verifier.approved_by(
+        approval_id=approval, tenant_id=tenant, run_id=run, step_id=uuid4()
+    ) is None
     await engine.dispose()

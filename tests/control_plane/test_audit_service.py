@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from aegisflow_core.control_plane.audit import AuditService
 from aegisflow_core.control_plane.domain import AuditEvent, Tenant
+from aegisflow_core.control_plane.tenants.scope import TenantScope, TenantScopeViolation
 
 
 @pytest.mark.database
@@ -28,8 +29,8 @@ async def test_audit_is_complete_redacted_tenant_scoped_and_immutable() -> None:
                 tenant_b = Tenant(slug=f"audit-b-{uuid4()}", name="B")
                 session.add_all([tenant_a, tenant_b])
                 await session.flush()
-                service = AuditService(session)
-                event = await service.append(
+                writer = AuditService(session)
+                event = await writer.append(
                     tenant_id=tenant_a.id,
                     actor="issuer|subject",
                     action="policy.evaluate",
@@ -51,7 +52,12 @@ async def test_audit_is_complete_redacted_tenant_scoped_and_immutable() -> None:
                 )
                 assert "secret-value" not in event.reason
                 assert "[REDACTED]" in event.reason
+                service = AuditService(session, TenantScope(tenant_a.id, "issuer|subject"))
                 assert [row.id for row in await service.list_for_tenant(tenant_a.id)] == [event.id]
+                with pytest.raises(TenantScopeViolation):
+                    await service.list_for_tenant(tenant_b.id)
+                with pytest.raises(TenantScopeViolation):
+                    await writer.list_for_tenant(tenant_a.id)
                 with pytest.raises(DBAPIError):
                     async with session.begin_nested():
                         await session.execute(update(AuditEvent).where(AuditEvent.id == event.id).values(reason="changed"))
@@ -80,3 +86,17 @@ async def test_audit_rejects_missing_or_oversized_fields() -> None:
             tenant_id=uuid4(), actor="a", action="x", resource_type="x",
             resource_id="x", decision="deny", reason="x" * 4097, trace_id="x",
         )
+
+
+@pytest.mark.parametrize("credential", [
+    "ghp_123456789012345678901234567890123456",
+    "sk-1234567890abcdef",
+    "AKIA1234567890ABCDEF",
+    "postgresql://user:password@example.test/db",
+    "-----BEGIN PRIVATE KEY-----\nfixture\n-----END PRIVATE KEY-----",
+])
+def test_audit_redacts_standalone_credential_signatures(credential: str) -> None:
+    from aegisflow_core.control_plane.audit import redact_audit_text
+
+    assert credential not in redact_audit_text(f"failure: {credential}")
+    assert "[REDACTED]" in redact_audit_text(f"failure: {credential}")

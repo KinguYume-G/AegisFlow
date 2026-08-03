@@ -61,7 +61,14 @@ class ContextualPolicy:
     def _decision(outcome: PolicyOutcome, rule: str, reason: str) -> ContextualPolicyDecision:
         return ContextualPolicyDecision(outcome, rule, f"{rule}.{reason}")
 
-    def evaluate(self, value: PolicyInput) -> ContextualPolicyDecision:
+    def evaluate_caller(self, value: PolicyInput) -> ContextualPolicyDecision:
+        """Authorize identity/RBAC/repository context before registry lookup."""
+        denied = self._caller_denial(value)
+        if denied is not None:
+            return denied
+        return ContextualPolicyDecision(PolicyOutcome.ALLOW, "policy", "policy.caller_allowed")
+
+    def _caller_denial(self, value: PolicyInput) -> ContextualPolicyDecision | None:
         if value.contradictory_evidence:
             return self._decision(PolicyOutcome.DENY, "tenant_membership", "contradictory_evidence")
         if not isinstance(value.tenant_id, UUID) or not value.membership_active:
@@ -73,6 +80,12 @@ class ContextualPolicy:
             return self._decision(PolicyOutcome.DENY, "repository_environment", "repository_denied")
         if not value.environment.strip() or value.environment.casefold() not in {item.casefold() for item in value.allowed_environments}:
             return self._decision(PolicyOutcome.DENY, "repository_environment", "environment_denied")
+        return None
+
+    def evaluate(self, value: PolicyInput) -> ContextualPolicyDecision:
+        denied = self._caller_denial(value)
+        if denied is not None:
+            return denied
         if not value.tool_registered:
             return self._decision(PolicyOutcome.DENY, "tool_registration_scope", "unregistered")
         if not value.requested_scope.strip() or value.requested_scope not in value.registered_scopes:
