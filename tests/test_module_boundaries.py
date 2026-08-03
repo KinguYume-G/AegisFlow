@@ -176,13 +176,17 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("domain/idempotency.py"),
                 Path("domain/model_routing.py"),
                 Path("domain/versioning.py"),
+                Path("domain/access.py"),
                 Path("approvals.py"),
+                Path("rbac.py"),
                 Path("idempotency_ledger.py"),
                 Path("runtime_uow.py"),
                 Path("tenants/__init__.py"),
                 Path("tenants/scope.py"),
                 Path("versions/__init__.py"),
                 Path("versions/service.py"),
+                Path("identity/__init__.py"),
+                Path("identity/oidc.py"),
         Path("migrations/env.py"),
         Path("migrations/versions/0001_initial_domain_model.py"),
             Path("migrations/versions/0002_normalize_check_names.py"),
@@ -191,6 +195,7 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("migrations/versions/0005_add_idempotency_ledger.py"),
                 Path("migrations/versions/0006_add_model_circuit_state.py"),
                 Path("migrations/versions/0007_add_tenant_version_foundations.py"),
+                Path("migrations/versions/0008_add_identity_rbac.py"),
     }
     actual_relative_files = {
         path.relative_to(control_plane)

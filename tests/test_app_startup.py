@@ -17,6 +17,7 @@ def test_create_app_succeeds_with_valid_env(valid_env: None) -> None:
     assert isinstance(app, FastAPI)
     assert app.state.github_token_provider is None
     assert app.state.github_read_client is None
+    assert app.state.oidc_verifier is None
 
 
 def test_create_app_registers_github_token_provider(
@@ -32,6 +33,25 @@ def test_create_app_registers_github_token_provider(
 
     assert app.state.github_token_provider is not None
     assert app.state.github_read_client is not None
+
+
+@pytest.mark.anyio
+async def test_create_app_registers_oidc_verifier_only_when_fully_configured(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from aegisflow_core.app import create_app
+
+    for name, value in {
+        "OIDC_ISSUER": "https://issuer.example.test",
+        "OIDC_AUDIENCE": "aegisflow-dev",
+        "OIDC_JWKS_URL": "https://issuer.example.test/jwks",
+        "OIDC_ALGORITHM": "RS256",
+    }.items():
+        monkeypatch.setenv(name, value)
+    app = create_app()
+    assert app.state.oidc_verifier is not None
+    async with app.router.lifespan_context(app):
+        pass
 
 
 @pytest.mark.anyio

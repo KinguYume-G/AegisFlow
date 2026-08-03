@@ -10,11 +10,13 @@ from aegisflow_core.control_plane.domain import (
     ModelCircuitState,
     PromptSeries,
     PromptVersion,
+    RoleAssignment,
     Run,
     RepositoryChunk,
     RunPromptVersion,
     Step,
     Tenant,
+    TenantMembership,
     Workflow,
 )
 
@@ -26,6 +28,8 @@ MODELS = (
     PromptSeries,
     PromptVersion,
     RunPromptVersion,
+    TenantMembership,
+    RoleAssignment,
 )
 
 
@@ -51,6 +55,8 @@ def test_all_tables_declared() -> None:
         "prompt_series",
         "prompt_versions",
         "run_prompt_versions",
+        "tenant_memberships",
+        "role_assignments",
     }
     assert {model.__tablename__ for model in MODELS} == set(Base.metadata.tables)
 
@@ -87,6 +93,15 @@ def test_named_check_and_unique_constraints_exist() -> None:
     assert "uq_run_prompt_versions_binding" in _constraint_names(
         RunPromptVersion, UniqueConstraint
     )
+    assert "ck_role_assignments_role" in _constraint_names(
+        RoleAssignment, CheckConstraint
+    )
+    assert "ck_role_assignments_revocation_pair" in _constraint_names(
+        RoleAssignment, CheckConstraint
+    )
+    assert "ck_tenant_memberships_subject_bounded" in _constraint_names(
+        TenantMembership, CheckConstraint
+    )
 
 
 def test_tenant_scoped_foreign_keys_are_declared() -> None:
@@ -110,6 +125,12 @@ def test_tenant_scoped_foreign_keys_are_declared() -> None:
     assert ("tenant_id", "run_id") in step_foreign_keys
     assert ("tenant_id", "run_id") in approval_foreign_keys
     assert ("tenant_id", "run_id", "step_id") in approval_foreign_keys
+    role_foreign_keys = {
+        tuple(element.parent.name for element in constraint.elements)
+        for constraint in RoleAssignment.__table__.constraints
+        if isinstance(constraint, ForeignKeyConstraint)
+    }
+    assert ("tenant_id", "membership_id") in role_foreign_keys
 
 
 def test_audit_events_are_structurally_append_only() -> None:

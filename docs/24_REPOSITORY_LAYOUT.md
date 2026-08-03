@@ -155,7 +155,7 @@
 | GATE2_RELIABILITY_BLOG.md | 文档/可靠性 | 面向读者的 Gate 2 技术总结，不扩大证据结论 |
 | GATE2_DEMO_RUNBOOK.md | 运行/可靠性 | 可重复的受保护工作流演示、核验清单与停止条件 |
 
-## src/aegisflow_core/（AF-101–AF-110 与 AF-201–AF-210 模块化单体、DeliveryPack 和 Gate 1B 实现）
+## src/aegisflow_core/（模块化单体、DeliveryPack、Durable Runtime 与 Governance/Security 实现）
 
 | 路径 | 分类 | 用途 |
 |---|---|---|
@@ -178,6 +178,10 @@
 | control_plane/tenants/ | 代码/安全 | AF-401 显式 tenant scope、自动 ORM 过滤与 fail-closed 写入边界 |
 | control_plane/versions/ | 代码/治理 | AF-410/411 并发安全的 immutable Prompt/Workflow publish、rollback 与 binding 服务 |
 | control_plane/migrations/versions/0007_add_tenant_version_foundations.py | 数据/迁移/安全 | AF-401/410/411 版本事实、不可变触发器与 active Workflow 唯一约束 |
+| control_plane/identity/ | 代码/身份/安全 | AF-402 provider-neutral OIDC Principal、严格 Bearer/JWT 验证与 bounded JWKS adapter/cache |
+| control_plane/domain/access.py | 代码/数据/安全 | AF-403 tenant membership 与 revocable fixed-role assignment facts |
+| control_plane/rbac.py | 代码/安全 | AF-403 六角色固定 capability matrix、tenant-local evaluator 与审计 assignment/revocation |
+| control_plane/migrations/versions/0008_add_identity_rbac.py | 数据/迁移/安全 | AF-403 membership/role schema、复合租户外键、active-role 唯一约束与 mutation guard |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
@@ -256,6 +260,9 @@
 | domain/test_database_constraints.py | 质量/安全 | 真实 PostgreSQL 的租户隔离、版本不可变、append-only Audit 与约束负向测试 |
 | control_plane/test_tenant_scope.py | 质量/安全 | AF-401 tenant 自动过滤、跨租户写拒绝、root/raw SQL fail-closed 测试 |
 | control_plane/test_versioning.py | 质量/治理/数据 | AF-410/411 并发分配、幂等冲突、rollback、Run binding 与数据库不可变触发器测试 |
+| control_plane/test_oidc.py | 质量/身份/安全 | AF-402 signature/claim/header/algorithm 负向矩阵、rotation、bounded cache 与 sanitized JWKS failure 测试 |
+| control_plane/test_rbac.py | 质量/安全/数据 | AF-403 固定 matrix、tenant isolation、self-approval denial、审计 grant/revoke 与数据库 trigger 测试 |
+| gateway/sandbox/test_runner.py | 质量/安全 | AF-204/407 Broker schema、Docker hardening、归档攻击、credential、cleanup、timeout 与错误脱敏测试 |
 | runtime/__init__.py | 质量 | Runtime 测试包标记 |
 | runtime/test_tracing.py | 质量/安全/可观测 | AF-109 trace schema、redaction、配置矩阵、Recorder mock 与 smoke workflow 静态护栏 |
 | runtime/test_fault_injection.py | 质量/可靠性 | AF-309 固定 20 次矩阵、验收、百分位与 JSONL 证据测试 |

@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 355
-- Active project files: 348
+- Repository files: 362
+- Active project files: 355
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 124
-- Test files: 90
+- Application source files: 129
+- Test files: 92
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -161,6 +161,7 @@
 - `src/aegisflow_core/control_plane/__init__.py`
 - `src/aegisflow_core/control_plane/bootstrap.py`
 - `src/aegisflow_core/control_plane/domain/__init__.py`
+- `src/aegisflow_core/control_plane/domain/access.py`
 - `src/aegisflow_core/control_plane/domain/approval.py`
 - `src/aegisflow_core/control_plane/domain/audit.py`
 - `src/aegisflow_core/control_plane/domain/base.py`
@@ -174,6 +175,10 @@
 - `src/aegisflow_core/control_plane/migrations/versions/0001_initial_domain_model.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0002_normalize_check_names.py`
 - `src/aegisflow_core/control_plane/migrations/versions/0007_add_tenant_version_foundations.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0008_add_identity_rbac.py`
+- `src/aegisflow_core/control_plane/identity/__init__.py`
+- `src/aegisflow_core/control_plane/identity/oidc.py`
+- `src/aegisflow_core/control_plane/rbac.py`
 - `src/aegisflow_core/control_plane/tenants/__init__.py`
 - `src/aegisflow_core/control_plane/tenants/scope.py`
 - `src/aegisflow_core/control_plane/versions/__init__.py`
@@ -229,6 +234,8 @@
 - `tests/conftest.py`
 - `tests/control_plane/__init__.py`
 - `tests/control_plane/test_bootstrap.py`
+- `tests/control_plane/test_oidc.py`
+- `tests/control_plane/test_rbac.py`
 - `tests/control_plane/test_tenant_scope.py`
 - `tests/control_plane/test_versioning.py`
 - `tests/domain/__init__.py`

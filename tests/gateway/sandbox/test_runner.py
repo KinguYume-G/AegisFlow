@@ -13,6 +13,8 @@ PROFILE = SandboxTestProfile(name="python_pytest", image="python@sha256:" + "a" 
 
 def test_schema_enforces_digest_and_hard_resource_caps(tmp_path: Path) -> None:
     with pytest.raises(ValueError): SandboxTestProfile(name="python_pytest", image="python:latest")
+    with pytest.raises(ValueError): SandboxTestProfile(name="python_pytest", image="python@sha256:short")
+    with pytest.raises(ValueError): SandboxTestProfile(name="python_pytest", image="python@sha256:" + "z" * 64)
     with pytest.raises(ValueError): SandboxRequest(workspace_source=tmp_path, test_profile=PROFILE, memory_limit_mb=2049)
 
 
@@ -57,6 +59,7 @@ def test_broker_runs_with_fixed_security_parameters(tmp_path: Path, monkeypatch:
 
     class Client:
         def __init__(self): self.host = None; self.removed = False
+        def containers(self, **kwargs): return []
         def pull(self, image): assert image == PROFILE.image
         def create_host_config(self, **kwargs): self.host = kwargs; return kwargs
         def create_container(self, **kwargs): self.created = kwargs; return {"Id":"owned"}
@@ -73,3 +76,104 @@ def test_broker_runs_with_fixed_security_parameters(tmp_path: Path, monkeypatch:
     assert result.status == "completed" and client.removed
     assert client.host["network_mode"] == "none" and client.host["cap_drop"] == ["ALL"]
     assert (workspace / "output.txt").read_text() == "ok\n"
+
+
+@pytest.mark.parametrize("name", [".env", "id_rsa", "credentials.json", "token.txt", "client.pem", "signing.key"])
+def test_archive_rejects_sensitive_filenames(tmp_path: Path, name: str) -> None:
+    workspace = tmp_path / "workspace"; workspace.mkdir()
+    (workspace / name).write_text("placeholder")
+    with pytest.raises(ValueError, match="sensitive filename"):
+        broker._archive(workspace)
+
+
+def test_archive_rejects_credentials_and_resource_overflow(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"; workspace.mkdir()
+    (workspace / "safe.txt").write_text("ghp_" + "A" * 40)
+    with pytest.raises(ValueError, match="credential material"):
+        broker._archive(workspace)
+    (workspace / "safe.txt").write_bytes(b"x" * (broker.MAX_FILE_BYTES + 1))
+    with pytest.raises(ValueError, match="file size"):
+        broker._archive(workspace)
+
+
+def test_output_archive_rejects_links_escape_and_oversize(tmp_path: Path) -> None:
+    import io, tarfile
+    workspace = tmp_path / "workspace"; workspace.mkdir()
+
+    def bundle(member: tarfile.TarInfo, data: bytes = b"") -> bytes:
+        stream = io.BytesIO()
+        with tarfile.open(fileobj=stream, mode="w") as archive:
+            member.size = len(data)
+            archive.addfile(member, io.BytesIO(data) if data else None)
+        return stream.getvalue()
+
+    link = tarfile.TarInfo("workspace/link"); link.type = tarfile.SYMTYPE; link.linkname = "../secret"
+    with pytest.raises(ValueError, match="unsupported type"):
+        broker._extract_output(bundle(link), workspace)
+    escape = tarfile.TarInfo("../escape.txt")
+    with pytest.raises(ValueError, match="invalid path"):
+        broker._extract_output(bundle(escape, b"x"), workspace)
+    large = tarfile.TarInfo("workspace/large.bin")
+    with pytest.raises(ValueError, match="file size"):
+        broker._extract_output(bundle(large, b"x" * (broker.MAX_FILE_BYTES + 1)), workspace)
+
+
+def test_orphan_cleanup_is_labeled_expired_and_bounded() -> None:
+    class Client:
+        def __init__(self) -> None: self.removed = []
+        def containers(self, **kwargs):
+            assert kwargs == {"all": True, "filters": {"label": "aegisflow.sandbox=owned"}}
+            return [{"Id": "expired"}, {"Id": "fresh"}, {"Id": "foreign"}]
+        def inspect_container(self, identifier):
+            labels = {
+                "expired": {"aegisflow.sandbox": "owned", "aegisflow.sandbox.expires_at": "10"},
+                "fresh": {"aegisflow.sandbox": "owned", "aegisflow.sandbox.expires_at": "999"},
+                "foreign": {"aegisflow.sandbox": "other", "aegisflow.sandbox.expires_at": "1"},
+            }[identifier]
+            return {"Config": {"Labels": labels}}
+        def remove_container(self, identifier, **kwargs): self.removed.append((identifier, kwargs))
+    client = Client()
+    assert broker._cleanup_orphans(client, now=100, limit=2) == 1
+    assert client.removed == [("expired", {"force": True})]
+
+
+def test_broker_never_passes_host_environment_and_always_cleans_on_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = tmp_path / "owned"; workspace = root / "job"; workspace.mkdir(parents=True)
+    (workspace / "input.py").write_text("x=1\n")
+    class Client:
+        def __init__(self): self.created = None; self.removed = False
+        def containers(self, **kwargs): return []
+        def pull(self, image): return None
+        def create_host_config(self, **kwargs): return kwargs
+        def create_container(self, **kwargs): self.created = kwargs; return {"Id": "owned"}
+        def put_archive(self, *args): raise RuntimeError("daemon secret detail")
+        def remove_container(self, *args, **kwargs): self.removed = True
+    client = Client()
+    monkeypatch.setenv("SANDBOX_WORKSPACE_ROOT", str(root))
+    monkeypatch.setenv("SHOULD_NOT_LEAK", "secret")
+    monkeypatch.setitem(sys.modules, "docker", SimpleNamespace(APIClient=lambda **kwargs: client))
+    result = broker._run(SandboxRequest(workspace_source=workspace, test_profile=PROFILE))
+    assert client.created is not None and "environment" not in client.created
+    assert client.removed and result.status == "internal_error"
+    assert "secret" not in result.stderr and "daemon" not in result.stderr
+
+
+def test_timeout_is_sanitized_and_container_is_removed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = tmp_path / "owned"; workspace = root / "job"; workspace.mkdir(parents=True)
+    (workspace / "input.py").write_text("x=1\n")
+    class Client:
+        def __init__(self): self.removed = False
+        def containers(self, **kwargs): return []
+        def pull(self, image): return None
+        def create_host_config(self, **kwargs): return kwargs
+        def create_container(self, **kwargs): return {"Id": "owned"}
+        def put_archive(self, *args): return None
+        def start(self, identifier): return None
+        def wait(self, *args, **kwargs): raise TimeoutError("daemon detail")
+        def remove_container(self, *args, **kwargs): self.removed = True
+    client = Client()
+    monkeypatch.setenv("SANDBOX_WORKSPACE_ROOT", str(root))
+    monkeypatch.setitem(sys.modules, "docker", SimpleNamespace(APIClient=lambda **kwargs: client))
+    result = broker._run(SandboxRequest(workspace_source=workspace, test_profile=PROFILE))
+    assert result.status == "timeout" and client.removed
+    assert result.stderr == "broker execution failed: TimeoutError"

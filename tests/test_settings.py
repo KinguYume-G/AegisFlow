@@ -184,3 +184,39 @@ def test_primary_and_fallback_model_must_be_distinct(
         monkeypatch.setenv(name, value)
     with pytest.raises(ConfigurationError, match="distinct"):
         get_settings()
+
+
+def test_complete_oidc_configuration_is_accepted(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    values = {
+        "OIDC_ISSUER": "https://issuer.example.test",
+        "OIDC_AUDIENCE": "aegisflow-dev",
+        "OIDC_JWKS_URL": "https://issuer.example.test/.well-known/jwks.json",
+        "OIDC_ALGORITHM": "RS256",
+        "OIDC_CACHE_TTL_SECONDS": "120",
+        "OIDC_MAX_CACHED_KEYS": "8",
+        "OIDC_HTTP_TIMEOUT_SECONDS": "2.5",
+    }
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+    settings = get_settings()
+    assert settings.oidc_configured
+    assert settings.oidc_config is not None
+    assert settings.oidc_config.max_cached_keys == 8
+
+
+def test_partial_or_unsafe_oidc_configuration_fails_closed(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("OIDC_ISSUER", "https://issuer.example.test")
+    with pytest.raises(ConfigurationError, match="OIDC"):
+        get_settings()
+    for name, value in {
+        "OIDC_AUDIENCE": "aegisflow-dev",
+        "OIDC_JWKS_URL": "https://issuer.example.test/jwks",
+        "OIDC_ALGORITHM": "HS256",
+    }.items():
+        monkeypatch.setenv(name, value)
+    with pytest.raises(ConfigurationError, match="OIDC"):
+        get_settings()
