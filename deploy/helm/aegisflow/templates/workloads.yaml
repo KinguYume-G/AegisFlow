@@ -171,3 +171,53 @@ spec:
         - name: config
           configMap: {name: {{ include "aegisflow.fullname" . }}-prometheus}
         - {name: data, emptyDir: {}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &grafanaLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: grafana
+  template:
+    metadata: {labels: *grafanaLabels}
+    spec:
+      serviceAccountName: {{ include "aegisflow.fullname" . }}-grafana
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 472, runAsGroup: 472, fsGroup: 472, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: grafana
+          image: {{ .Values.images.grafana | quote }}
+          env:
+            - {name: GF_AUTH_ANONYMOUS_ENABLED, value: "true"}
+            - {name: GF_AUTH_ANONYMOUS_ORG_ROLE, value: "Viewer"}
+            - {name: GF_AUTH_DISABLE_LOGIN_FORM, value: "true"}
+            - {name: GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION, value: "true"}
+            - {name: GF_ANALYTICS_REPORTING_ENABLED, value: "false"}
+            - {name: GF_ANALYTICS_CHECK_FOR_UPDATES, value: "false"}
+          ports: [{name: http, containerPort: 3000}]
+          readinessProbe:
+            httpGet: {path: /api/health, port: http}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources: {{- toYaml .Values.dependencyResources | nindent 12 }}
+          volumeMounts:
+            - {name: provisioning, mountPath: /etc/grafana/provisioning, readOnly: true}
+            - {name: dashboard, mountPath: /etc/grafana/dashboards, readOnly: true}
+            - {name: data, mountPath: /var/lib/grafana}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: provisioning
+          configMap: {name: {{ include "aegisflow.fullname" . }}-grafana-provisioning}
+        - name: dashboard
+          configMap: {name: {{ include "aegisflow.fullname" . }}-grafana-dashboard}
+        - {name: data, emptyDir: {}}
+        - {name: tmp, emptyDir: {}}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "subject": "aegisflow",
+  "evidence_scope": "deterministic_gate_fixture",
+  "prompt_version": "delivery-v1.0.0",
+  "dataset_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "controls_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "run_count": 20,
+  "metrics": [
+    {"name":"task_completion","status":"measured","numerator":"18","denominator":"20","value":"0.9","unit":"ratio"},
+    {"name":"tool_success","status":"measured","numerator":"19","denominator":"20","value":"0.95","unit":"ratio"},
+    {"name":"defect_detection","status":"measured","numerator":"8","denominator":"10","value":"0.8","unit":"ratio"},
+    {"name":"false_positive","status":"measured","numerator":"1","denominator":"20","value":"0.05","unit":"ratio"},
+    {"name":"patch_applicability","status":"measured","numerator":"7","denominator":"10","value":"0.7","unit":"ratio"},
+    {"name":"test_pass","status":"measured","numerator":"8","denominator":"10","value":"0.8","unit":"ratio"},
+    {"name":"token_cost","status":"measured","numerator":"1.00","denominator":null,"value":"1.00","unit":"currency"},
+    {"name":"p95_latency_ms","status":"measured","numerator":"900","denominator":null,"value":"900","unit":"milliseconds"}
+  ]
+}

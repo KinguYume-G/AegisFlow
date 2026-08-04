@@ -23,3 +23,36 @@ data:
         metrics_path: /metrics
         static_configs:
           - targets: ["{{ include "aegisflow.fullname" . }}-core:8000"]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-grafana-provisioning
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://{{ include "aegisflow.fullname" . }}-prometheus:9090
+        isDefault: true
+        editable: false
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: AegisFlow
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /etc/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-grafana-dashboard
+data:
+  aegisflow-gate4.json: |
+{{ .Files.Get "dashboards/aegisflow-gate4.json" | indent 4 }}

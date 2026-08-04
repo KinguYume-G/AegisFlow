@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from temporalio.client import Client, WorkflowHandle
 
+from aegisflow_core.runtime.metrics import observe_human_intervention
 from aegisflow_core.runtime.temporal.contracts import (
     DeliveryWorkflowInput,
     HumanSignal,
@@ -41,6 +42,7 @@ async def signal_clarification(
     if signal.kind != "clarification":
         raise ValueError("clarification endpoint requires a clarification signal")
     await handle.signal(DeliveryWorkflow.clarification, signal)
+    observe_human_intervention("clarification", "submitted")
 
 
 async def signal_approval(
@@ -50,3 +52,4 @@ async def signal_approval(
     if signal.kind != "approval":
         raise ValueError("approval endpoint requires an approval signal")
     await handle.signal(DeliveryWorkflow.approval, signal)
+    observe_human_intervention("approval", "submitted")

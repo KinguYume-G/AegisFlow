@@ -70,14 +70,15 @@ verify() {
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-core" --timeout=120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-worker" --timeout=120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-prometheus" --timeout=120s
+  kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-grafana" --timeout=120s
   kubectl -n "${NAMESPACE}" run "aegisflow-smoke-${RANDOM}" \
     --image="${APP_IMAGE}" --image-pull-policy=Never \
-    --labels=aegisflow.io/access-core=true,aegisflow.io/access-prometheus=true \
+    --labels=aegisflow.io/access-core=true,aegisflow.io/access-prometheus=true,aegisflow.io/access-grafana=true \
     --restart=Never --rm -i -- \
-    python -c "import json,time,urllib.request; base='http://${FULLNAME}-core:8000'; prom='http://${FULLNAME}-prometheus:9090/api/v1/query?query=up%7Bjob%3D%22aegisflow-core%22%7D'; deadline=time.time()+60; last=None
+    python -c "import json,time,urllib.request; base='http://${FULLNAME}-core:8000'; prom='http://${FULLNAME}-prometheus:9090/api/v1/query?query=up%7Bjob%3D%22aegisflow-core%22%7D'; grafana='http://${FULLNAME}-grafana:3000'; deadline=time.time()+60; last=None
 while time.time()<deadline:
   try:
-    health=json.load(urllib.request.urlopen(base+'/health',timeout=3)); metrics=urllib.request.urlopen(base+'/metrics',timeout=3).read().decode(); result=json.load(urllib.request.urlopen(prom,timeout=3)); assert health=={'status':'ok','service':'aegisflow-core'}; assert '# HELP' in metrics; assert result['data']['result'][0]['value'][1]=='1'; print('k3d smoke passed'); break
+    health=json.load(urllib.request.urlopen(base+'/health',timeout=3)); metrics=urllib.request.urlopen(base+'/metrics',timeout=3).read().decode(); result=json.load(urllib.request.urlopen(prom,timeout=3)); grafana_health=json.load(urllib.request.urlopen(grafana+'/api/health',timeout=3)); dashboard=json.load(urllib.request.urlopen(grafana+'/api/dashboards/uid/aegisflow-gate4',timeout=3)); assert health=={'status':'ok','service':'aegisflow-core'}; assert '# HELP' in metrics; assert result['data']['result'][0]['value'][1]=='1'; assert grafana_health['database']=='ok'; assert dashboard['dashboard']['uid']=='aegisflow-gate4'; print('k3d smoke passed'); break
   except Exception as error:
     last=type(error).__name__; time.sleep(2)
 else:
@@ -98,7 +99,7 @@ upgrade_rollback() {
     {
       echo "## M5 k3s / Helm evidence"
       echo
-      echo "- install, health, metrics, Prometheus scrape: passed"
+      echo "- install, health, metrics, Prometheus scrape, Grafana dashboard: passed"
       echo "- upgrade to two Core replicas: passed"
       echo "- rollback to revision ${base_revision}: passed"
       echo

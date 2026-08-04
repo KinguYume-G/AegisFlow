@@ -118,6 +118,9 @@
 | M3-RELIABILITY-MODEL-BUNDLE.md | 可靠性/模型网关 | AF-308–AF-311 Saga、故障注入、LiteLLM 与熔断回退 Design Note（**Approved v1**） |
 | AF-312.md | 可靠性/治理 | Gate 2 报告、Blog 与 Demo Runbook 的证据边界和发布流程（**Approved v1**） |
 | M4-GOVERNANCE-SECURITY-BUNDLE.md | 安全/治理 | AF-401–AF-413 五波次租户、身份、RBAC、Policy、Audit、MCP、Sandbox 与 Gate 3 契约（**Approved v1**） |
+| M5-EVALUATION-FOUNDATION.md | 评测 | AF-501–AF-505 数据契约、固定数据集与单 Agent Baseline |
+| M5-EVALUATION-GATES.md | 评测/CI/可观测 | AF-504、AF-506、AF-507、AF-510 历史真值、报告、回归 Gate 与 Grafana 契约（**Approved**） |
+| M5-OBSERVABILITY-BUNDLE.md | 可观测 | AF-508、AF-509、AF-511、AF-514 Trace、Metrics、Load 与 Run Graph 契约 |
 | M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 基础设施/AI流程 | AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次 Design Note（**Approved v2**） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
@@ -149,6 +152,9 @@
 | M3-RELIABILITY-MODEL-BUNDLE.md | 质量/可靠性 | AF-308–AF-311 可靠性与模型运行时配套 Test Plan（**Approved v1**） |
 | AF-312.md | 质量/可靠性 | Gate 2 证据一致性、链接、Secret 和限制声明验证（**Approved v1**） |
 | M4-GOVERNANCE-SECURITY-BUNDLE.md | 质量/安全 | AF-401–AF-413 隔离、拒绝、迁移、回归与 Gate 3 总 Test Plan（**Approved v1**） |
+| M5-EVALUATION-FOUNDATION.md | 质量/评测 | AF-501–AF-505 数据集与 Baseline 验证计划 |
+| M5-EVALUATION-GATES.md | 质量/评测/CI | AF-504、AF-506、AF-507、AF-510 历史集、报告、红绿回归和 Dashboard 验证计划（**Approved**） |
+| M5-OBSERVABILITY-BUNDLE.md | 质量/可观测 | AF-508、AF-509、AF-511、AF-514 可观测性验证计划 |
 | M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 质量/基础设施 | AF-512、AF-513、AF-515 k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证配套 Test Plan（**Approved v2**） |
 
 ## docs/reports/（Gate 证据、限制与可重复验收材料）
@@ -166,7 +172,7 @@
 | 路径 | 分类 | 用途 |
 |---|---|---|
 | deploy/k3d/cluster-config.yaml | 部署 | AF-512 单 server/agent、禁用 Traefik 的临时 k3d 集群配置 |
-| deploy/helm/aegisflow/ | 部署/安全 | AF-512/513 最终 Helm 事实源；existingSecret、固定镜像、安全上下文、NetworkPolicy 与资源边界 |
+| deploy/helm/aegisflow/ | 部署/安全/可观测 | AF-510/512/513 最终 Helm 事实源；Grafana Gate 4 Dashboard、existingSecret、固定镜像、安全上下文、NetworkPolicy 与资源边界 |
 | scripts/k3d-demo.sh | 部署/质量 | 幂等建群、镜像导入、安装、健康检查、升级、回滚与清理入口 |
 | scripts/personal_workbench/ | AI流程/质量 | AF-515 调用既有 Gate 1A 图的确定性 CLI；只输出脱敏 JSONL，不执行外部写入 |
 
@@ -230,7 +236,7 @@
 | models/circuit_breaker.py | 代码/可靠性 | AF-311 可注入 Clock 的 Closed/Open/Half-Open 状态机与单 probe fencing |
 | models/postgres_circuit.py | 代码/数据/可靠性 | AF-311 PostgreSQL row-lock 共享 Circuit store |
 | models/smoke.py | 质量/模型网关/安全 | 受保护真实 Provider smoke 入口，仅输出脱敏计量与路由 metadata |
-| evaluation/__init__.py | 代码边界 | Evaluation 顶层包占位 |
+| evaluation/ | 代码/评测 | 数据集、Baseline、确定性指标报告、配置化回归门禁与固定证据 |
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
 | packs/delivery/__init__.py | 代码边界 | DeliveryPack 根边界与六个固定 Agent 的包入口 |
 | packs/delivery/contracts/__init__.py | 代码边界 | DeliveryPack 版本化数据契约包标记，不做 re-export |

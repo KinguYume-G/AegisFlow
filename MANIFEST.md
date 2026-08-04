@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 436
-- Active project files: 429
+- Repository files: 449
+- Active project files: 442
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 151
-- Test files: 119
+- Application source files: 157
+- Test files: 123
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -108,6 +108,7 @@
 - `docs/design-notes/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/design-notes/M5-EVALUATION-FOUNDATION.md`
+- `docs/design-notes/M5-EVALUATION-GATES.md`
 - `docs/design-notes/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
@@ -136,6 +137,7 @@
 - `docs/test-plans/M3-RELIABILITY-MODEL-BUNDLE.md`
 - `docs/test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/test-plans/M5-EVALUATION-FOUNDATION.md`
+- `docs/test-plans/M5-EVALUATION-GATES.md`
 - `docs/test-plans/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
@@ -205,6 +207,12 @@
 - `src/aegisflow_core/evaluation/baseline.py`
 - `src/aegisflow_core/evaluation/contracts.py`
 - `src/aegisflow_core/evaluation/datasets.py`
+- `src/aegisflow_core/evaluation/reporting.py`
+- `src/aegisflow_core/evaluation/regression.py`
+- `src/aegisflow_core/evaluation/data/historical_project_fixes_v1.jsonl`
+- `src/aegisflow_core/evaluation/data/regression_baseline_v1.json`
+- `src/aegisflow_core/evaluation/data/regression_candidate_v1.json`
+- `src/aegisflow_core/evaluation/data/regression_thresholds_v1.json`
 - `src/aegisflow_core/evaluation/data/security_injection_v1.jsonl`
 - `src/aegisflow_core/evaluation/data/swebench_verified_python_v1.json`
 - `src/aegisflow_core/gateway/__init__.py`
@@ -428,9 +436,13 @@
 - `tests/evaluation/test_baseline.py`
 - `tests/evaluation/test_contracts.py`
 - `tests/evaluation/test_datasets.py`
+- `tests/evaluation/test_historical_dataset.py`
+- `tests/evaluation/test_reporting.py`
+- `tests/evaluation/test_regression.py`
 - `.github/workflows/m5-k3s-demo-smoke.yml`
 - `.github/workflows/personal-workbench-smoke.yml`
 - `deploy/helm/aegisflow/Chart.yaml`
+- `deploy/helm/aegisflow/dashboards/aegisflow-gate4.json`
 - `deploy/helm/aegisflow/README.md`
 - `deploy/helm/aegisflow/templates/_helpers.tpl`
 - `deploy/helm/aegisflow/templates/configmaps.yaml`
@@ -447,6 +459,7 @@
 - `scripts/personal_workbench/seed_requests.py`
 - `tests/deploy/__init__.py`
 - `tests/deploy/test_helm_chart.py`
+- `tests/deploy/test_grafana_dashboard.py`
 - `tests/fixtures/personal_workbench/repositories/internship-tracking/README.md`
 - `tests/fixtures/personal_workbench/repositories/omni-assistant/README.md`
 - `tests/fixtures/personal_workbench/repositories/syntour/README.md`

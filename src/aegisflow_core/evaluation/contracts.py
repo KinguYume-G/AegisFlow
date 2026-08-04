@@ -101,8 +101,12 @@ class EvaluationCase(FrozenModel):
     @model_validator(mode="after")
     def historical_cases_require_real_sanitized_evidence(self) -> "EvaluationCase":
         if self.category == "historical":
-            if self.provenance.source_system not in {"XueMai", "SynTour"}:
-                raise ValueError("historical source must be XueMai or SynTour")
+            if self.provenance.source_system not in {
+                "XueMai",
+                "SynTour",
+                "exilian-cyms",
+            }:
+                raise ValueError("historical source is not approved")
             if not self.provenance.sanitization or not self.expected.ground_truth_reference:
                 raise ValueError("historical cases require sanitization and ground truth")
             if "synthetic" in self.tags:

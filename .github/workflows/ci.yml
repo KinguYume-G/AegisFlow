@@ -58,6 +58,23 @@ jobs:
       - name: Synchronize locked dependencies
         run: uv sync --locked
 
+      - name: Run evaluation regression gate
+        run: >-
+          uv run --locked python -m aegisflow_core.evaluation.regression
+          --baseline src/aegisflow_core/evaluation/data/regression_baseline_v1.json
+          --candidate src/aegisflow_core/evaluation/data/regression_candidate_v1.json
+          --thresholds src/aegisflow_core/evaluation/data/regression_thresholds_v1.json
+          --output evaluation-evidence/regression-decision.json
+
+      - name: Upload evaluation regression evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: evaluation-regression-${{ github.run_id }}
+          path: evaluation-evidence/regression-decision.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Start pinned Temporal test service
         run: docker compose up -d --wait temporal
 

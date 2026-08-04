@@ -117,6 +117,8 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "evaluation" / "contracts.py",
         PACKAGE_ROOT / "evaluation" / "datasets.py",
         PACKAGE_ROOT / "evaluation" / "baseline.py",
+        PACKAGE_ROOT / "evaluation" / "reporting.py",
+        PACKAGE_ROOT / "evaluation" / "regression.py",
         PACKAGE_ROOT / "packs" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "__init__.py",
