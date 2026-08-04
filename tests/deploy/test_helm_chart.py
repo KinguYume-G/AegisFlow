@@ -86,6 +86,7 @@ def test_k3d_workflow_is_pinned_and_always_tears_down() -> None:
 
     assert "k3d cluster create --config" in script
     assert "k3d cluster list --no-headers" in script
+    assert "--mode direct" in script
     assert "helm upgrade --install" in script
     assert "helm rollback" in script
     assert "k3d cluster delete" in script

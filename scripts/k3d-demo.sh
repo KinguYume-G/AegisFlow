@@ -30,7 +30,7 @@ create_runtime_secret() {
   local app_database="aegisflow_demo"
   local temporal_user="temporal_demo"
   local temporal_password="temporal-demo-only-not-a-secret"
-  local temporal_database="temporal_demo"
+  local temporal_database="temporal"
   local app_host="${FULLNAME}-postgres"
 
   kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
@@ -52,7 +52,7 @@ up() {
     k3d cluster create --config deploy/k3d/cluster-config.yaml --wait
   fi
   docker build --target runtime --tag "${APP_IMAGE}" .
-  k3d image import "${APP_IMAGE}" --cluster "${CLUSTER_NAME}"
+  k3d image import "${APP_IMAGE}" --cluster "${CLUSTER_NAME}" --mode direct
   create_runtime_secret
   helm upgrade --install "${RELEASE}" "${CHART}" \
     --namespace "${NAMESPACE}" \

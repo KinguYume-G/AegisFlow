@@ -23,10 +23,8 @@ spec:
               valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_USER}}
             - name: POSTGRES_PWD
               valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_PASSWORD}}
-            - name: DBNAME
-              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_DB}}
             - {name: POSTGRES_SEEDS, value: {{ include "aegisflow.fullname" . }}-temporal-postgres}
-            - {name: TEMPORAL_ADDRESS, value: "0.0.0.0:7233"}
+            - {name: TEMPORAL_ADDRESS, value: "{{ include "aegisflow.fullname" . }}-temporal:7233"}
             - {name: TEMPORAL_CLI_ADDRESS, value: "127.0.0.1:7233"}
           ports: [{name: grpc, containerPort: 7233}]
           readinessProbe:
