@@ -1,18 +1,18 @@
 # AegisFlow 文档总入口
 
-> 当前实现批次：AF-203–AF-207 已由 Human Merge（PR #96）；AF-208–AF-210 是 Project Owner 批准的依赖闭合批次，仍须通过 CI、真实外部验证与 Human Review/Merge。
+> 当前批次：AF-211、AF-516、AF-517 最终验收证据；不新增业务能力，最终结论必须由 Human Review/Merge 与 Project Owner 确认。
 
 本页是 AegisFlow 的文档导航与当前状态入口。首次进入仓库时必须先阅读根目录的 [`START_HERE.md`](../START_HERE.md)，再依次阅读 `README.md`、`AGENTS.md` 和本页；开始具体任务前，再按本页加载当前 Issue、相关 ADR、测试策略与最近 Handoff。
 
 ## 当前状态
 
-- **阶段**：M1 已完成；M2 的 AF-201–AF-207 已实现，AF-208–AF-210 正在实现 Gate 1B 写入、幂等与端到端验收
-- **实现状态**：Phase 0、AF-101–AF-110、CI-001 已完成并验证；M1 Design Bundle v4 已通过 PR #84 Human Review/Merge，AF-110 通过 PR #91 Human Merge 且为 `CLOSED / status:verified`
+- **阶段**：M5 Gate 4 Final Acceptance；M1–M5 规划实现已进入 `main`
+- **实现状态**：AF-211、AF-516、AF-517 是剩余强制验收批次；AF-R01–AF-R03 为可选 Post-MVP 路线项
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **最近完成 Issue**：AF-110（GitHub #19，canonical），通过 PR #91 Human Merge，当前为 `CLOSED / status:verified`
-- **范围边界**：当前批次只实现 AF-208–AF-210，不开始 Temporal、真实 Model Provider、RBAC/多租户或 M3+ 能力
-- **真实性要求**：未实际测量的恢复时间、零重复副作用、并发量和完成率只能标记为 TARGET
+- **最近证据 SHA**：`af74b419cc73e8975beb9bedd4419db0a37e2793`；最终报告为 Candidate，等待人工审查
+- **范围边界**：当前批次只收集、核验和归档证据，不新增业务代码、依赖、Workflow、架构或 ADR
+- **真实性要求**：CI fixture、组件组合证据、短时压测与单路 Provider smoke 必须保留限制，不得包装成生产结论
 
 ## 权威顺序
 
@@ -116,7 +116,7 @@
 
 ## 外部输入与停止条件
 
-GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私有 Fixture 仓库和仅安装到该仓库的开发 GitHub App；Secret 只能放入受保护环境。OIDC/Model Provider 等后续输入不得编造。
+GitHub 仓库、治理写授权和当前验收所需的受保护 Environments 已确认；真实 Secret 只保存在 GitHub Environment 或本地环境中，不进入文档、日志、Issue 或 PR。最终批次不得新增外部权限或编造输入。
 
 遇到架构冲突、未授权仓库、高风险外部写操作、缺失验收标准、真实 Secret 需求或无法安全测试时，立即停止并请求人工输入。
 
@@ -143,6 +143,11 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 - [`test-plans/M5-OBSERVABILITY-BUNDLE.md`](test-plans/M5-OBSERVABILITY-BUNDLE.md)：Tracing、Metrics、Load 与只读 Run Graph 验证计划。
 - [`design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`](design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md)：AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次契约（**Approved v2**）。
 - [`test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`](test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md)：k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证计划（**Approved v2**）。
+- [`design-notes/M5-FINAL-ACCEPTANCE-BUNDLE.md`](design-notes/M5-FINAL-ACCEPTANCE-BUNDLE.md)：AF-211/AF-516/AF-517 最终验收证据契约。
+- [`test-plans/M5-FINAL-ACCEPTANCE-BUNDLE.md`](test-plans/M5-FINAL-ACCEPTANCE-BUNDLE.md)：最终证据真实性、完整性、安全与停止条件。
+- [`reports/GATE1_EVIDENCE_REPORT.md`](reports/GATE1_EVIDENCE_REPORT.md)：Gate 1B、Trace、成本来源与限制证据。
+- [`reports/GATE4_FINAL_ACCEPTANCE.md`](reports/GATE4_FINAL_ACCEPTANCE.md)：Gate 1–4、评测、负载、k3s、Provider 与 Artifact 完整性台账（Candidate）。
+- [`reports/GATE4_DEMO_RUNBOOK.md`](reports/GATE4_DEMO_RUNBOOK.md)：无需强制录屏的可重复最终验收流程。
 
 ## 维护规则
 

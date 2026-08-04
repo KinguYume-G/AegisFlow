@@ -1,7 +1,7 @@
 # Engineering System Manifest
 
-- Repository files: 449
-- Active project files: 442
+- Repository files: 454
+- Active project files: 447
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
@@ -111,6 +111,7 @@
 - `docs/design-notes/M5-EVALUATION-GATES.md`
 - `docs/design-notes/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
+- `docs/design-notes/M5-FINAL-ACCEPTANCE-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -140,11 +141,15 @@
 - `docs/test-plans/M5-EVALUATION-GATES.md`
 - `docs/test-plans/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
+- `docs/test-plans/M5-FINAL-ACCEPTANCE-BUNDLE.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
 - `docs/reports/GATE3_DEMO_RUNBOOK.md`
 - `docs/reports/GATE3_GOVERNANCE_SECURITY_REPORT.md`
+- `docs/reports/GATE1_EVIDENCE_REPORT.md`
+- `docs/reports/GATE4_FINAL_ACCEPTANCE.md`
+- `docs/reports/GATE4_DEMO_RUNBOOK.md`
 - `docs/DESIGN_BLUEPRINT.md`
 - `docs/adr/0001-modular-monolith.md`
 - `docs/adr/0002-langgraph-temporal-state-ownership.md`

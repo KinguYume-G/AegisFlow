@@ -122,6 +122,7 @@
 | M5-EVALUATION-GATES.md | 评测/CI/可观测 | AF-504、AF-506、AF-507、AF-510 历史真值、报告、回归 Gate 与 Grafana 契约（**Approved**） |
 | M5-OBSERVABILITY-BUNDLE.md | 可观测 | AF-508、AF-509、AF-511、AF-514 Trace、Metrics、Load 与 Run Graph 契约 |
 | M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 基础设施/AI流程 | AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次 Design Note（**Approved v2**） |
+| M5-FINAL-ACCEPTANCE-BUNDLE.md | 治理/验收 | AF-211、AF-516、AF-517 最终证据契约；禁止新增业务能力 |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -156,6 +157,7 @@
 | M5-EVALUATION-GATES.md | 质量/评测/CI | AF-504、AF-506、AF-507、AF-510 历史集、报告、红绿回归和 Dashboard 验证计划（**Approved**） |
 | M5-OBSERVABILITY-BUNDLE.md | 质量/可观测 | AF-508、AF-509、AF-511、AF-514 可观测性验证计划 |
 | M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 质量/基础设施 | AF-512、AF-513、AF-515 k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证配套 Test Plan（**Approved v2**） |
+| M5-FINAL-ACCEPTANCE-BUNDLE.md | 质量/验收 | 最终 Actions、Artifact、Trace、成本来源、链接、Secret 与限制验证计划 |
 
 ## docs/reports/（Gate 证据、限制与可重复验收材料）
 
@@ -166,6 +168,9 @@
 | GATE2_DEMO_RUNBOOK.md | 运行/可靠性 | 可重复的受保护工作流演示、核验清单与停止条件 |
 | GATE3_GOVERNANCE_SECURITY_REPORT.md | 安全/治理 | AF-412/413 自动回归范围、正式证据、限制与 Human Review 验收条件 |
 | GATE3_DEMO_RUNBOOK.md | 运行/安全 | 无真实 Secret、无需强制录屏的 Gate 3 可重复验证步骤与停止条件 |
+| GATE1_EVIDENCE_REPORT.md | 治理/证据 | Gate 1B 真实 GitHub、Model、Langfuse 与诚实限制台账 |
+| GATE4_FINAL_ACCEPTANCE.md | 治理/验收 | Gate 1–4、评测、负载、部署、Provider 与 Artifact 完整性最终候选报告 |
+| GATE4_DEMO_RUNBOOK.md | 运行/验收 | 无需强制录屏的可重复 Gate 4 验收步骤、证据映射与停止条件 |
 
 ## deploy/ 与 scripts/（演示部署及薄集成入口）
 

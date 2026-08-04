@@ -4,19 +4,19 @@
 
 > **Mandatory onboarding / 强制入门：在阅读或修改仓库内容前，先阅读 [`START_HERE.md`](START_HERE.md)。**
 
-AegisFlow 是一个生产级 Agent Control Plane。它负责企业 AI Agent 的可靠执行、工具权限、人工审批、评测、审计、可观测性与成本治理，并以 `DeliveryPack` 的“需求 → 交付”研发闭环验证平台能力。
+AegisFlow is a production-grade Agent Control Plane for reliable execution, tool authorization, human approval, evaluation, audit, observability, and cost governance. `DeliveryPack` validates the platform through a requirement-to-delivery workflow. / AegisFlow 是一个生产级 Agent Control Plane，负责企业 AI Agent 的可靠执行、工具权限、人工审批、评测、审计、可观测性与成本治理，并以 `DeliveryPack` 的“需求 → 交付”研发闭环验证平台能力。
 
-## 当前阶段
+## Current Phase / 当前阶段
 
-**M2：Gate 1B — Plan to Draft PR**
+**M5：Gate 4 Final Acceptance / Gate 4 最终验收**
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-AF-101–AF-110 与 CI-001 均已通过 Human Review/Merge 并标记为 `status:verified`；Gate 1A、CI、PostgreSQL migration、Branch Protection 与 Langfuse smoke 已验证。M2 Design Bundle Draft v2 已获 Project Owner 批准，等待本治理 PR Human Merge 后按 AF-201→AF-210 的依赖顺序实施；当前没有任何 M2 业务代码。
+M1–M5 planned implementation is present on `main`. AF-211, AF-516, and AF-517 are the remaining mandatory final-acceptance batch; AF-R01–AF-R03 are optional Post-MVP roadmap items. The repository is a Gate 4 candidate, not a production-certified system, until the final evidence PR is human-reviewed and merged and the Project Owner confirms M5 exit. / M1–M5 规划实现已进入 `main`。剩余强制工作为 AF-211、AF-516、AF-517 最终验收批次；AF-R01–AF-R03 为可选 Post-MVP 路线项。在最终证据 PR 完成人工审查与合并、Project Owner 确认 M5 Exit 前，项目仅为 Gate 4 候选，不得宣称已获生产认证。
 
-## 不可改变的定位
+## Frozen Positioning / 不可改变的定位
 
-> 我做的不是代码审查工具，是 Agent 控制平面。研发交付是压力最大的那个负载，所以我用它来证明底座。
+> This is not a code-review product; it is an Agent Control Plane. Software delivery is the stress workload used to prove the platform. / 我做的不是代码审查工具，是 Agent 控制平面。研发交付是压力最大的那个负载，所以我用它来证明底座。
 
 唯一首发应用包是 `DeliveryPack`：
 
@@ -71,36 +71,16 @@ AF-101–AF-110 与 CI-001 均已通过 Human Review/Merge 并标记为 `status:
 - Human Review Required
 - No Secrets in Git, Chat, Logs, Prompts, Issues or PRs
 
-## 当前状态
+## Verified Snapshot / 已验证快照
 
-- [x] 产品方向冻结
-- [x] 项目宪章、总任务书、架构、Roadmap、Milestones
-- [x] GitHub Issue Backlog、Developer Guide、AI 协作规范
-- [x] 测试、安全、可靠性、评测与威胁模型
-- [x] ADR 集、Issue/PR 模板、配置占位符
-- [x] GitHub 仓库与写权限确认，Phase 0 工程体系已推送
-- [x] 56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 导入
-- [x] Phase 0 Exit PR 完成 Human Review 与 Human Merge
-- [x] M0 人工确认完成，AF-000–AF-008 已关闭并验证
-- [x] AF-101 实现 PR 完成 Human Review 与 Human Merge
-- [x] AF-102 Design Note、Test Plan 与九项修正获人工批准
-- [x] AF-102 实现 PR 完成 Human Review 与 Human Merge
-- [x] CI-001 完成红灯/绿灯验证并启用 main Branch Protection
-- [x] Project Owner 批准 AF-103 Design Note/Test Plan，并将 AF-103 调整为 `status:ready`
-- [x] AF-103 实现及 migration compatibility 修复通过 CI、Human Review 与 Human Merge
-- [x] AF-103 Issue #12 标记 `status:verified` 并关闭
-- [x] AF-104–AF-110 Design Bundle v4 完成 Human Review/Merge
-- [x] AF-104 获批并调整为 `status:ready`
-- [x] AF-104 实现 PR 完成 CI、Human Review 与 Human Merge
-- [x] AF-105 实现 PR 完成 CI、Human Review 与 Human Merge
-- [x] AF-106 实现 PR 完成 CI、Human Review 与 Human Merge
-- [x] AF-107 实现 PR 完成 CI、Human Review 与 Human Merge
-- [x] AF-108 实现 PR 完成 CI、Human Review 与 Human Merge
-- [x] AF-109 实现 PR 完成 CI、Human Review、Human Merge 与人工 Langfuse smoke
-- [x] AF-110 实现 PR 完成 CI、Human Review 与 Human Merge
-- [ ] M2 Design Bundle Draft v2 完成 Human Review/Merge
-- [ ] 按依赖顺序从 AF-201 开始实施 Gate 1B
+- Gate 1B real GitHub Draft PR boundary: passed on `main`.
+- Gate 2: 20/20 fault runs completed, duplicate effects 0, lost signals 0, p95 2972.42 ms.
+- Gate 3: 83 security tests passed; tracked credential signatures 0.
+- M5 load profile: 100 users, 1906 requests, 0 failures, aggregate p95 140 ms on an ephemeral GitHub runner.
+- k3s/Helm, primary Model Gateway, Langfuse trace write/read, and protected Personal Workbench smokes passed with the limitations recorded in the final report.
+- Full evidence, artifact identities, SHA-256 values, and limitations: [`docs/reports/GATE4_FINAL_ACCEPTANCE.md`](docs/reports/GATE4_FINAL_ACCEPTANCE.md).
+- Final acceptance remains a Human decision / 最终验收仍由人工决定。
 
-## 真实性规则
+## Truthfulness Rule / 真实性规则
 
-尚未实现或测量的能力不得写成已达成事实。`5 秒恢复`、`零重复副作用`、`100 并发`、`任务完成率`等在真实测试完成前只能标记为 TARGET。
+尚未实现或测量的能力不得写成已达成事实。CI fixture、短时临时环境压测与单路 provider smoke 不得表述为生产质量、容量承诺或完整在线降级证明。
