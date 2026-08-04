@@ -49,7 +49,7 @@ spec:
     spec:
       serviceAccountName: {{ include "aegisflow.fullname" . }}-core
       automountServiceAccountToken: false
-      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, runAsGroup: 10001, seccompProfile: {type: RuntimeDefault}}
       initContainers:
         - name: migrate
           image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag }}"
@@ -105,7 +105,7 @@ spec:
     spec:
       serviceAccountName: {{ include "aegisflow.fullname" . }}-worker
       automountServiceAccountToken: false
-      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, runAsGroup: 10001, seccompProfile: {type: RuntimeDefault}}
       containers:
         - name: worker
           image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag }}"

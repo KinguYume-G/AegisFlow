@@ -47,6 +47,8 @@ def test_application_workloads_are_bounded_and_non_privileged() -> None:
     )
 
     assert workloads.count("runAsNonRoot: true") >= 3
+    assert workloads.count("runAsUser: 10001") == 2
+    assert workloads.count("runAsGroup: 10001") == 2
     assert workloads.count("readOnlyRootFilesystem: true") >= 3
     assert workloads.count('drop: ["ALL"]') >= 3
     assert workloads.count("allowPrivilegeEscalation: false") >= 3
