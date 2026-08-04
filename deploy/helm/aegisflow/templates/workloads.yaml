@@ -17,6 +17,8 @@ spec:
         - name: temporal
           image: {{ .Values.images.temporal | quote }}
           env:
+            - name: POD_IP
+              valueFrom: {fieldRef: {fieldPath: status.podIP}}
             - {name: DB, value: postgres12}
             - {name: DB_PORT, value: "5432"}
             - name: POSTGRES_USER
@@ -24,11 +26,11 @@ spec:
             - name: POSTGRES_PWD
               valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_PASSWORD}}
             - {name: POSTGRES_SEEDS, value: {{ include "aegisflow.fullname" . }}-temporal-postgres}
-            - {name: TEMPORAL_ADDRESS, value: "{{ include "aegisflow.fullname" . }}-temporal:7233"}
-            - {name: TEMPORAL_CLI_ADDRESS, value: "127.0.0.1:7233"}
+            - {name: TEMPORAL_ADDRESS, value: "$(POD_IP):7233"}
+            - {name: TEMPORAL_CLI_ADDRESS, value: "$(POD_IP):7233"}
           ports: [{name: grpc, containerPort: 7233}]
           readinessProbe:
-            exec: {command: ["tctl", "--address", "127.0.0.1:7233", "cluster", "health"]}
+            exec: {command: ["sh", "-c", "tctl --address ${POD_IP}:7233 cluster health"]}
             initialDelaySeconds: 15
             periodSeconds: 5
           resources: {{- toYaml .Values.dependencyResources | nindent 12 }}

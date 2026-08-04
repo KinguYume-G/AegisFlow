@@ -53,6 +53,8 @@ def test_application_workloads_are_bounded_and_non_privileged() -> None:
     assert workloads.count('drop: ["ALL"]') >= 3
     assert workloads.count("allowPrivilegeEscalation: false") >= 3
     assert "securityContext: *appSecurity" in workloads
+    assert "fieldPath: status.podIP" in workloads
+    assert 'TEMPORAL_ADDRESS, value: "$(POD_IP):7233"' in workloads
     assert "resources:" in workloads
     assert "automountServiceAccountToken: false" in service_accounts
     assert "sandbox-broker" not in workloads
