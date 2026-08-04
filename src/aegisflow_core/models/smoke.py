@@ -25,6 +25,16 @@ async def run() -> None:
         raise ConfigurationError("protected model gateway configuration is required")
     assert settings.model_primary_name and settings.model_primary_api_key_env
     assert settings.model_fallback_name and settings.model_fallback_api_key_env
+    local_route = None
+    if settings.model_local_fallback_configured:
+        assert settings.model_local_fallback_name
+        assert settings.model_local_fallback_api_key_env
+        assert settings.model_local_fallback_base_url
+        local_route = ModelRoute(
+            "local_fallback", settings.model_local_fallback_name,
+            settings.model_local_fallback_api_key_env,
+            settings.model_local_fallback_base_url,
+        )
     gateway = ModelGateway(
         LiteLLMAdapter(),
         CircuitBreaker(InMemoryCircuitStateStore(), UtcClock()),
@@ -35,6 +45,7 @@ async def run() -> None:
         fallback=ModelRoute(
             "fallback", settings.model_fallback_name, settings.model_fallback_api_key_env
         ),
+        local_fallback=local_route,
     )
     response = await gateway.complete(
         ModelRequest(

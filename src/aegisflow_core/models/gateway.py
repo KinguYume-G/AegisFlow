@@ -60,13 +60,15 @@ class ModelGateway:
         *,
         primary: ModelRoute,
         fallback: ModelRoute,
+        local_fallback: ModelRoute | None = None,
     ) -> None:
-        if primary.name == fallback.name:
-            raise ValueError("primary and fallback routes must have distinct names")
+        routes = (primary, fallback) + ((local_fallback,) if local_fallback else ())
+        if len({route.name for route in routes}) != len(routes):
+            raise ValueError("model routes must have distinct names")
         self._adapter = adapter
         self._breaker = breaker
         self._secrets = secrets
-        self._routes = (primary, fallback)
+        self._routes = routes
 
     async def complete(self, request: ModelRequest) -> ModelResponse:
         if request.budget_limit_usd is not None:
@@ -103,11 +105,8 @@ class ModelGateway:
             attempts.append(RouteAttempt(route.name, route.model, "succeeded"))
             if result.cost.source != "not_available":
                 assert result.cost.amount is not None and result.cost.currency is not None
-                observe_model_cost(
-                    "primary" if route_index == 0 else "fallback",
-                    result.cost.currency,
-                    float(result.cost.amount),
-                )
+                route_label = ("primary", "fallback", "local_fallback")[route_index]
+                observe_model_cost(route_label, result.cost.currency, float(result.cost.amount))
             return ModelResponse(
                 content=result.content,
                 resolved_model=result.resolved_model,

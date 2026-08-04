@@ -65,7 +65,7 @@ class Metrics:
         self.latency.labels(component, operation).observe(duration)
 
     def observe_cost(self, route: str, currency: str, amount: float) -> None:
-        if route not in {"primary", "fallback"} or len(currency) != 3 or amount < 0:
+        if route not in {"primary", "fallback", "local_fallback"} or len(currency) != 3 or amount < 0:
             raise ValueError("invalid cost observation")
         self.cost.labels(route, currency).inc(amount)
 

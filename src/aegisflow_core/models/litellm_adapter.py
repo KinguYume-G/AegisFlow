@@ -33,7 +33,7 @@ class LiteLLMAdapter:
     ) -> ProviderResult:
         started = monotonic()
         try:
-            response = await self._completion(
+            kwargs = dict(
                 model=route.model,
                 messages=[
                     {"role": message.role, "content": message.content}
@@ -41,7 +41,11 @@ class LiteLLMAdapter:
                 ],
                 api_key=api_key,
                 num_retries=0,
+                max_tokens=request.max_output_tokens,
             )
+            if route.api_base is not None:
+                kwargs["api_base"] = route.api_base
+            response = await self._completion(**kwargs)
         except Exception as error:
             raise _safe_provider_error(error) from None
         latency_ms = (monotonic() - started) * 1000

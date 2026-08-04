@@ -15,10 +15,13 @@ class ModelRoute:
     name: str
     model: str
     api_key_env: str
+    api_base: str | None = None
 
     def __post_init__(self) -> None:
         if not all((self.name, self.model, self.api_key_env)):
             raise ValueError("model route fields must be non-empty")
+        if self.api_base is not None and not self.api_base.strip():
+            raise ValueError("api_base must contain text when configured")
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,12 +40,15 @@ class ModelRequest:
     run_id: UUID
     trace_id: UUID
     messages: tuple[ModelMessage, ...]
+    max_output_tokens: int = 512
     budget_limit_usd: Decimal | None = None
     estimated_cost_usd: Decimal | None = None
 
     def __post_init__(self) -> None:
         if not self.messages:
             raise ValueError("at least one model message is required")
+        if type(self.max_output_tokens) is not int or not 1 <= self.max_output_tokens <= 4096:
+            raise ValueError("max_output_tokens must be an integer from 1 through 4096")
         for amount in (self.budget_limit_usd, self.estimated_cost_usd):
             if amount is not None and (not amount.is_finite() or amount < 0):
                 raise ValueError("budget values must be finite and non-negative")

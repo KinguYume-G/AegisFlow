@@ -186,6 +186,49 @@ def test_primary_and_fallback_model_must_be_distinct(
         get_settings()
 
 
+def test_local_model_fallback_is_disabled_by_default(valid_env: None) -> None:
+    settings = get_settings()
+    assert settings.model_local_fallback_enabled is False
+    assert settings.model_local_fallback_configured is False
+
+
+def test_complete_loopback_local_model_fallback_is_accepted(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name, value in {
+        "MODEL_PRIMARY_NAME": "provider/model-a",
+        "MODEL_PRIMARY_API_KEY_ENV": "PRIMARY_KEY",
+        "MODEL_FALLBACK_NAME": "provider/model-b",
+        "MODEL_FALLBACK_API_KEY_ENV": "FALLBACK_KEY",
+        "MODEL_LOCAL_FALLBACK_ENABLED": "true",
+        "MODEL_LOCAL_FALLBACK_NAME": "openai/Qwen/Qwen3-0.6B",
+        "MODEL_LOCAL_FALLBACK_API_KEY_ENV": "VLLM_API_KEY",
+        "MODEL_LOCAL_FALLBACK_BASE_URL": "http://127.0.0.1:8000/v1",
+    }.items(): monkeypatch.setenv(name, value)
+    assert get_settings().model_local_fallback_configured is True
+
+
+@pytest.mark.parametrize("app_env,base_url", [
+    ("production", "http://127.0.0.1:8000/v1"),
+    ("test", "https://models.example.test/v1"),
+    ("test", "http://user:secret@localhost:8000/v1"),
+])
+def test_local_model_fallback_rejects_production_or_non_loopback(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch, app_env: str, base_url: str
+) -> None:
+    monkeypatch.setenv("APP_ENV", app_env)
+    monkeypatch.setenv("MODEL_LOCAL_FALLBACK_ENABLED", "true")
+    monkeypatch.setenv("MODEL_LOCAL_FALLBACK_NAME", "openai/Qwen/Qwen3-0.6B")
+    monkeypatch.setenv("MODEL_LOCAL_FALLBACK_API_KEY_ENV", "VLLM_API_KEY")
+    monkeypatch.setenv("MODEL_LOCAL_FALLBACK_BASE_URL", base_url)
+    monkeypatch.setenv("MODEL_PRIMARY_NAME", "provider/model-a")
+    monkeypatch.setenv("MODEL_PRIMARY_API_KEY_ENV", "PRIMARY_KEY")
+    monkeypatch.setenv("MODEL_FALLBACK_NAME", "provider/model-b")
+    monkeypatch.setenv("MODEL_FALLBACK_API_KEY_ENV", "FALLBACK_KEY")
+    with pytest.raises(ConfigurationError, match="Local model fallback"):
+        get_settings()
+
+
 def test_complete_oidc_configuration_is_accepted(
     valid_env: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:

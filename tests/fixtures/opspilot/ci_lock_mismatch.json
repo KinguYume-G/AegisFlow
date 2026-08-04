@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "scenario_id": "opspilot-ci-lock-mismatch-v1",
+  "evidence": {
+    "source": "simulation",
+    "workflow": "CI",
+    "failed_job": "test",
+    "failure_signature": "dependency_lock_mismatch"
+  }
+}

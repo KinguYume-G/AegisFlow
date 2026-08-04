@@ -38,6 +38,14 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "OIDC_HTTP_TIMEOUT_SECONDS",
         "OTEL_EXPORTER_OTLP_ENDPOINT",
         "OTEL_SERVICE_NAME",
+        "MODEL_PRIMARY_NAME",
+        "MODEL_PRIMARY_API_KEY_ENV",
+        "MODEL_FALLBACK_NAME",
+        "MODEL_FALLBACK_API_KEY_ENV",
+        "MODEL_LOCAL_FALLBACK_ENABLED",
+        "MODEL_LOCAL_FALLBACK_NAME",
+        "MODEL_LOCAL_FALLBACK_API_KEY_ENV",
+        "MODEL_LOCAL_FALLBACK_BASE_URL",
     ):
         monkeypatch.delenv(name, raising=False)
 

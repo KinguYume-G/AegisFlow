@@ -12,7 +12,7 @@ AegisFlow is a production-grade Agent Control Plane for reliable execution, tool
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-M1–M5 planned implementation is present on `main`. AF-211, AF-516, and AF-517 are the remaining mandatory final-acceptance batch; AF-R01–AF-R03 are optional Post-MVP roadmap items. The repository is a Gate 4 candidate, not a production-certified system, until the final evidence PR is human-reviewed and merged and the Project Owner confirms M5 exit. / M1–M5 规划实现已进入 `main`。剩余强制工作为 AF-211、AF-516、AF-517 最终验收批次；AF-R01–AF-R03 为可选 Post-MVP 路线项。在最终证据 PR 完成人工审查与合并、Project Owner 确认 M5 Exit 前，项目仅为 Gate 4 候选，不得宣称已获生产认证。
+M1–M5 and Gate 4 have been accepted by the Project Owner. AF-R01–AF-R03 are the active approved Post-MVP batch under ADR-0013; they remain optional extensions and do not change DeliveryPack or constitute production certification. / M1–M5 与 Gate 4 已由 Project Owner 验收；当前获批批次为 ADR-0013 约束下的 AF-R01–AF-R03 可选扩展，不改变 DeliveryPack，也不代表生产认证。
 
 ## Frozen Positioning / 不可改变的定位
 

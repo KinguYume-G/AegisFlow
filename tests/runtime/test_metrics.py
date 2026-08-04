@@ -38,12 +38,15 @@ async def test_metrics_endpoint_exposes_success_and_latency() -> None:
 def test_cost_queue_and_resource_metrics_are_exported() -> None:
     metrics = Metrics()
     metrics.cost.labels("primary", "USD").inc(1.25)
+    metrics.observe_cost("local_fallback", "USD", 0.0)
     metrics.queue_depth.labels("temporal").set(4)
     metrics.resources.labels("cpu").set(0.5)
     output = generate_latest(metrics.registry).decode()
     assert "aegisflow_model_cost_total" in output
     assert "aegisflow_queue_depth" in output
     assert "aegisflow_resource_usage_ratio" in output
+    with pytest.raises(ValueError, match="invalid cost"):
+        metrics.observe_cost("tenant-value", "USD", 1.0)
 
 
 def test_human_interventions_are_bounded_and_exported() -> None:

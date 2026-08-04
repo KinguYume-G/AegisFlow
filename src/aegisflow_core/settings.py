@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 import math
 import os
+from urllib.parse import urlsplit
 
 from aegisflow_core.control_plane.identity import OidcConfig
 
@@ -43,6 +44,10 @@ class Settings:
     model_primary_api_key_env: str | None = None
     model_fallback_name: str | None = None
     model_fallback_api_key_env: str | None = None
+    model_local_fallback_enabled: bool = False
+    model_local_fallback_name: str | None = None
+    model_local_fallback_api_key_env: str | None = None
+    model_local_fallback_base_url: str | None = None
     oidc_issuer: str | None = None
     oidc_audience: str | None = None
     oidc_jwks_url: str | None = None
@@ -75,6 +80,12 @@ class Settings:
                 self.model_fallback_name,
                 self.model_fallback_api_key_env,
             )
+        )
+
+    @property
+    def model_local_fallback_configured(self) -> bool:
+        return self.model_local_fallback_enabled and all(
+            (self.model_local_fallback_name, self.model_local_fallback_api_key_env, self.model_local_fallback_base_url)
         )
 
     @property
@@ -157,6 +168,39 @@ def get_settings() -> Settings:
     ):
         raise ConfigurationError("Primary and fallback model names must be distinct")
 
+    raw_local_enabled = (os.environ.get("MODEL_LOCAL_FALLBACK_ENABLED") or "false").lower()
+    if raw_local_enabled not in {"true", "false"}:
+        raise ConfigurationError("MODEL_LOCAL_FALLBACK_ENABLED must be true or false")
+    local_enabled = raw_local_enabled == "true"
+    local_values = {
+        "model_local_fallback_name": os.environ.get("MODEL_LOCAL_FALLBACK_NAME") or None,
+        "model_local_fallback_api_key_env": os.environ.get("MODEL_LOCAL_FALLBACK_API_KEY_ENV") or None,
+        "model_local_fallback_base_url": os.environ.get("MODEL_LOCAL_FALLBACK_BASE_URL") or None,
+    }
+    local_count = sum(value is not None for value in local_values.values())
+    if local_enabled and (
+        app_env == "production"
+        or local_count != len(local_values)
+        or model_configured_count != len(model_values)
+    ):
+        raise ConfigurationError(
+            "Local model fallback is non-production and requires both existing routes, model, Secret reference, and base URL"
+        )
+    if not local_enabled and local_count:
+        raise ConfigurationError("Local model fallback configuration requires explicit enablement")
+    if local_enabled:
+        parsed = urlsplit(local_values["model_local_fallback_base_url"] or "")
+        if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost"}
+                or parsed.username is not None or parsed.password is not None
+                or parsed.query or parsed.fragment):
+            raise ConfigurationError("Local model fallback base URL must be loopback HTTP without credentials")
+        configured_names = [name for name in (
+            model_values["model_primary_name"], model_values["model_fallback_name"],
+            local_values["model_local_fallback_name"],
+        ) if name is not None]
+        if len(set(configured_names)) != len(configured_names):
+            raise ConfigurationError("Model route names must be distinct")
+
     oidc_values = {
         "oidc_issuer": os.environ.get("OIDC_ISSUER") or None,
         "oidc_audience": os.environ.get("OIDC_AUDIENCE") or None,
@@ -215,6 +259,8 @@ def get_settings() -> Settings:
         **langfuse_values,
         **github_values,
         **model_values,
+        model_local_fallback_enabled=local_enabled,
+        **local_values,
         **oidc_values,
         oidc_cache_ttl_seconds=oidc_cache_ttl_seconds,
         oidc_max_cached_keys=oidc_max_cached_keys,

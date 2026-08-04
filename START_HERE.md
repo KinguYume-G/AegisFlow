@@ -9,9 +9,9 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** is a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. / AegisFlow 是面向可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制的生产级 Agent Control Plane。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- The repository is in **M5 Gate 4 final acceptance**. M1–M5 implementation is on `main`; AF-211, AF-516, and AF-517 remain open for evidence review and Project Owner acceptance. / 仓库处于 **M5 Gate 4 最终验收**；M1–M5 实现已进入 `main`，AF-211、AF-516、AF-517 等待证据审查与 Project Owner 验收。
+- M1–M5 and Gate 4 are accepted. The active approved work is the optional AF-R01–AF-R03 Post-MVP batch under ADR-0013. / M1–M5 与 Gate 4 已验收；当前获批工作为 ADR-0013 约束下的 AF-R01–AF-R03 可选 Post-MVP 批次。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
-- Mandatory implementation dependencies for the final batch are closed and verified. AF-R01–AF-R03 remain optional Post-MVP roadmap items. / 最终批次的强制实现依赖均已关闭并验证；AF-R01–AF-R03 是可选 Post-MVP 路线项。
+- AF-R01–AF-R03 are ready and approved for implementation; they do not alter the canonical 75-Issue baseline. / AF-R01–AF-R03 已 ready 并获准实施；它们不改变 canonical 75 条 Issue 基线。
 
 ## Authoritative Reading Order / 权威阅读顺序
 
@@ -99,7 +99,7 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0 and the planned M1–M5 implementation are complete on `main`. The project is a **Gate 4 Candidate**, pending the AF-211/AF-516/AF-517 documentation PR, Human Review/Merge, and Project Owner M5 exit decision. / Phase 0 与 M1–M5 规划实现已进入 `main`；项目当前是 **Gate 4 候选**，等待 AF-211/AF-516/AF-517 文档 PR、人工审查合并及 Project Owner 的 M5 Exit 决定。
+Phase 0, M1–M5, and Gate 4 are complete and accepted. AF-R01–AF-R03 are the active optional Post-MVP batch; final review and merge still require a Human. / Phase 0、M1–M5 与 Gate 4 已完成并验收；AF-R01–AF-R03 是当前可选 Post-MVP 批次，最终审查与合并仍必须由 Human 完成。
 
 Current work / 当前工作：
 
