@@ -1,0 +1,30 @@
+[
+  {
+    "scenario": "xuemai",
+    "source_type": "feature_request",
+    "title": "Plan a bounded XueMai repository maintenance change",
+    "body": "Only reviewers may authorize this repository maintenance request. The default time range is 7 days and the maximum time range is 30 days. Limit processing to 100 records. Output fields include file path, finding, and recommendation; redact secrets and personal data. Small requests run synchronously and large requests run asynchronously. Produce a read-only evidence-grounded plan and do not write to GitHub.",
+    "received_at": "2026-08-04T00:00:00Z"
+  },
+  {
+    "scenario": "syntour",
+    "source_type": "bug",
+    "title": "Plan a bounded SynTour regression investigation",
+    "body": "Only reviewers may authorize this regression investigation. The default time range is 7 days and the maximum time range is 30 days. Limit processing to 100 records. Output fields include file path, failing behavior, and recommendation; redact secrets and personal data. Small requests run synchronously and large requests run asynchronously. Produce a read-only evidence-grounded plan and do not write to GitHub.",
+    "received_at": "2026-08-04T00:00:00Z"
+  },
+  {
+    "scenario": "omni-assistant",
+    "source_type": "github_issue",
+    "title": "Plan a bounded Omni-Assistant contract review",
+    "body": "Only reviewers may authorize this contract review. The default time range is 7 days and the maximum time range is 30 days. Limit processing to 100 records. Output fields include file path, contract risk, and recommendation; redact secrets and personal data. Small requests run synchronously and large requests run asynchronously. Produce a read-only evidence-grounded plan and do not write to GitHub.",
+    "received_at": "2026-08-04T00:00:00Z"
+  },
+  {
+    "scenario": "internship-tracking",
+    "source_type": "prd",
+    "title": "Plan a synthetic internship tracking summary",
+    "body": "Only reviewers may authorize this synthetic tracking summary. The default time range is 7 days and the maximum time range is 30 days. Limit processing to 100 records. Output fields include milestone, status, and recommendation; redact secrets and personal data. Small requests run synchronously and large requests run asynchronously. Produce a read-only evidence-grounded plan and do not write to any external system.",
+    "received_at": "2026-08-04T00:00:00Z"
+  }
+]

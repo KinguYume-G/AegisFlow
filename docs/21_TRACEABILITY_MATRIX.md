@@ -79,3 +79,6 @@
 | Prometheus Metrics | API / Runtime | ADR-0008 | AF-509 | `/metrics` exposes bounded outcome, latency, model cost, queue and resource instruments; arbitrary component/outcome labels fail closed |
 | Control-plane Load Profile | CI / API | ADR-0008 | AF-511 | Pinned 100-user Locust workflow emits CSV/HTML percentiles and process CPU/RSS evidence; first PR run: 2,000 requests, 0 failures, p50 76 ms, p95 130 ms, p99 150 ms |
 | Read-only Run Graph | Core / PostgreSQL / API | ADR-0007, ADR-0008 | AF-514 | OIDC and tenant-local `run:read` gate; ordered node status, duration, trace and persisted failure evidence; no write operation |
+| Ephemeral k3s Demo | k3d / Helm / Core / Worker / Prometheus | ADR-0002, ADR-0004, ADR-0008 | AF-512 | Final Chart installed directly on ephemeral k3s; health, metrics, worker, Prometheus scrape and unconditional teardown evidence |
+| Helm Deployment Lifecycle | Helm / Kubernetes | ADR-0004, ADR-0008 | AF-513 | `existingSecret` boundary, pinned images, default-deny network policy, install/upgrade/rollback smoke |
+| Thin Personal Workbench | Existing Gate 1A DeliveryPack / CLI | ADR-0007, ADR-0012 | AF-515 | Four sanitized deterministic planning flows, canonical redacted JSONL, protected read-only private-repository smoke; no new Agent or external write |

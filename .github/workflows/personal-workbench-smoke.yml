@@ -1,0 +1,93 @@
+name: Personal Workbench smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  private-repository-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: personal-workbench-development
+    steps:
+      - name: Validate protected configuration names
+        env:
+          APP_ID: ${{ vars.PERSONAL_WORKBENCH_APP_ID }}
+          OWNER: ${{ vars.PERSONAL_WORKBENCH_OWNER }}
+          XUEMAI: ${{ vars.XUEMAI_REPOSITORY }}
+          SYNTOUR: ${{ vars.SYNTOUR_REPOSITORY }}
+          OMNI: ${{ vars.OMNI_ASSISTANT_REPOSITORY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for value in "$APP_ID" "$OWNER" "$XUEMAI" "$SYNTOUR" "$OMNI"; do
+            test -n "$value"
+            [[ "$value" != *"/"* ]]
+          done
+
+      - name: Check out AegisFlow
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: aegisflow
+
+      - name: Create scoped read-only installation token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.PERSONAL_WORKBENCH_APP_ID }}
+          private-key: ${{ secrets.PERSONAL_WORKBENCH_APP_PRIVATE_KEY }}
+          owner: ${{ vars.PERSONAL_WORKBENCH_OWNER }}
+          repositories: |
+            ${{ vars.XUEMAI_REPOSITORY }}
+            ${{ vars.SYNTOUR_REPOSITORY }}
+            ${{ vars.OMNI_ASSISTANT_REPOSITORY }}
+          permission-contents: read
+
+      - name: Check out approved private inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.PERSONAL_WORKBENCH_OWNER }}/${{ vars.XUEMAI_REPOSITORY }}
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+          path: private-inputs/xuemai
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.PERSONAL_WORKBENCH_OWNER }}/${{ vars.SYNTOUR_REPOSITORY }}
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+          path: private-inputs/syntour
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ vars.PERSONAL_WORKBENCH_OWNER }}/${{ vars.OMNI_ASSISTANT_REPOSITORY }}
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+          path: private-inputs/omni-assistant
+
+      - name: Install pinned Python and uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.31"
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: aegisflow/uv.lock
+
+      - name: Run redacted Personal Workbench flows
+        working-directory: aegisflow
+        run: |
+          uv sync --locked
+          uv run --locked python -m scripts.personal_workbench.seed_requests \
+            --repository "xuemai=$GITHUB_WORKSPACE/private-inputs/xuemai" \
+            --repository "syntour=$GITHUB_WORKSPACE/private-inputs/syntour" \
+            --repository "omni-assistant=$GITHUB_WORKSPACE/private-inputs/omni-assistant" \
+            --output "$RUNNER_TEMP/personal-workbench-usage.jsonl"
+
+      - name: Upload redacted usage evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: personal-workbench-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/personal-workbench-usage.jsonl
+          if-no-files-found: error
+          retention-days: 30

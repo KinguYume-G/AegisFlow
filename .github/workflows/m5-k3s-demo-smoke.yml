@@ -1,0 +1,75 @@
+name: M5 k3s demo smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "deploy/**"
+      - "scripts/k3d-demo.sh"
+      - "Dockerfile"
+      - ".github/workflows/m5-k3s-demo-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m5-k3s-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  k3s-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install checksum-verified k3d, Helm, and kubectl
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSLo /tmp/k3d https://github.com/k3d-io/k3d/releases/download/v5.8.3/k3d-linux-amd64
+          echo "dbaa79a76ace7f4ca230a1ff41dc7d8a5036a8ad0309e9c54f9bf3836dbe853e  /tmp/k3d" | sha256sum --check
+          sudo install -m 0755 /tmp/k3d /usr/local/bin/k3d
+
+          curl -fsSLo /tmp/helm.tar.gz https://get.helm.sh/helm-v3.18.4-linux-amd64.tar.gz
+          echo "f8180838c23d7c7d797b208861fecb591d9ce1690d8704ed1e4cb8e2add966c1  /tmp/helm.tar.gz" | sha256sum --check
+          tar -xzf /tmp/helm.tar.gz -C /tmp
+          sudo install -m 0755 /tmp/linux-amd64/helm /usr/local/bin/helm
+
+          curl -fsSLo /tmp/kubectl https://dl.k8s.io/v1.33.2/bin/linux/amd64/kubectl
+          echo "33d0cdec6967817468f0a4a90f537dfef394dcf815d91966ca651cc118393eea  /tmp/kubectl" | sha256sum --check
+          sudo install -m 0755 /tmp/kubectl /usr/local/bin/kubectl
+
+      - name: Install, verify, upgrade, and rollback
+        run: |
+          helm lint deploy/helm/aegisflow --set-string existingSecret=aegisflow-demo-config
+          helm template aegisflow deploy/helm/aegisflow --set-string existingSecret=aegisflow-demo-config > /tmp/aegisflow-rendered.yaml
+          bash scripts/k3d-demo.sh up
+          bash scripts/k3d-demo.sh verify
+          bash scripts/k3d-demo.sh upgrade-rollback
+
+      - name: Capture bounded deployment evidence
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p m5-k3s-evidence
+          helm status aegisflow -n aegisflow-demo > m5-k3s-evidence/helm-status.txt 2>&1 || true
+          helm history aegisflow -n aegisflow-demo > m5-k3s-evidence/helm-history.txt 2>&1 || true
+          kubectl get pods -n aegisflow-demo -o wide > m5-k3s-evidence/pods.txt 2>&1 || true
+
+      - name: Upload deployment evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: m5-k3s-evidence-${{ github.run_id }}
+          path: m5-k3s-evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Delete ephemeral cluster
+        if: always()
+        run: bash scripts/k3d-demo.sh down

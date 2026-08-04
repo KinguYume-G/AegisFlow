@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-postgres
+spec:
+  serviceName: {{ include "aegisflow.fullname" . }}-postgres
+  replicas: 1
+  selector:
+    matchLabels: &postgresLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: postgres
+  template:
+    metadata: {labels: *postgresLabels}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: postgres
+          image: {{ .Values.images.postgres | quote }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: POSTGRES_USER}}
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: POSTGRES_PASSWORD}}
+            - name: POSTGRES_DB
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: POSTGRES_DB}}
+          ports: [{name: postgres, containerPort: 5432}]
+          readinessProbe:
+            exec: {command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          resources: {{- toYaml .Values.dependencyResources | nindent 12 }}
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+      volumes: [{name: data, emptyDir: {}}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-temporal-postgres
+spec:
+  serviceName: {{ include "aegisflow.fullname" . }}-temporal-postgres
+  replicas: 1
+  selector:
+    matchLabels: &temporalPostgresLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: temporal-postgres
+  template:
+    metadata: {labels: *temporalPostgresLabels}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: postgres
+          image: {{ .Values.images.temporalPostgres | quote }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_USER}}
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_PASSWORD}}
+            - name: POSTGRES_DB
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_DB}}
+          ports: [{name: postgres, containerPort: 5432}]
+          readinessProbe:
+            exec: {command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]}
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          resources: {{- toYaml .Values.dependencyResources | nindent 12 }}
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+      volumes: [{name: data, emptyDir: {}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &redisLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: redis
+  template:
+    metadata: {labels: *redisLabels}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: redis
+          image: {{ .Values.images.redis | quote }}
+          args: ["--save", "", "--appendonly", "no"]
+          ports: [{name: redis, containerPort: 6379}]
+          readinessProbe:
+            exec: {command: ["redis-cli", "ping"]}
+            initialDelaySeconds: 2
+            periodSeconds: 3
+          resources: {{- toYaml .Values.dependencyResources | nindent 12 }}

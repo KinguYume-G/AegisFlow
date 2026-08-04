@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 408
-- Active project files: 401
+- Repository files: 436
+- Active project files: 429
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 148
-- Test files: 110
+- Application source files: 151
+- Test files: 119
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -109,6 +109,7 @@
 - `docs/design-notes/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/design-notes/M5-EVALUATION-FOUNDATION.md`
 - `docs/design-notes/M5-OBSERVABILITY-BUNDLE.md`
+- `docs/design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -136,6 +137,7 @@
 - `docs/test-plans/M4-GOVERNANCE-SECURITY-BUNDLE.md`
 - `docs/test-plans/M5-EVALUATION-FOUNDATION.md`
 - `docs/test-plans/M5-OBSERVABILITY-BUNDLE.md`
+- `docs/test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
@@ -426,3 +428,29 @@
 - `tests/evaluation/test_baseline.py`
 - `tests/evaluation/test_contracts.py`
 - `tests/evaluation/test_datasets.py`
+- `.github/workflows/m5-k3s-demo-smoke.yml`
+- `.github/workflows/personal-workbench-smoke.yml`
+- `deploy/helm/aegisflow/Chart.yaml`
+- `deploy/helm/aegisflow/README.md`
+- `deploy/helm/aegisflow/templates/_helpers.tpl`
+- `deploy/helm/aegisflow/templates/configmaps.yaml`
+- `deploy/helm/aegisflow/templates/datastores.yaml`
+- `deploy/helm/aegisflow/templates/networkpolicies.yaml`
+- `deploy/helm/aegisflow/templates/serviceaccounts.yaml`
+- `deploy/helm/aegisflow/templates/services.yaml`
+- `deploy/helm/aegisflow/templates/workloads.yaml`
+- `deploy/helm/aegisflow/values.yaml`
+- `deploy/k3d/cluster-config.yaml`
+- `scripts/__init__.py`
+- `scripts/k3d-demo.sh`
+- `scripts/personal_workbench/__init__.py`
+- `scripts/personal_workbench/seed_requests.py`
+- `tests/deploy/__init__.py`
+- `tests/deploy/test_helm_chart.py`
+- `tests/fixtures/personal_workbench/repositories/internship-tracking/README.md`
+- `tests/fixtures/personal_workbench/repositories/omni-assistant/README.md`
+- `tests/fixtures/personal_workbench/repositories/syntour/README.md`
+- `tests/fixtures/personal_workbench/repositories/xuemai/README.md`
+- `tests/fixtures/personal_workbench/scenarios.json`
+- `tests/personal_workbench/__init__.py`
+- `tests/personal_workbench/test_seed_requests.py`
