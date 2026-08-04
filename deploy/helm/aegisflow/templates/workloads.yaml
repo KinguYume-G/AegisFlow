@@ -210,7 +210,14 @@ spec:
             capabilities: {drop: ["ALL"]}
           resources: {{- toYaml .Values.dependencyResources | nindent 12 }}
           volumeMounts:
-            - {name: provisioning, mountPath: /etc/grafana/provisioning, readOnly: true}
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/datasources/aegisflow.yaml
+              subPath: datasources.yaml
+              readOnly: true
+            - name: provisioning
+              mountPath: /etc/grafana/provisioning/dashboards/aegisflow.yaml
+              subPath: dashboards.yaml
+              readOnly: true
             - {name: dashboard, mountPath: /etc/grafana/dashboards, readOnly: true}
             - {name: data, mountPath: /var/lib/grafana}
             - {name: tmp, mountPath: /tmp}

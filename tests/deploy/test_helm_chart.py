@@ -93,6 +93,16 @@ def test_prometheus_scrape_config_nests_targets_under_static_configs() -> None:
     )
 
 
+def test_grafana_provisioning_preserves_expected_subdirectories() -> None:
+    workloads = (CHART / "templates" / "workloads.yaml").read_text(encoding="utf-8")
+
+    assert "mountPath: /etc/grafana/provisioning/datasources/aegisflow.yaml" in workloads
+    assert "subPath: datasources.yaml" in workloads
+    assert "mountPath: /etc/grafana/provisioning/dashboards/aegisflow.yaml" in workloads
+    assert "subPath: dashboards.yaml" in workloads
+    assert "mountPath: /etc/grafana/provisioning, readOnly: true" not in workloads
+
+
 def test_k3d_workflow_is_pinned_and_always_tears_down() -> None:
     script = (ROOT / "scripts" / "k3d-demo.sh").read_text(encoding="utf-8")
     workflow = (ROOT / ".github" / "workflows" / "m5-k3s-demo-smoke.yml").read_text(
