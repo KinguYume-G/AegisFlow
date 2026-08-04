@@ -44,3 +44,17 @@ def test_cost_queue_and_resource_metrics_are_exported() -> None:
     assert "aegisflow_model_cost_total" in output
     assert "aegisflow_queue_depth" in output
     assert "aegisflow_resource_usage_ratio" in output
+
+
+def test_human_interventions_are_bounded_and_exported() -> None:
+    metrics = Metrics()
+    metrics.observe_human_intervention("clarification", "submitted")
+    metrics.observe_human_intervention("approval", "accepted")
+    output = generate_latest(metrics.registry).decode()
+    assert (
+        'aegisflow_human_interventions_total{kind="clarification",outcome="submitted"} 1.0'
+        in output
+    )
+    assert 'aegisflow_human_interventions_total{kind="approval",outcome="accepted"} 1.0' in output
+    with pytest.raises(ValueError, match="unbounded"):
+        metrics.observe_human_intervention("tenant-value", "submitted")

@@ -137,6 +137,8 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 - [`reports/GATE3_DEMO_RUNBOOK.md`](reports/GATE3_DEMO_RUNBOOK.md)：无需真实 Secret 或强制录屏的可重复 Gate 3 验收步骤。
 - [`design-notes/M5-EVALUATION-FOUNDATION.md`](design-notes/M5-EVALUATION-FOUNDATION.md)：AF-501–AF-505 评测数据与 Baseline 契约。
 - [`test-plans/M5-EVALUATION-FOUNDATION.md`](test-plans/M5-EVALUATION-FOUNDATION.md)：AF-501–AF-505 配套验证计划。
+- [`design-notes/M5-EVALUATION-GATES.md`](design-notes/M5-EVALUATION-GATES.md)：AF-504、AF-506、AF-507、AF-510 历史真值、报告、CI 回归与 Grafana 契约。
+- [`test-plans/M5-EVALUATION-GATES.md`](test-plans/M5-EVALUATION-GATES.md)：AF-504、AF-506、AF-507、AF-510 配套验证计划。
 - [`design-notes/M5-OBSERVABILITY-BUNDLE.md`](design-notes/M5-OBSERVABILITY-BUNDLE.md)：AF-508、AF-509、AF-511、AF-514 可观测性批次契约。
 - [`test-plans/M5-OBSERVABILITY-BUNDLE.md`](test-plans/M5-OBSERVABILITY-BUNDLE.md)：Tracing、Metrics、Load 与只读 Run Graph 验证计划。
 - [`design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`](design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md)：AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次契约（**Approved v2**）。

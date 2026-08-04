@@ -9,6 +9,8 @@ _OUTCOMES = frozenset({"success", "failure", "denied", "timeout", "fallback"})
 _OPERATIONS = frozenset(
     {"http.request", "temporal.advance_gate1b", "mcp.invoke", "sandbox.run", "model.complete"}
 )
+_INTERVENTION_KINDS = frozenset({"clarification", "approval"})
+_INTERVENTION_OUTCOMES = frozenset({"submitted", "accepted", "rejected", "timed_out"})
 _active_metrics: Metrics | None = None
 
 
@@ -45,6 +47,12 @@ class Metrics:
             ("resource",),
             registry=self.registry,
         )
+        self.human_interventions = Counter(
+            "aegisflow_human_interventions_total",
+            "Bounded human clarification and approval outcomes.",
+            ("kind", "outcome"),
+            registry=self.registry,
+        )
 
     def observe_operation(
         self, component: str, operation: str, outcome: str, duration: float
@@ -60,6 +68,11 @@ class Metrics:
         if route not in {"primary", "fallback"} or len(currency) != 3 or amount < 0:
             raise ValueError("invalid cost observation")
         self.cost.labels(route, currency).inc(amount)
+
+    def observe_human_intervention(self, kind: str, outcome: str) -> None:
+        if kind not in _INTERVENTION_KINDS or outcome not in _INTERVENTION_OUTCOMES:
+            raise ValueError("unbounded human intervention label")
+        self.human_interventions.labels(kind, outcome).inc()
 
 
 def activate_metrics(metrics: Metrics) -> None:
@@ -77,3 +90,8 @@ def observe_active_operation(
 def observe_model_cost(route: str, currency: str, amount: float) -> None:
     if _active_metrics is not None:
         _active_metrics.observe_cost(route, currency, amount)
+
+
+def observe_human_intervention(kind: str, outcome: str) -> None:
+    if _active_metrics is not None:
+        _active_metrics.observe_human_intervention(kind, outcome)

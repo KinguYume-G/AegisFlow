@@ -1,0 +1,51 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Operation success rate",
+      "type": "stat",
+      "targets": [{"expr": "100 * sum(rate(aegisflow_operations_total{outcome=\"success\"}[$__rate_interval])) / clamp_min(sum(rate(aegisflow_operations_total[$__rate_interval])), 1e-9)", "legendFormat": "success %", "refId": "A"}]
+    },
+    {
+      "id": 2,
+      "title": "Model cost",
+      "type": "timeseries",
+      "targets": [{"expr": "sum by (route, currency) (increase(aegisflow_model_cost_total[$__range]))", "legendFormat": "{{route}} {{currency}}", "refId": "A"}]
+    },
+    {
+      "id": 3,
+      "title": "Operation p95 latency",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(aegisflow_operation_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "p95", "refId": "A"}]
+    },
+    {
+      "id": 4,
+      "title": "Failed operations",
+      "type": "timeseries",
+      "targets": [{"expr": "sum by (operation, outcome) (rate(aegisflow_operations_total{outcome=~\"failure|denied|timeout\"}[$__rate_interval]))", "legendFormat": "{{operation}} {{outcome}}", "refId": "A"}]
+    },
+    {
+      "id": 5,
+      "title": "Model fallback",
+      "type": "timeseries",
+      "targets": [{"expr": "sum(rate(aegisflow_operations_total{component=\"model\",outcome=\"fallback\"}[$__rate_interval]))", "legendFormat": "fallback", "refId": "A"}]
+    },
+    {
+      "id": 6,
+      "title": "Human intervention",
+      "type": "timeseries",
+      "targets": [{"expr": "sum by (kind, outcome) (increase(aegisflow_human_interventions_total[$__range]))", "legendFormat": "{{kind}} {{outcome}}", "refId": "A"}]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 41,
+  "tags": ["aegisflow", "gate4"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "AegisFlow Gate 4",
+  "uid": "aegisflow-gate4",
+  "version": 1
+}
