@@ -1,12 +1,12 @@
 # Engineering System Manifest
 
-- Repository files: 454
-- Active project files: 447
+- Repository files: 465
+- Active project files: 458
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 157
-- Test files: 123
+- Application source files: 162
+- Test files: 125
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -112,6 +112,7 @@
 - `docs/design-notes/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
 - `docs/design-notes/M5-FINAL-ACCEPTANCE-BUNDLE.md`
+- `docs/design-notes/POST-MVP-ROADMAP-BUNDLE.md`
 - `docs/test-plans/AF-101.md`
 - `docs/test-plans/AF-102.md`
 - `docs/test-plans/AF-103.md`
@@ -142,6 +143,7 @@
 - `docs/test-plans/M5-OBSERVABILITY-BUNDLE.md`
 - `docs/test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`
 - `docs/test-plans/M5-FINAL-ACCEPTANCE-BUNDLE.md`
+- `docs/test-plans/POST-MVP-ROADMAP-BUNDLE.md`
 - `docs/reports/GATE2_DEMO_RUNBOOK.md`
 - `docs/reports/GATE2_RELIABILITY_BLOG.md`
 - `docs/reports/GATE2_RELIABILITY_REPORT.md`
@@ -163,6 +165,7 @@
 - `docs/adr/0010-evaluation-datasets.md`
 - `docs/adr/0011-no-workflow-builder.md`
 - `docs/adr/0012-opspilot-roadmap-only.md`
+- `docs/adr/0013-post-mvp-extension-boundaries.md`
 - `docs/templates/ADR_TEMPLATE.md`
 - `docs/templates/DESIGN_NOTE_TEMPLATE.md`
 - `docs/templates/HANDOFF_TEMPLATE.md`
@@ -236,7 +239,11 @@
 - `src/aegisflow_core/models/litellm_adapter.py`
 - `src/aegisflow_core/models/postgres_circuit.py`
 - `src/aegisflow_core/models/smoke.py`
+- `src/aegisflow_core/models/vllm_smoke.py`
 - `src/aegisflow_core/packs/__init__.py`
+- `src/aegisflow_core/packs/opspilot/__init__.py`
+- `src/aegisflow_core/packs/opspilot/contracts.py`
+- `src/aegisflow_core/packs/opspilot/simulation.py`
 - `src/aegisflow_core/packs/delivery/__init__.py`
 - `src/aegisflow_core/packs/delivery/contracts/__init__.py`
 - `src/aegisflow_core/packs/delivery/contracts/clarification.py`
@@ -355,6 +362,7 @@
 - `src/aegisflow_core/gateway/tenant.py`
 - `src/aegisflow_core/gateway/mcp/__init__.py`
 - `src/aegisflow_core/gateway/mcp/gate.py`
+- `src/aegisflow_core/gateway/mcp/github_actions.py`
 - `src/aegisflow_core/gateway/sandbox/__init__.py`
 - `src/aegisflow_core/gateway/sandbox/broker.py`
 - `src/aegisflow_core/gateway/sandbox/docker_runner.py`
@@ -399,6 +407,7 @@
 - `tests/security/test_cross_tenant_isolation.py`
 - `tests/security/test_gate3_contract.py`
 - `tests/gateway/mcp/test_registry_gate.py`
+- `tests/gateway/mcp/test_github_actions.py`
 - `tests/control_plane/test_approvals.py`
 - `tests/control_plane/test_audit_service.py`
 - `tests/control_plane/test_registry_service.py`
@@ -470,5 +479,7 @@
 - `tests/fixtures/personal_workbench/repositories/syntour/README.md`
 - `tests/fixtures/personal_workbench/repositories/xuemai/README.md`
 - `tests/fixtures/personal_workbench/scenarios.json`
+- `tests/fixtures/opspilot/ci_lock_mismatch.json`
+- `tests/packs/opspilot/test_simulation.py`
 - `tests/personal_workbench/__init__.py`
 - `tests/personal_workbench/test_seed_requests.py`

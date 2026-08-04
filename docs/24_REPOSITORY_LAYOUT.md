@@ -123,6 +123,7 @@
 | M5-OBSERVABILITY-BUNDLE.md | 可观测 | AF-508、AF-509、AF-511、AF-514 Trace、Metrics、Load 与 Run Graph 契约 |
 | M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 基础设施/AI流程 | AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次 Design Note（**Approved v2**） |
 | M5-FINAL-ACCEPTANCE-BUNDLE.md | 治理/验收 | AF-211、AF-516、AF-517 最终证据契约；禁止新增业务能力 |
+| POST-MVP-ROADMAP-BUNDLE.md | 架构/集成 | AF-R01–AF-R03 已批准的 OpsPilot、vLLM 与 Actions Read-only MCP 契约 |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -158,6 +159,7 @@
 | M5-OBSERVABILITY-BUNDLE.md | 质量/可观测 | AF-508、AF-509、AF-511、AF-514 可观测性验证计划 |
 | M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 质量/基础设施 | AF-512、AF-513、AF-515 k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证配套 Test Plan（**Approved v2**） |
 | M5-FINAL-ACCEPTANCE-BUNDLE.md | 质量/验收 | 最终 Actions、Artifact、Trace、成本来源、链接、Secret 与限制验证计划 |
+| POST-MVP-ROADMAP-BUNDLE.md | 质量/集成 | AF-R01–AF-R03 的确定性、配置、MCP 治理与真实环境验证计划 |
 
 ## docs/reports/（Gate 证据、限制与可重复验收材料）
 
@@ -214,6 +216,7 @@
 | control_plane/migrations/versions/0009_add_tool_registry.py | 数据/迁移/安全 | AF-406 registry/disablement schema、复合租户外键与 append-only triggers |
 | gateway/policy/contextual.py | 代码/安全 | AF-404 固定顺序、版本化、可解释的 allow/deny/require-approval policy evaluator |
 | gateway/mcp/ | 代码/安全/集成 | AF-406 registry→policy→schema→internal adapter→audit 调用门；credential 仅在 adapter 内解析 |
+| gateway/mcp/github_actions.py | 代码/安全/集成 | AF-R03 Actions Run/Job/Artifact metadata 的 bounded GET-only adapter |
 | control_plane/domain/ | 代码/数据 | AF-103 六张 SQLAlchemy 模型、公共 metadata 与异步会话工厂 |
 | control_plane/migrations/ | 数据/迁移 | AF-103 Alembic 环境、初始 schema、租户复合外键与不可变触发器 |
 | runtime/__init__.py | 代码边界 | Runtime 顶层包标记 |
@@ -241,8 +244,10 @@
 | models/circuit_breaker.py | 代码/可靠性 | AF-311 可注入 Clock 的 Closed/Open/Half-Open 状态机与单 probe fencing |
 | models/postgres_circuit.py | 代码/数据/可靠性 | AF-311 PostgreSQL row-lock 共享 Circuit store |
 | models/smoke.py | 质量/模型网关/安全 | 受保护真实 Provider smoke 入口，仅输出脱敏计量与路由 metadata |
+| models/vllm_smoke.py | 质量/模型网关/安全 | AF-R02 本机 vLLM 第三路由的 bounded metadata-only smoke |
 | evaluation/ | 代码/评测 | 数据集、Baseline、确定性指标报告、配置化回归门禁与固定证据 |
 | packs/__init__.py | 代码边界 | Application Packs 顶层包占位 |
+| packs/opspilot/ | 代码/应用包 | AF-R01 单一合成 CI 事故的确定性诊断与 Human-gated remediation proposal |
 | packs/delivery/__init__.py | 代码边界 | DeliveryPack 根边界与六个固定 Agent 的包入口 |
 | packs/delivery/contracts/__init__.py | 代码边界 | DeliveryPack 版本化数据契约包标记，不做 re-export |
 | packs/delivery/contracts/clarification.py | 代码/Schema | AF-105 ClarificationQuestion/Clarification v1 与状态不变量 |
@@ -279,6 +284,7 @@
 | control_plane/test_idempotency_ledger.py | 质量/数据/可靠性 | AF-209 四类 claim、并发唯一、lease 接管与 stale token 测试 |
 | control_plane/test_runtime_uow.py | 质量/数据 | AF-210 真实 PostgreSQL Step/Audit/Run 事务测试 |
 | gateway/github/ | 质量/安全/可靠性 | AF-201 验签/审计及 AF-202 只读工具、分页、限流、超时与 reconciliation 测试 |
+| gateway/mcp/test_github_actions.py | 质量/安全/集成 | AF-R03 GET-only Actions metadata、bounded schema 与完整 MCP Gate 证据 |
 | test_module_boundaries.py | 质量 | 包存在性、空边界与禁止依赖静态护栏 |
 | test_settings.py | 质量 | 合法、缺失和非法配置测试 |
 | test_app_startup.py | 质量/安全 | 应用构造、fail-fast 与安全异常信封测试 |
@@ -288,6 +294,8 @@
 | deploy/ | 质量/部署/安全 | AF-512/513 Chart Secret、镜像、安全上下文、NetworkPolicy、固定工作流与 teardown 契约测试 |
 | personal_workbench/ | 质量/AI流程/安全 | AF-515 四场景确定性、JSONL 脱敏、私有输入分类、无新 Agent/写入与受保护 workflow 护栏 |
 | fixtures/personal_workbench/ | 质量/Fixture | XueMai、SynTour、Omni-Assistant 与实习跟踪的脱敏/合成输入及本地仓库证据 |
+| fixtures/opspilot/ | 质量/Fixture | AF-R01 唯一获批的合成 CI lock mismatch 场景 |
+| packs/opspilot/ | 质量/应用包 | AF-R01 deterministic diagnosis、输入拒绝与 Human approval 断言 |
 | domain/conftest.py | 质量/数据 | 独立 PostgreSQL 测试事务与 rollback fixture |
 | domain/test_models.py | 质量/数据 | 六表 metadata、命名约束、UUID/时间默认值与复合外键静态测试 |
 | domain/test_migration_config.py | 质量/数据 | Alembic 根入口、完整 metadata 与默认 schema 测试 |
@@ -358,6 +366,7 @@
 | 0010-evaluation-datasets.md | 评测 | 混合评测数据集选型 |
 | 0011-no-workflow-builder.md | 架构 | 否决可视化 Workflow Builder |
 | 0012-opspilot-roadmap-only.md | 治理 | OpsPilot 仅 Post-MVP Roadmap |
+| 0013-post-mvp-extension-boundaries.md | 架构/治理 | OpsPilot、可选 vLLM 与 Actions Read-only MCP 的现有边界复用决策 |
 
 ## docs/templates/
 

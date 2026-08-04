@@ -62,6 +62,7 @@ source = ["aegisflow_core"]
 # workflows (real worker termination and real provider smoke), not in-process CI.
 omit = [
     "*/models/smoke.py",
+    "*/models/vllm_smoke.py",
     "*/runtime/fault_injection_cli.py",
     "*/runtime/fault_probe.py",
     "*/runtime/fault_probe_worker.py",

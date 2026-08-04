@@ -29,7 +29,7 @@ class Clock:
 
 class Secrets:
     def resolve(self, environment_name: str) -> str:
-        assert environment_name in {"PRIMARY_KEY", "FALLBACK_KEY"}
+        assert environment_name in {"PRIMARY_KEY", "FALLBACK_KEY", "LOCAL_KEY"}
         return f"secret-for-{environment_name}"
 
 
@@ -119,6 +119,31 @@ async def test_both_routes_fail_without_recursion() -> None:
         await _gateway(adapter).complete(_request())
     assert len(captured.value.attempts) == 2
     assert len(adapter.calls) == 2
+
+
+@pytest.mark.asyncio
+async def test_optional_local_route_is_third_and_only_used_for_availability() -> None:
+    failure = ProviderError("timeout", availability_failure=True)
+    adapter = Adapter({"primary": failure, "fallback": failure})
+    gateway = ModelGateway(
+        adapter, CircuitBreaker(InMemoryCircuitStateStore(), Clock(), failure_threshold=1), Secrets(),
+        primary=ModelRoute("primary", "provider/a", "PRIMARY_KEY"),
+        fallback=ModelRoute("fallback", "provider/b", "FALLBACK_KEY"),
+        local_fallback=ModelRoute("local_fallback", "openai/Qwen/Qwen3-0.6B", "LOCAL_KEY", "http://127.0.0.1:8000/v1"),
+    )
+    response = await gateway.complete(_request())
+    assert [item.route for item in response.route_chain] == ["primary", "fallback", "local_fallback"]
+    assert adapter.calls[-1] == ("local_fallback", "secret-for-LOCAL_KEY")
+
+
+def test_all_model_route_names_must_be_distinct() -> None:
+    with pytest.raises(ValueError, match="distinct"):
+        ModelGateway(
+            Adapter(), CircuitBreaker(InMemoryCircuitStateStore(), Clock()), Secrets(),
+            primary=ModelRoute("primary", "provider/a", "PRIMARY_KEY"),
+            fallback=ModelRoute("fallback", "provider/b", "FALLBACK_KEY"),
+            local_fallback=ModelRoute("fallback", "openai/Qwen/Qwen3-0.6B", "LOCAL_KEY"),
+        )
 
 
 @pytest.mark.asyncio

@@ -6,9 +6,11 @@ from aegisflow_core.gateway.mcp.gate import (
     McpInvocationGate,
     ReusedInvocation,
 )
+from aegisflow_core.gateway.mcp.github_actions import GitHubActionsReadAdapter
 
 __all__ = [
     "ApprovalRequiredError",
+    "GitHubActionsReadAdapter",
     "InvocationRequest",
     "McpInvocationGate",
     "ReusedInvocation",

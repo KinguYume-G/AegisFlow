@@ -104,6 +104,40 @@ class PullRequestSnapshot(BaseModel):
     head_ref: str = Field(min_length=1)
 
 
+class ActionsJob(BaseModel):
+    """Bounded metadata for one Actions job; logs and steps are excluded."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    id: int = Field(gt=0)
+    name: str = Field(min_length=1, max_length=256)
+    status: str = Field(min_length=1, max_length=32)
+    conclusion: str | None = Field(default=None, max_length=32)
+    html_url: str = Field(min_length=1, max_length=2048)
+
+
+class ActionsArtifact(BaseModel):
+    """Bounded metadata for one Actions artifact; content is never downloaded."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    id: int = Field(gt=0)
+    name: str = Field(min_length=1, max_length=256)
+    size_in_bytes: int = Field(ge=0)
+    expired: bool
+
+
+class ActionsRunSnapshot(BaseModel):
+    """Stable read-only view of one Actions run and bounded child metadata."""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal[1] = 1
+    id: int = Field(gt=0)
+    name: str = Field(min_length=1, max_length=256)
+    status: str = Field(min_length=1, max_length=32)
+    conclusion: str | None = Field(default=None, max_length=32)
+    head_sha: str = Field(pattern=r"^[0-9a-f]{40}$")
+    html_url: str = Field(min_length=1, max_length=2048)
+    jobs: list[ActionsJob]
+    artifacts: list[ActionsArtifact]
+    truncated: bool
+
+
 class GitHubReadToolError(RuntimeError):
     """Safe base error exposed by GitHub read tools."""
 
@@ -298,6 +332,46 @@ class GitHubReadClient:
             self._url("repos", owner, repo, "issues", str(issue_number))
         )
         return _parse_issue(payload)
+
+    async def read_actions_run(
+        self, owner: str, repo: str, run_id: int, max_items: int = 100
+    ) -> ActionsRunSnapshot:
+        """Read run/job/artifact metadata without logs, downloads, or mutations."""
+        _require_positive("run_id", run_id); _require_positive("max_items", max_items)
+        run, _ = await self._request_json(self._url("repos", owner, repo, "actions", "runs", str(run_id)))
+        if not isinstance(run, dict):
+            raise GitHubMalformedResponseError("GitHub Actions run response was malformed")
+        jobs, jobs_truncated = await self._read_actions_collection(
+            self._url("repos", owner, repo, "actions", "runs", str(run_id), "jobs"), "jobs", max_items
+        )
+        artifacts, artifacts_truncated = await self._read_actions_collection(
+            self._url("repos", owner, repo, "actions", "runs", str(run_id), "artifacts"), "artifacts", max_items
+        )
+        try:
+            return ActionsRunSnapshot(
+                id=run["id"], name=run["name"], status=run["status"],
+                conclusion=run.get("conclusion"), head_sha=run["head_sha"], html_url=run["html_url"],
+                jobs=[_parse_actions_job(item) for item in jobs],
+                artifacts=[_parse_actions_artifact(item) for item in artifacts],
+                truncated=jobs_truncated or artifacts_truncated,
+            )
+        except (KeyError, TypeError, ValidationError):
+            raise GitHubMalformedResponseError("GitHub Actions run response was malformed") from None
+
+    async def _read_actions_collection(
+        self, url: str, key: str, max_items: int
+    ) -> tuple[list[Any], bool]:
+        values: list[Any] = []; params: dict[str, Any] | None = {"per_page": min(100, max_items)}
+        while url:
+            payload, response = await self._request_json(url, params=params); params = None
+            if not isinstance(payload, dict) or not isinstance(payload.get(key), list):
+                raise GitHubMalformedResponseError("GitHub Actions collection response was malformed")
+            for item in payload[key]:
+                if len(values) == max_items:
+                    return values, True
+                values.append(item)
+            url = self._next_link(response)
+        return values, False
 
     async def read_pull_request_diff(
         self,
@@ -556,6 +630,25 @@ def _parse_pull_request(raw: Any) -> PullRequestSnapshot:
         raise GitHubMalformedResponseError(
             "GitHub pull request response was malformed"
         ) from None
+
+
+def _parse_actions_job(raw: Any) -> ActionsJob:
+    if not isinstance(raw, dict):
+        raise GitHubMalformedResponseError("GitHub Actions job was malformed")
+    try:
+        return ActionsJob(id=raw["id"], name=raw["name"], status=raw["status"],
+                          conclusion=raw.get("conclusion"), html_url=raw["html_url"])
+    except (KeyError, TypeError, ValidationError):
+        raise GitHubMalformedResponseError("GitHub Actions job was malformed") from None
+
+
+def _parse_actions_artifact(raw: Any) -> ActionsArtifact:
+    if not isinstance(raw, dict):
+        raise GitHubMalformedResponseError("GitHub Actions artifact was malformed")
+    try:
+        return ActionsArtifact(id=raw["id"], name=raw["name"], size_in_bytes=raw["size_in_bytes"], expired=raw["expired"])
+    except (KeyError, TypeError, ValidationError):
+        raise GitHubMalformedResponseError("GitHub Actions artifact was malformed") from None
 
 
 def _quote_path(path: str) -> str:

@@ -1,5 +1,7 @@
 # AegisFlow 文档总入口
 
+> **Current execution state / 当前执行状态（2026-08-04）**: M5 Gate 4 has been accepted by the Project Owner. The active approved batch is AF-R01–AF-R03 Post-MVP implementation under ADR-0013; it does not change DeliveryPack or the six fixed Agents. / M5 Gate 4 已由 Project Owner 验收；当前获批批次为 ADR-0013 约束下的 AF-R01–AF-R03 Post-MVP 实现，不改变 DeliveryPack 与六个固定 Agent。
+
 > 当前批次：AF-211、AF-516、AF-517 最终验收证据；不新增业务能力，最终结论必须由 Human Review/Merge 与 Project Owner 确认。
 
 本页是 AegisFlow 的文档导航与当前状态入口。首次进入仓库时必须先阅读根目录的 [`START_HERE.md`](../START_HERE.md)，再依次阅读 `README.md`、`AGENTS.md` 和本页；开始具体任务前，再按本页加载当前 Issue、相关 ADR、测试策略与最近 Handoff。
@@ -53,7 +55,7 @@
 ### 架构与决策
 
 - [`02_ARCHITECTURE.md`](02_ARCHITECTURE.md)：容器、模块、状态所有权与信任边界
-- [`adr/`](adr/)：12 个 Accepted ADR
+- [`adr/`](adr/)：13 个 Accepted ADR
 - [`20_DECISION_LOG.md`](20_DECISION_LOG.md)：已接受与待决事项
 - [`21_TRACEABILITY_MATRIX.md`](21_TRACEABILITY_MATRIX.md)：需求、架构、ADR、Issue 与证据映射
 - [`22_GLOSSARY.md`](22_GLOSSARY.md)：项目术语
@@ -110,7 +112,7 @@
 - [`AegisFlow_Final_Plan_v2.md`](AegisFlow_Final_Plan_v2.md) 保留自远端初始提交，与当前权威蓝图 `DESIGN_BLUEPRINT.md` 逐字节一致，不构成独立事实源；
 - `archive/originals/` 保存正式蓝图的原始同内容副本；
 - `archive/duplicates/` 保存未删除的逐字节重复快照；
-- `archive/phase0-gap-patch/` 保存把 Issue 从 75 条扩展到 80 条的未合并补丁及导出格式，其中拟议的 ADR-0013、ADR-0014 尚未成为 Accepted ADR。
+- `archive/phase0-gap-patch/` 保存把 Issue 从 75 条扩展到 80 条的未合并补丁及导出格式；其中同名编号的历史提案仍非事实源。当前 Accepted ADR-0013 是独立的 Post-MVP 边界决策，ADR-0014 仍未接受。
 
 除非 Project Owner 通过正式 Issue、ADR 和文档同步流程接受该补丁，不得依据归档内容改变当前范围、Issue 数量或状态所有权。
 
@@ -145,6 +147,9 @@ GitHub 仓库、治理写授权和当前验收所需的受保护 Environments �
 - [`test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`](test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md)：k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证计划（**Approved v2**）。
 - [`design-notes/M5-FINAL-ACCEPTANCE-BUNDLE.md`](design-notes/M5-FINAL-ACCEPTANCE-BUNDLE.md)：AF-211/AF-516/AF-517 最终验收证据契约。
 - [`test-plans/M5-FINAL-ACCEPTANCE-BUNDLE.md`](test-plans/M5-FINAL-ACCEPTANCE-BUNDLE.md)：最终证据真实性、完整性、安全与停止条件。
+- [`design-notes/POST-MVP-ROADMAP-BUNDLE.md`](design-notes/POST-MVP-ROADMAP-BUNDLE.md)：AF-R01–AF-R03 已批准的最小扩展契约。
+- [`test-plans/POST-MVP-ROADMAP-BUNDLE.md`](test-plans/POST-MVP-ROADMAP-BUNDLE.md)：OpsPilot、可选 vLLM 与 Actions Read-only MCP 的验证计划。
+- [`adr/0013-post-mvp-extension-boundaries.md`](adr/0013-post-mvp-extension-boundaries.md)：Post-MVP 扩展必须复用现有 Control Plane 边界的 Accepted 决策。
 - [`reports/GATE1_EVIDENCE_REPORT.md`](reports/GATE1_EVIDENCE_REPORT.md)：Gate 1B、Trace、成本来源与限制证据。
 - [`reports/GATE4_FINAL_ACCEPTANCE.md`](reports/GATE4_FINAL_ACCEPTANCE.md)：Gate 1–4、评测、负载、k3s、Provider 与 Artifact 完整性台账（Candidate）。
 - [`reports/GATE4_DEMO_RUNBOOK.md`](reports/GATE4_DEMO_RUNBOOK.md)：无需强制录屏的可重复最终验收流程。
