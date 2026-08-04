@@ -58,12 +58,15 @@ up() {
     --namespace "${NAMESPACE}" \
     --set-string existingSecret="${SECRET_NAME}" \
     --set-string core.image.repository="${APP_IMAGE%:*}" \
-    --set-string core.image.tag="${APP_IMAGE##*:}" \
-    --wait --timeout 5m
+    --set-string core.image.tag="${APP_IMAGE##*:}"
 }
 
 verify() {
   require_commands
+  kubectl -n "${NAMESPACE}" rollout status statefulset/"${FULLNAME}-postgres" --timeout=120s
+  kubectl -n "${NAMESPACE}" rollout status statefulset/"${FULLNAME}-temporal-postgres" --timeout=120s
+  kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-redis" --timeout=120s
+  kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-temporal" --timeout=180s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-core" --timeout=120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-worker" --timeout=120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-prometheus" --timeout=120s

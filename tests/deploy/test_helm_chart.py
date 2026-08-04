@@ -89,12 +89,14 @@ def test_k3d_workflow_is_pinned_and_always_tears_down() -> None:
     assert "helm upgrade --install" in script
     assert "helm rollback" in script
     assert "k3d cluster delete" in script
+    assert "rollout status statefulset" in script
     assert "kind: Secret" not in script
     assert "--from-literal" in script
     assert "sha256sum --check" in workflow
     assert "helm lint" in workflow
     assert "helm template" in workflow
     assert "if: always()" in workflow
+    assert "kubectl describe pods" in workflow
     assert "bash scripts/k3d-demo.sh down" in workflow
     assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" in workflow
     assert "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" in workflow

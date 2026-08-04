@@ -60,6 +60,9 @@ jobs:
           helm status aegisflow -n aegisflow-demo > m5-k3s-evidence/helm-status.txt 2>&1 || true
           helm history aegisflow -n aegisflow-demo > m5-k3s-evidence/helm-history.txt 2>&1 || true
           kubectl get pods -n aegisflow-demo -o wide > m5-k3s-evidence/pods.txt 2>&1 || true
+          kubectl describe pods -n aegisflow-demo > m5-k3s-evidence/pod-describe.txt 2>&1 || true
+          kubectl get events -n aegisflow-demo --sort-by=.metadata.creationTimestamp > m5-k3s-evidence/events.txt 2>&1 || true
+          kubectl get configmaps,secrets,serviceaccounts -n aegisflow-demo -o name > m5-k3s-evidence/runtime-resources.txt 2>&1 || true
 
       - name: Upload deployment evidence
         if: always()
