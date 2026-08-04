@@ -1,0 +1,1 @@
+"""Repository-owned operational entrypoints."""

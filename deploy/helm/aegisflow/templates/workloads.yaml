@@ -1,0 +1,173 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &temporalLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: temporal
+  template:
+    metadata: {labels: *temporalLabels}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: temporal
+          image: {{ .Values.images.temporal | quote }}
+          env:
+            - name: POD_IP
+              valueFrom: {fieldRef: {fieldPath: status.podIP}}
+            - {name: DB, value: postgres12}
+            - {name: DB_PORT, value: "5432"}
+            - name: POSTGRES_USER
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_USER}}
+            - name: POSTGRES_PWD
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: TEMPORAL_POSTGRES_PASSWORD}}
+            - {name: POSTGRES_SEEDS, value: {{ include "aegisflow.fullname" . }}-temporal-postgres}
+            - {name: TEMPORAL_ADDRESS, value: "$(POD_IP):7233"}
+            - {name: TEMPORAL_CLI_ADDRESS, value: "$(POD_IP):7233"}
+          ports: [{name: grpc, containerPort: 7233}]
+          readinessProbe:
+            exec: {command: ["sh", "-c", "tctl --address ${POD_IP}:7233 cluster health"]}
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources: {{- toYaml .Values.dependencyResources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-core
+spec:
+  replicas: {{ .Values.core.replicaCount }}
+  selector:
+    matchLabels: &coreLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: core
+  template:
+    metadata: {labels: *coreLabels}
+    spec:
+      serviceAccountName: {{ include "aegisflow.fullname" . }}-core
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, runAsGroup: 10001, seccompProfile: {type: RuntimeDefault}}
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag }}"
+          imagePullPolicy: {{ .Values.core.image.pullPolicy }}
+          command: ["alembic", "upgrade", "head"]
+          envFrom:
+            - configMapRef: {name: {{ include "aegisflow.fullname" . }}-runtime}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: DATABASE_URL}}
+          securityContext: &appSecurity
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources: {{- toYaml .Values.core.resources | nindent 12 }}
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      containers:
+        - name: core
+          image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag }}"
+          imagePullPolicy: {{ .Values.core.image.pullPolicy }}
+          envFrom:
+            - configMapRef: {name: {{ include "aegisflow.fullname" . }}-runtime}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: DATABASE_URL}}
+          ports: [{name: http, containerPort: 8000}]
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          securityContext: *appSecurity
+          resources: {{- toYaml .Values.core.resources | nindent 12 }}
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      volumes: [{name: tmp, emptyDir: {}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels: &workerLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata: {labels: *workerLabels}
+    spec:
+      serviceAccountName: {{ include "aegisflow.fullname" . }}-worker
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, runAsGroup: 10001, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: worker
+          image: "{{ .Values.core.image.repository }}:{{ .Values.core.image.tag }}"
+          imagePullPolicy: {{ .Values.core.image.pullPolicy }}
+          command: ["python", "-m", "aegisflow_core.runtime.temporal.worker"]
+          envFrom:
+            - configMapRef: {name: {{ include "aegisflow.fullname" . }}-runtime}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: DATABASE_URL}}
+            - name: LANGGRAPH_DATABASE_URL
+              valueFrom: {secretKeyRef: {name: {{ include "aegisflow.secret" . }}, key: LANGGRAPH_DATABASE_URL}}
+          readinessProbe:
+            exec:
+              command: ["python", "-c", "import os,socket; h,p=os.environ['TEMPORAL_ADDRESS'].split(':'); socket.create_connection((h,int(p)),3).close()"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources: {{- toYaml .Values.worker.resources | nindent 12 }}
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      volumes: [{name: tmp, emptyDir: {}}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aegisflow.fullname" . }}-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &prometheusLabels
+      app.kubernetes.io/name: {{ include "aegisflow.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: prometheus
+  template:
+    metadata: {labels: *prometheusLabels}
+    spec:
+      serviceAccountName: {{ include "aegisflow.fullname" . }}-prometheus
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 65534, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: prometheus
+          image: {{ .Values.images.prometheus | quote }}
+          args: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+          ports: [{name: http, containerPort: 9090}]
+          readinessProbe:
+            httpGet: {path: /-/ready, port: http}
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources: {{- toYaml .Values.dependencyResources | nindent 12 }}
+          volumeMounts:
+            - {name: config, mountPath: /etc/prometheus, readOnly: true}
+            - {name: data, mountPath: /prometheus}
+      volumes:
+        - name: config
+          configMap: {name: {{ include "aegisflow.fullname" . }}-prometheus}
+        - {name: data, emptyDir: {}}

@@ -50,6 +50,8 @@
 | workflows/gate1b-e2e.yml | 质量/安全/集成 | AF-210 受保护 Environment 手动真实 Draft PR、幂等与 Marker 清理验收 |
 | workflows/gate2-fault-injection.yml | 质量/可靠性 | AF-309 手动执行四类故障点 × 五次真实 worker crash/restart，并上传 JSONL 证据 |
 | workflows/model-gateway-smoke.yml | 质量/安全/模型网关 | AF-310 受保护 `model-development` Environment 的真实 Provider smoke，不向日志输出 Secret 或模型内容 |
+| workflows/m5-k3s-demo-smoke.yml | 质量/部署 | AF-512/513 checksum 固定工具、真实 k3d 安装、Helm upgrade/rollback、证据上传与强制清理 |
+| workflows/personal-workbench-smoke.yml | 质量/安全/集成 | AF-515 受保护只读 GitHub App 私有仓库 smoke；输出仅含脱敏 JSONL |
 
 ## docs/（工程文档统一子目录）
 
@@ -116,6 +118,7 @@
 | M3-RELIABILITY-MODEL-BUNDLE.md | 可靠性/模型网关 | AF-308–AF-311 Saga、故障注入、LiteLLM 与熔断回退 Design Note（**Approved v1**） |
 | AF-312.md | 可靠性/治理 | Gate 2 报告、Blog 与 Demo Runbook 的证据边界和发布流程（**Approved v1**） |
 | M4-GOVERNANCE-SECURITY-BUNDLE.md | 安全/治理 | AF-401–AF-413 五波次租户、身份、RBAC、Policy、Audit、MCP、Sandbox 与 Gate 3 契约（**Approved v1**） |
+| M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 基础设施/AI流程 | AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次 Design Note（**Approved v2**） |
 
 ## docs/test-plans/（配套 Design Note 的测试计划）
 
@@ -146,6 +149,7 @@
 | M3-RELIABILITY-MODEL-BUNDLE.md | 质量/可靠性 | AF-308–AF-311 可靠性与模型运行时配套 Test Plan（**Approved v1**） |
 | AF-312.md | 质量/可靠性 | Gate 2 证据一致性、链接、Secret 和限制声明验证（**Approved v1**） |
 | M4-GOVERNANCE-SECURITY-BUNDLE.md | 质量/安全 | AF-401–AF-413 隔离、拒绝、迁移、回归与 Gate 3 总 Test Plan（**Approved v1**） |
+| M5-DEPLOYMENT-WORKBENCH-BUNDLE.md | 质量/基础设施 | AF-512、AF-513、AF-515 k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证配套 Test Plan（**Approved v2**） |
 
 ## docs/reports/（Gate 证据、限制与可重复验收材料）
 
@@ -156,6 +160,15 @@
 | GATE2_DEMO_RUNBOOK.md | 运行/可靠性 | 可重复的受保护工作流演示、核验清单与停止条件 |
 | GATE3_GOVERNANCE_SECURITY_REPORT.md | 安全/治理 | AF-412/413 自动回归范围、正式证据、限制与 Human Review 验收条件 |
 | GATE3_DEMO_RUNBOOK.md | 运行/安全 | 无真实 Secret、无需强制录屏的 Gate 3 可重复验证步骤与停止条件 |
+
+## deploy/ 与 scripts/（演示部署及薄集成入口）
+
+| 路径 | 分类 | 用途 |
+|---|---|---|
+| deploy/k3d/cluster-config.yaml | 部署 | AF-512 单 server/agent、禁用 Traefik 的临时 k3d 集群配置 |
+| deploy/helm/aegisflow/ | 部署/安全 | AF-512/513 最终 Helm 事实源；existingSecret、固定镜像、安全上下文、NetworkPolicy 与资源边界 |
+| scripts/k3d-demo.sh | 部署/质量 | 幂等建群、镜像导入、安装、健康检查、升级、回滚与清理入口 |
+| scripts/personal_workbench/ | AI流程/质量 | AF-515 调用既有 Gate 1A 图的确定性 CLI；只输出脱敏 JSONL，不执行外部写入 |
 
 ## src/aegisflow_core/（模块化单体、DeliveryPack、Durable Runtime 与 Governance/Security 实现）
 
@@ -261,6 +274,9 @@
 | test_health.py | 质量 | `/health` 精确响应契约测试 |
 | test_logging.py | 质量/可观测 | 日志幂等与 JSON envelope 测试 |
 | test_docker_compose_config.py | 质量/安全 | Compose 渲染、镜像 pin、环境 allowlist、回环端口与构建上下文静态护栏 |
+| deploy/ | 质量/部署/安全 | AF-512/513 Chart Secret、镜像、安全上下文、NetworkPolicy、固定工作流与 teardown 契约测试 |
+| personal_workbench/ | 质量/AI流程/安全 | AF-515 四场景确定性、JSONL 脱敏、私有输入分类、无新 Agent/写入与受保护 workflow 护栏 |
+| fixtures/personal_workbench/ | 质量/Fixture | XueMai、SynTour、Omni-Assistant 与实习跟踪的脱敏/合成输入及本地仓库证据 |
 | domain/conftest.py | 质量/数据 | 独立 PostgreSQL 测试事务与 rollback fixture |
 | domain/test_models.py | 质量/数据 | 六表 metadata、命名约束、UUID/时间默认值与复合外键静态测试 |
 | domain/test_migration_config.py | 质量/数据 | Alembic 根入口、完整 metadata 与默认 schema 测试 |

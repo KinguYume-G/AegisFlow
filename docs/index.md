@@ -139,6 +139,8 @@ GitHub 仓库与治理写授权已经确认。AF-210 真实 E2E 仍需独立私�
 - [`test-plans/M5-EVALUATION-FOUNDATION.md`](test-plans/M5-EVALUATION-FOUNDATION.md)：AF-501–AF-505 配套验证计划。
 - [`design-notes/M5-OBSERVABILITY-BUNDLE.md`](design-notes/M5-OBSERVABILITY-BUNDLE.md)：AF-508、AF-509、AF-511、AF-514 可观测性批次契约。
 - [`test-plans/M5-OBSERVABILITY-BUNDLE.md`](test-plans/M5-OBSERVABILITY-BUNDLE.md)：Tracing、Metrics、Load 与只读 Run Graph 验证计划。
+- [`design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`](design-notes/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md)：AF-512、AF-513、AF-515 k3d/Helm 部署与 Personal Workbench 批次契约（**Approved v2**）。
+- [`test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md`](test-plans/M5-DEPLOYMENT-WORKBENCH-BUNDLE.md)：k3d 集群、Helm upgrade/rollback 与 Personal Workbench 隔离验证计划（**Approved v2**）。
 
 ## 维护规则
 

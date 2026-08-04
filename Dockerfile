@@ -32,6 +32,10 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1
 
 COPY --from=builder --chown=appuser:appgroup /app/.venv /app/.venv
+COPY --chown=appuser:appgroup alembic.ini ./
+COPY --from=builder --chown=appuser:appgroup \
+    /app/src/aegisflow_core/control_plane/migrations \
+    /app/src/aegisflow_core/control_plane/migrations
 
 USER appuser
 

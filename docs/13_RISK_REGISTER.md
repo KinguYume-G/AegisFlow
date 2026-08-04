@@ -18,7 +18,7 @@
 | R-014 | Flaky evaluation | Medium | High | deterministic metrics |
 | R-015 | AI loses context | High | High | AGENTS and Handoff |
 | R-016 | Unauthorized AI merge | Medium | High | branch protection |
-| R-017 | Personal data in demo | Medium | High | anonymization and tenant separation |
+| R-017 | Personal data in demo | Medium | High | sanitized fixtures, tenant separation, redacted JSONL, protected read-only private-input smoke |
 | R-018 | Gate target missed | Medium | High | stop-loss and freeze |
 
 Critical 风险未关闭时不得通过 Gate。
