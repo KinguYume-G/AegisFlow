@@ -187,6 +187,7 @@ async def test_worker_builds_delivery_adapter_only_for_explicit_local_profile(
 
     captured_graphs = []
     worker = SimpleNamespace(run=AsyncMock())
+    monkeypatch.delenv("LANGGRAPH_DATABASE_URL", raising=False)
     monkeypatch.setenv("DATABASE_URL", "postgresql://db")
     monkeypatch.setattr(worker_module, "PostgresCheckpointManager", manager_factory)
     monkeypatch.setattr(worker_module, "get_settings", lambda: settings)
