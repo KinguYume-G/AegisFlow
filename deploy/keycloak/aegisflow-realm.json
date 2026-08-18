@@ -1,0 +1,84 @@
+{
+  "realm": "aegisflow",
+  "enabled": true,
+  "displayName": "AegisFlow Development Identity",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "bruteForceProtected": true,
+  "groups": [
+    { "name": "Developers" },
+    { "name": "Reviewers" },
+    { "name": "Administrators" }
+  ],
+  "clients": [
+    {
+      "clientId": "aegisflow-console",
+      "name": "AegisFlow Console",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${AEGISFLOW_KEYCLOAK_CLIENT_SECRET}",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["${AEGISFLOW_KEYCLOAK_CONSOLE_URL}/api/auth/callback"],
+      "webOrigins": ["${AEGISFLOW_KEYCLOAK_CONSOLE_URL}"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${AEGISFLOW_KEYCLOAK_CONSOLE_URL}/login"
+      },
+      "protocolMappers": [
+        {
+          "name": "aegisflow-access-token-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "aegisflow-console",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "username": "developer",
+      "email": "developer@aegisflow.local",
+      "emailVerified": true,
+      "enabled": true,
+      "groups": ["/Developers"],
+      "credentials": [
+        { "type": "password", "value": "${AEGISFLOW_KEYCLOAK_DEVELOPER_PASSWORD}", "temporary": false }
+      ]
+    },
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "username": "reviewer",
+      "email": "reviewer@aegisflow.local",
+      "emailVerified": true,
+      "enabled": true,
+      "groups": ["/Reviewers"],
+      "credentials": [
+        { "type": "password", "value": "${AEGISFLOW_KEYCLOAK_REVIEWER_PASSWORD}", "temporary": false }
+      ]
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "username": "admin",
+      "email": "admin@aegisflow.local",
+      "emailVerified": true,
+      "enabled": true,
+      "groups": ["/Administrators"],
+      "credentials": [
+        { "type": "password", "value": "${AEGISFLOW_KEYCLOAK_ADMIN_PASSWORD}", "temporary": false }
+      ]
+    }
+  ]
+}

@@ -336,11 +336,81 @@ def test_complete_oidc_configuration_is_accepted(
     assert settings.oidc_config.max_cached_keys == 8
 
 
+def test_console_session_ttl_defaults_and_is_bounded(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert get_settings().console_session_ttl_seconds == 900
+
+    monkeypatch.setenv("CONSOLE_SESSION_TTL_SECONDS", "600")
+    assert get_settings().console_session_ttl_seconds == 600
+
+
+@pytest.mark.parametrize("value", ["59", "3601", "not-an-integer"])
+def test_console_session_ttl_rejects_unsafe_values(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    monkeypatch.setenv("CONSOLE_SESSION_TTL_SECONDS", value)
+
+    with pytest.raises(ConfigurationError, match="OIDC configuration"):
+        get_settings()
+
+
 def test_partial_or_unsafe_oidc_configuration_fails_closed(
     valid_env: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("OIDC_ISSUER", "https://issuer.example.test")
     with pytest.raises(ConfigurationError, match="OIDC"):
+        get_settings()
+
+
+def test_local_oidc_http_requires_explicit_development_gate(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    values = {
+        "APP_ENV": "development",
+        "OIDC_ISSUER": "http://localhost:8080/realms/aegisflow",
+        "OIDC_AUDIENCE": "aegisflow-console",
+        "OIDC_JWKS_URL": "http://host.docker.internal:8080/realms/aegisflow/protocol/openid-connect/certs",
+        "OIDC_ALGORITHM": "RS256",
+        "OIDC_ALLOW_INSECURE_LOCAL": "true",
+    }
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+
+    assert get_settings().oidc_config is not None
+    assert get_settings().oidc_config.allow_insecure_http is True
+
+    monkeypatch.setenv("APP_ENV", "production")
+    with pytest.raises(ConfigurationError, match="OIDC"):
+        get_settings()
+
+
+def test_oidc_development_bootstrap_requires_three_distinct_subjects(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    values = {
+        "APP_ENV": "development",
+        "OIDC_ISSUER": "http://localhost:8080/realms/aegisflow",
+        "OIDC_AUDIENCE": "aegisflow-console",
+        "OIDC_JWKS_URL": "http://host.docker.internal:8080/realms/aegisflow/protocol/openid-connect/certs",
+        "OIDC_ALGORITHM": "RS256",
+        "OIDC_ALLOW_INSECURE_LOCAL": "true",
+        "OIDC_DEVELOPMENT_BOOTSTRAP_ENABLED": "true",
+        "OIDC_DEVELOPMENT_DEVELOPER_SUBJECT": "11111111-1111-4111-8111-111111111111",
+        "OIDC_DEVELOPMENT_REVIEWER_SUBJECT": "22222222-2222-4222-8222-222222222222",
+        "OIDC_DEVELOPMENT_ADMIN_SUBJECT": "33333333-3333-4333-8333-333333333333",
+    }
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+
+    settings = get_settings()
+    assert settings.oidc_development_bootstrap_configured is True
+
+    monkeypatch.setenv(
+        "OIDC_DEVELOPMENT_ADMIN_SUBJECT",
+        values["OIDC_DEVELOPMENT_REVIEWER_SUBJECT"],
+    )
+    with pytest.raises(ConfigurationError, match="OIDC development bootstrap"):
         get_settings()
 
 

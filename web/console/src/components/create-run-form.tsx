@@ -25,7 +25,7 @@ const initial: FormState = {
   baseSha: "",
 };
 
-export function CreateRunForm() {
+export function CreateRunForm({ csrf }: { csrf: string | null }) {
   const router = useRouter();
   const [form, setForm] = useState(initial);
   const [submitting, setSubmitting] = useState(false);
@@ -42,7 +42,10 @@ export function CreateRunForm() {
     try {
       const response = await fetch("/api/runs", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          ...(csrf ? { "x-aegisflow-csrf": csrf } : {}),
+        },
         body: JSON.stringify({
           source_type: form.sourceType,
           source_ref: form.sourceRef.trim() || null,

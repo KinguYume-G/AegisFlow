@@ -1,0 +1,88 @@
+name: aegisflow-oidc
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0@sha256:0f198be292568439d700cdbfb893e69a6009bb43a94a06a945b1d3d506c76b13
+    command: ["start-dev", "--import-realm", "--hostname=http://localhost:8080"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME:?KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME is required}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD:?KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD is required}
+      AEGISFLOW_KEYCLOAK_CLIENT_SECRET: ${AEGISFLOW_KEYCLOAK_CLIENT_SECRET:?AEGISFLOW_KEYCLOAK_CLIENT_SECRET is required}
+      AEGISFLOW_KEYCLOAK_DEVELOPER_PASSWORD: ${AEGISFLOW_KEYCLOAK_DEVELOPER_PASSWORD:?AEGISFLOW_KEYCLOAK_DEVELOPER_PASSWORD is required}
+      AEGISFLOW_KEYCLOAK_REVIEWER_PASSWORD: ${AEGISFLOW_KEYCLOAK_REVIEWER_PASSWORD:?AEGISFLOW_KEYCLOAK_REVIEWER_PASSWORD is required}
+      AEGISFLOW_KEYCLOAK_ADMIN_PASSWORD: ${AEGISFLOW_KEYCLOAK_ADMIN_PASSWORD:?AEGISFLOW_KEYCLOAK_ADMIN_PASSWORD is required}
+      AEGISFLOW_KEYCLOAK_CONSOLE_URL: http://localhost:${CONSOLE_HOST_PORT:-3000}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_HOST_PORT:-8080}:8080"
+    volumes:
+      - ./deploy/keycloak/aegisflow-realm.json:/opt/keycloak/data/import/aegisflow-realm.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  core:
+    environment:
+      APP_ENV: development
+      APP_BASE_URL: http://127.0.0.1:${CORE_HOST_PORT:-8000}
+      OIDC_ISSUER: http://localhost:${KEYCLOAK_HOST_PORT:-8080}/realms/aegisflow
+      OIDC_AUDIENCE: aegisflow-console
+      OIDC_JWKS_URL: http://host.docker.internal:${KEYCLOAK_HOST_PORT:-8080}/realms/aegisflow/protocol/openid-connect/certs
+      OIDC_ALGORITHM: RS256
+      OIDC_ALLOW_INSECURE_LOCAL: "true"
+      OIDC_DEVELOPMENT_BOOTSTRAP_ENABLED: "true"
+      OIDC_DEVELOPMENT_DEVELOPER_SUBJECT: 11111111-1111-4111-8111-111111111111
+      OIDC_DEVELOPMENT_REVIEWER_SUBJECT: 22222222-2222-4222-8222-222222222222
+      OIDC_DEVELOPMENT_ADMIN_SUBJECT: 33333333-3333-4333-8333-333333333333
+      AEGISFLOW_BOOTSTRAP_TENANT_SLUG: oidc-development
+      CONSOLE_SESSION_TTL_SECONDS: 900
+      TEMPORAL_ADDRESS: temporal:7233
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      keycloak:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+
+  console:
+    image: aegisflow-console:oidc-local
+    build:
+      context: ./web/console
+      dockerfile: Dockerfile
+    environment:
+      AEGISFLOW_AUTH_MODE: oidc
+      AEGISFLOW_CORE_URL: http://core:8000
+      AEGISFLOW_CONSOLE_URL: http://localhost:${CONSOLE_HOST_PORT:-3000}
+      AEGISFLOW_OIDC_ISSUER: http://localhost:${KEYCLOAK_HOST_PORT:-8080}/realms/aegisflow
+      AEGISFLOW_OIDC_DISCOVERY_URL: http://host.docker.internal:${KEYCLOAK_HOST_PORT:-8080}/realms/aegisflow/.well-known/openid-configuration
+      AEGISFLOW_OIDC_CLIENT_ID: aegisflow-console
+      AEGISFLOW_OIDC_CLIENT_SECRET: ${AEGISFLOW_KEYCLOAK_CLIENT_SECRET:?AEGISFLOW_KEYCLOAK_CLIENT_SECRET is required}
+      AEGISFLOW_SESSION_ENCRYPTION_KEY: ${AEGISFLOW_SESSION_ENCRYPTION_KEY:?AEGISFLOW_SESSION_ENCRYPTION_KEY is required}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${CONSOLE_HOST_PORT:-3000}:3000"
+    depends_on:
+      core:
+        condition: service_healthy
+    restart: unless-stopped

@@ -10,6 +10,9 @@ from aegisflow_core.control_plane.identity import (
     Principal,
     parse_bearer_token,
 )
+from aegisflow_core.control_plane.identity.sessions import (
+    SessionAuthenticationError,
+)
 
 
 class IdentityNotConfiguredError(RuntimeError):
@@ -37,6 +40,23 @@ async def authenticate_request(
             raise AuthenticationError("local_identity_denied") from None
         return local.verify(local_token or "", expected_persona=persona)
     if authorization is not None:
+        scheme, separator, credential = authorization.partition(" ")
+        if not separator or not credential or " " in credential:
+            raise AuthenticationError("invalid_authorization_header")
+        if scheme.casefold() == "aegissession":
+            session_factory = getattr(request.app.state, "session_factory", None)
+            manager_factory = getattr(
+                request.app.state, "console_session_manager_factory", None
+            )
+            if session_factory is None or manager_factory is None:
+                raise AuthenticationError("session_identity_denied")
+            try:
+                async with session_factory.begin() as session:
+                    return await manager_factory(session).authenticate(credential)
+            except SessionAuthenticationError as exc:
+                raise AuthenticationError(exc.code) from None
+        if scheme.casefold() != "bearer":
+            raise AuthenticationError("invalid_authorization_header")
         if oidc is None:
             raise AuthenticationError("oidc_identity_denied")
         return await oidc.verify(parse_bearer_token(authorization))

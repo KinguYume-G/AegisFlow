@@ -12,6 +12,7 @@ import {
   type CreateRunInput,
 } from "./contracts";
 import { loadConsoleEnvironment } from "./environment";
+import { csrfForCurrentSession, requireConsoleSessionToken } from "./server-session";
 
 const profileSchema = z
   .object({
@@ -55,6 +56,21 @@ async function coreRequest<T>(
   init: RequestInit = {},
 ): Promise<T> {
   const config = loadConsoleEnvironment();
+  let identityHeaders: Record<string, string>;
+  if (config.authMode === "local_mvp") {
+    identityHeaders = {
+      "x-aegisflow-local-persona": config.persona,
+      "x-aegisflow-local-token": config.token,
+    };
+  } else {
+    try {
+      identityHeaders = {
+        authorization: `AegisSession ${await requireConsoleSessionToken(config)}`,
+      };
+    } catch {
+      throw new CoreApiError(401, "authentication_required");
+    }
+  }
   let response: Response;
   try {
     response = await fetch(`${config.coreUrl}${path}`, {
@@ -62,8 +78,7 @@ async function coreRequest<T>(
       cache: "no-store",
       headers: {
         accept: "application/json",
-        "x-aegisflow-local-persona": config.persona,
-        "x-aegisflow-local-token": config.token,
+        ...identityHeaders,
         ...init.headers,
       },
       signal: AbortSignal.timeout(15_000),
@@ -86,6 +101,11 @@ export async function getSession() {
   return coreRequest("/v1/session", sessionSchema);
 }
 
+export async function getConsoleCsrf(): Promise<string | null> {
+  const config = loadConsoleEnvironment();
+  return config.authMode === "oidc" ? csrfForCurrentSession(config) : null;
+}
+
 async function getTenantId(): Promise<string> {
   const session = await getSession();
   const tenant = session.tenants[0];
@@ -104,7 +124,8 @@ export async function getDashboardData() {
     `/v1/tenants/${encodeURIComponent(tenant.tenant_id)}/runs?limit=50`,
     runListSchema,
   );
-  return { session, tenant, profile, runs };
+  const csrf = await getConsoleCsrf();
+  return { session, tenant, profile, runs, csrf };
 }
 
 export async function getRun(runId: string) {
@@ -155,10 +176,6 @@ export async function submitApproval(
   input: unknown,
   idempotencyKey: string,
 ) {
-  const config = loadConsoleEnvironment();
-  if (config.persona !== "reviewer") {
-    throw new CoreApiError(403, "reviewer_persona_required");
-  }
   const request = approvalInputSchema.parse(input);
   const tenantId = await getTenantId();
   return coreRequest(

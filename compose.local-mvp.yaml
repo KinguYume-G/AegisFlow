@@ -70,6 +70,7 @@ services:
       dockerfile: Dockerfile
     environment:
       AEGISFLOW_CORE_URL: http://core:8000
+      AEGISFLOW_AUTH_MODE: local_mvp
       AEGISFLOW_CONSOLE_PERSONA: "developer"
       AEGISFLOW_LOCAL_TOKEN: ${LOCAL_MVP_DEVELOPER_TOKEN:-local-mvp-developer-token-change-me}
       AEGISFLOW_DEVELOPER_CONSOLE_URL: http://localhost:${CONSOLE_HOST_PORT:-3000}
@@ -88,6 +89,7 @@ services:
       dockerfile: Dockerfile
     environment:
       AEGISFLOW_CORE_URL: http://core:8000
+      AEGISFLOW_AUTH_MODE: local_mvp
       AEGISFLOW_CONSOLE_PERSONA: "reviewer"
       AEGISFLOW_LOCAL_TOKEN: ${LOCAL_MVP_REVIEWER_TOKEN:-local-mvp-reviewer-token-change-me}
       AEGISFLOW_DEVELOPER_CONSOLE_URL: http://localhost:${CONSOLE_HOST_PORT:-3000}

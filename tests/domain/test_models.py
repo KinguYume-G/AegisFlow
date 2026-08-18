@@ -6,6 +6,7 @@ from aegisflow_core.control_plane.domain import (
     Approval,
     AuditEvent,
     Base,
+    ConsoleSession,
     IdempotencyRecord,
     ModelCircuitState,
     PromptSeries,
@@ -46,6 +47,7 @@ MODELS = (
     RunTrace,
     RunArtifact,
     RunEvaluation,
+    ConsoleSession,
 )
 
 
@@ -81,12 +83,15 @@ def test_all_tables_declared() -> None:
         "run_traces",
         "run_artifacts",
         "run_evaluations",
+        "console_sessions",
     }
     assert {model.__tablename__ for model in MODELS} == set(Base.metadata.tables)
 
 
 def test_tenant_owned_tables_have_non_nullable_tenant_id() -> None:
     for model in MODELS[1:]:
+        if model is ConsoleSession:
+            continue
         tenant_id = model.__table__.c.tenant_id
         assert tenant_id.nullable is False
         assert any(foreign_key.target_fullname == "tenants.id" for foreign_key in tenant_id.foreign_keys)

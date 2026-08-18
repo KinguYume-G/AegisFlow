@@ -7,6 +7,7 @@ from aegisflow_core.control_plane.identity.oidc import (
     OidcConfig,
     OidcVerifier,
     Principal,
+    VerifiedIdentity,
     parse_bearer_token,
 )
 from aegisflow_core.control_plane.identity.local import (
@@ -23,5 +24,6 @@ __all__ = [
     "OidcConfig",
     "OidcVerifier",
     "Principal",
+    "VerifiedIdentity",
     "parse_bearer_token",
 ]

@@ -4,6 +4,7 @@ from aegisflow_core.control_plane.domain.approval import Approval
 from aegisflow_core.control_plane.domain.access import RoleAssignment, TenantMembership
 from aegisflow_core.control_plane.domain.audit import AuditEvent
 from aegisflow_core.control_plane.domain.base import Base
+from aegisflow_core.control_plane.domain.console_session import ConsoleSession
 from aegisflow_core.control_plane.domain.execution import Run, Step
 from aegisflow_core.control_plane.domain.idempotency import IdempotencyRecord
 from aegisflow_core.control_plane.domain.knowledge import RepositoryChunk
@@ -30,6 +31,7 @@ __all__ = [
     "AuditEvent",
     "Base",
     "ClarificationRequest",
+    "ConsoleSession",
     "IdempotencyRecord",
     "ModelCircuitState",
     "PromptSeries",

@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "next": "^16.3.1",
+    "openid-client": "^6.8.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "0.0.1",

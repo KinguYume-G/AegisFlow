@@ -27,6 +27,16 @@ class LocalBootstrap:
     reviewer_membership_id: UUID
 
 
+@dataclass(frozen=True, slots=True)
+class OidcDevelopmentBootstrap:
+    tenant_id: UUID
+    workflow_id: UUID
+    workflow_version: int
+    developer_membership_id: UUID
+    reviewer_membership_id: UUID
+    admin_membership_id: UUID
+
+
 async def get_or_create_bootstrap_tenant(
     session: AsyncSession,
     slug: str,
@@ -122,6 +132,49 @@ async def bootstrap_local_mvp(
     )
 
 
+async def bootstrap_oidc_development(
+    session: AsyncSession,
+    *,
+    slug: str,
+    principals: dict[str, Principal],
+) -> OidcDevelopmentBootstrap:
+    """Provision three fixed local-IdP subjects; never called in production."""
+    required = {Role.DEVELOPER.value, Role.REVIEWER.value, Role.ADMIN.value}
+    if set(principals) != required:
+        raise ValueError("OIDC development bootstrap requires fixed roles")
+    if len({principal.actor_reference for principal in principals.values()}) != 3:
+        raise ValueError("OIDC development bootstrap principals must be distinct")
+    tenant = await get_or_create_bootstrap_tenant(session, slug)
+    workflow = await get_or_create_bootstrap_workflow(
+        session,
+        tenant.id,
+        "delivery",
+        1,
+        sha256(b"aegisflow.delivery.v1").hexdigest(),
+    )
+    memberships: dict[Role, TenantMembership] = {}
+    for role in (Role.DEVELOPER, Role.REVIEWER, Role.ADMIN):
+        membership = await _get_or_create_membership(
+            session, tenant.id, principals[role.value]
+        )
+        await _get_or_create_role(
+            session,
+            tenant.id,
+            membership.id,
+            role,
+            assigned_by="bootstrap:oidc-development",
+        )
+        memberships[role] = membership
+    return OidcDevelopmentBootstrap(
+        tenant_id=tenant.id,
+        workflow_id=workflow.id,
+        workflow_version=workflow.version,
+        developer_membership_id=memberships[Role.DEVELOPER].id,
+        reviewer_membership_id=memberships[Role.REVIEWER].id,
+        admin_membership_id=memberships[Role.ADMIN].id,
+    )
+
+
 async def _get_or_create_membership(
     session: AsyncSession, tenant_id: UUID, principal: Principal
 ) -> TenantMembership:
@@ -161,6 +214,8 @@ async def _get_or_create_role(
     tenant_id: UUID,
     membership_id: UUID,
     role: Role,
+    *,
+    assigned_by: str = "bootstrap:local-mvp",
 ) -> RoleAssignment:
     existing = await session.scalar(
         select(RoleAssignment).where(
@@ -176,7 +231,7 @@ async def _get_or_create_role(
         tenant_id=tenant_id,
         membership_id=membership_id,
         role=role.value,
-        assigned_by="bootstrap:local-mvp",
+        assigned_by=assigned_by,
     )
     session.add(row)
     await session.flush()
