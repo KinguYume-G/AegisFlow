@@ -1,233 +1,261 @@
 # AegisFlow
 
-> Production-Grade Agent Control Plane for Governed Execution, Tool Authorization, Durable Workflows, and Traceable Evidence.
+> A governed Agent Control Plane for reliable, durable, and evidence-driven software delivery.
 
-AegisFlow is an enterprise-grade Agent Control Plane designed to bring reliability, deterministic policy governance, human-in-the-loop (HITL) approval, evaluation, auditability, and cost control to autonomous AI agents.
+[![CI](https://github.com/KinguYume-G/AegisFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/KinguYume-G/AegisFlow/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Control_Plane-009688?logo=fastapi&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![Temporal](https://img.shields.io/badge/Temporal-Durable_Workflows-141414)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agent_Runtime-1C3C3C)
 
-While generic AI coding bots execute unconstrained side effects directly against host environments, AegisFlow introduces a strict control plane architecture where agent computations, durable workflow state, security policies, and physical tool executions are decoupled into auditable, idempotent, and resilient execution boundaries.
+AegisFlow turns a PRD, GitHub Issue, or bug report into a governed software-delivery run. Six fixed agents analyze the request, recover repository context, plan the work, execute inside an isolated sandbox, review the evidence, and stop for a separate human approval before any protected external write.
 
-The platform is stress-tested through **`DeliveryPack`**—a six-agent software delivery workflow (Intake, Clarifier, Context, Planner, Executor, Reviewer) that transforms raw software requests into verified, sandbox-tested, and human-approved GitHub Pull Requests.
-
----
+The repository currently provides a verified local full-stack MVP. Production OIDC is under review in [AF-R09](https://github.com/KinguYume-G/AegisFlow/issues/119); hosted-model canaries, hardened persistence, disaster recovery, production observability, evaluation gates, and deployment certification remain explicitly tracked work. AegisFlow is therefore **not yet represented as production-certified or production-hosted**.
 
 ## Why AegisFlow
 
-Deploying autonomous agents into production engineering workflows exposes critical gaps that raw LLM wrappers cannot address:
+An agent that can generate code is useful. An agent that can safely participate in an enterprise delivery process also needs deterministic authorization, recoverable state, bounded execution, reviewable evidence, and a human-owned release boundary.
 
-- **Nondeterministic Side Effects** — AI agents executing unconstrained shell scripts, file mutations, or git commits pose severe security and system integrity risks.
-- **Transient State & Crash Loss** — Long-running agent reasoning processes lose state upon network drops, process restarts, or rate limits without durable workflow orchestration.
-- **Hallucinated Evidence** — Agents declaring tasks "completed" without isolated container execution, automated unit test validation, or cryptographic artifact digests.
-- **Bypassed Governance & HITL** — Lack of deterministic policy gates, role-based approval signals, or multi-tenant security boundaries.
-- **Data Control & Provider Lock-in** — Mandatory cloud LLM dependencies without local-first inference fallback options (e.g., Ollama / vLLM).
+| Production concern | AegisFlow approach |
+| --- | --- |
+| Uncontrolled tool calls | Default-deny Policy Gates validate intent, parameters, tenant/repository scope, and approval before execution. |
+| Lost long-running work | Temporal owns the durable workflow lifecycle; LangGraph owns the bounded agent computation state and checkpoints. |
+| Hallucinated completion | Build, test, diff, risk, and action-preview evidence is persisted and reviewed instead of trusting a model claim. |
+| Unsafe autonomous writes | External side effects are idempotent, auditable, and held behind a separate Human Approval step. |
+| Cross-tenant leakage | PostgreSQL-backed membership and fixed RBAC remain authoritative; model output never grants permissions. |
+| Model/provider failure | LiteLLM routing, budgets, retry boundaries, and a local Ollama profile separate model availability from workflow control. |
 
----
-
-## Product Advantages
-
-| Dimension | AegisFlow Control Plane | Generic Coding Bots / Agent Frameworks |
-| --- | --- | --- |
-| **Tool Governance & Security** | Deterministic Policy Gate v0 + Contextual Policy enforcing default-deny authorization before any external side effect. | Unchecked agent tool calls or basic Regex filters running directly on host shell. |
-| **Durable Workflow Runtime** | Temporal-backed workflow execution paired with LangGraph checkpoints; state survives process kills and recovers automatically. | In-memory loop or ephemeral process; process crash loses all reasoning state. |
-| **Human-in-the-Loop (HITL)** | Durable `Clarification` and `Approval` signals with self-approval prevention and cryptographic action digests. | Basic CLI prompt or unmonitored execution without audit trail or role boundaries. |
-| **Execution Isolation** | Ephemeral Docker Sandbox Broker with hard CPU, RAM, and network limits; secrets masked automatically. | Execution directly on developer workstation or unconstrained container host. |
-| **Model Resilience & Fallback** | LiteLLM Gateway with automated circuit breakers, token usage budgets, and offline Ollama/vLLM local inference support. | Direct single-provider API binding with no circuit breaker or cost capping. |
-| **Full-Stack Operations** | Next.js Developer & Reviewer Console with server-only BFF, same-origin mutation guards, and real-time step monitoring. | Terminal output or minimal raw JSON web UI with no authorization boundaries. |
-
----
-
-## System Architecture
-
-AegisFlow enforces strict separation of concerns across its modular monolith architecture. Business facts reside in PostgreSQL, workflow execution history is owned by Temporal, computational graph state is persisted in LangGraph, and Redis is limited to transient projections and caches.
-
-### High-Level Execution Topology
+## Governed delivery loop
 
 ```mermaid
-flowchart TD
-    subgraph Clients ["Ingress & Management Console"]
-        Console["Next.js Console / BFF"]
-        API["FastAPI Control Plane Ingress"]
+flowchart LR
+    Request["PRD / Issue / Bug"] --> API["FastAPI Control Plane"]
+    API --> Run["Create durable Run"]
+    Run --> Temporal["Temporal workflow"]
+    Temporal --> Intake
+    subgraph Graph["LangGraph DeliveryPack"]
+        Intake --> Clarifier --> Context --> Planner --> Gate1["Run Policy Gate"]
+        Gate1 --> Executor --> Reviewer
+        Reviewer -. changes requested .-> Executor
     end
-
-    subgraph ControlPlane ["Control Plane & Identity Boundary"]
-        Identity["Identity & RBAC (OIDC / Persona)"]
-        RunService["Run Lifecycle & Idempotency Ledger"]
-        PolicyGate["Deterministic Policy Gate"]
-        AuditLog[("Append-Only Audit Log")]
-    end
-
-    subgraph Runtime ["Durable Runtime & Computation Engine"]
-        Temporal["Temporal Orchestration Engine"]
-        LangGraph["LangGraph 6-Agent Execution Graph"]
-        
-        subgraph DeliveryPack ["DeliveryPack (Six Fixed Agents)"]
-            A1["Intake Agent"]
-            A2["Clarifier Agent"]
-            A3["Context Agent (RAG)"]
-            A4["Planner Agent"]
-            A5["Executor Agent"]
-            A6["Reviewer Agent"]
-        end
-    end
-
-    subgraph Sandbox ["Execution Sandbox & External Gateway"]
-        DockerSandbox["Docker Sandbox Broker (CPU/RAM/IO Bounded)"]
-        GitHubApp["GitHub App Gateway (Dry-Run / Draft PR)"]
-        ModelGateway["LiteLLM Gateway / Ollama Fallback"]
-    end
-
-    subgraph Persistence ["Persistence Layer (Fact Sources)"]
-        PG[("PostgreSQL (Business Fact Source)")]
-        Redis[("Redis (Projections & Cache)")]
-        PGVector[("pgvector (Repo Knowledge Chunks)")]
-    end
-
-    Console --> API
-    API --> Identity
-    Identity --> RunService
-    RunService --> PG
-    RunService --> Temporal
-    Temporal --> LangGraph
-    LangGraph --> DeliveryPack
-    
-    A3 --> PGVector
-    A4 --> PolicyGate
-    PolicyGate --> AuditLog
-    AuditLog --> PG
-    
-    A5 --> DockerSandbox
-    A6 --> GitHubApp
-    DeliveryPack --> ModelGateway
+    Executor --> Tools["MCP / GitHub adapter / Docker Sandbox"]
+    Tools --> Evidence["Diff + Build + Test evidence"]
+    Evidence --> Reviewer
+    Reviewer --> Approval["Separate Human Approval"]
+    Approval --> Gate2["Tool Policy Gate"]
+    Gate2 --> DraftPR["GitHub Draft PR"]
+    DraftPR --> Record["Trace + Cost + Evaluation + Audit"]
 ```
 
-### State Ownership & Trust Boundaries
+The local profile exercises this loop without a real GitHub write: it produces a governed Draft PR candidate after sandbox execution and separate approval. A real fixture-repository canary remains protected work under [AF-R12](https://github.com/KinguYume-G/AegisFlow/issues/122).
 
-| Component | Owned Responsibility | Storage Backing |
+## System architecture
+
+The following panorama is the approved production target, delivered incrementally through the status gates below. It is not evidence that every production component has already passed acceptance.
+
+<p align="center">
+  <img src="./ChatGPT%20Image%20Aug%2017,%202026,%2010_03_25%20PM.png" alt="AegisFlow production target architecture panorama" width="100%" />
+</p>
+
+The same boundaries are expressed below as a reviewable, version-controlled topology:
+
+```mermaid
+flowchart TB
+    subgraph Experience["Users and entry surfaces"]
+        Users["Developer · Reviewer · Administrator"]
+        Console["Next.js Console + server-only BFF"]
+        Ingress["REST API · GitHub webhook"]
+        Users --> Console
+        Console --> Ingress
+    end
+
+    subgraph Control["FastAPI modular control plane"]
+        Identity["OIDC / session boundary"]
+        RBAC["Tenant membership + fixed RBAC"]
+        Runs["Runs · approvals · audit · idempotency"]
+        Policy["Deterministic Policy Gates"]
+        Ingress --> Identity --> RBAC --> Runs --> Policy
+    end
+
+    subgraph Durable["Durable execution"]
+        Temporal["Temporal<br/>workflow lifecycle, retry, signal, recovery"]
+        LangGraph["LangGraph<br/>agent graph, checkpoint, resume"]
+        Agents["Intake → Clarifier → Context → Planner → Executor → Reviewer"]
+        Temporal --> LangGraph --> Agents
+    end
+
+    subgraph Governed["Governed tools and models"]
+        Model["LiteLLM → Ollama / approved provider"]
+        MCP["MCP Gateway + schema validation"]
+        Sandbox["Docker Sandbox Broker"]
+        GitHub["GitHub App adapter"]
+    end
+
+    subgraph State["State and evidence"]
+        Postgres[("PostgreSQL + pgvector<br/>business facts and retrieval")]
+        Redis[("Redis<br/>transient projections only")]
+        Artifacts[("Artifact storage<br/>diffs, logs, reports")]
+    end
+
+    subgraph Observe["Evidence and observability"]
+        Trace["OpenTelemetry + Langfuse"]
+        Metrics["Prometheus + Grafana"]
+        Eval["Evaluation and regression gates"]
+    end
+
+    Policy --> Temporal
+    Agents --> Model
+    Agents --> MCP
+    MCP --> Sandbox
+    MCP --> GitHub
+    Runs --> Postgres
+    LangGraph --> Postgres
+    Temporal --> Postgres
+    Runs --> Redis
+    Sandbox --> Artifacts
+    GitHub --> Artifacts
+    Temporal --> Trace
+    MCP --> Trace
+    Trace --> Metrics
+    Trace --> Eval
+```
+
+### State ownership
+
+| Owner | Authoritative state | Explicit boundary |
 | --- | --- | --- |
-| **Control Plane** | Tenants, Identity, RBAC, Policy Gates, Run Lifecycle, Idempotency Ledger, Audit Events. | PostgreSQL (`pgvector`) |
-| **Workflow Engine** | Long-running workflow execution, durable signals (`Clarification`, `Approval`), retries, timeouts. | Temporal Server |
-| **Agent Engine** | Computational graph state, multi-agent step transitions, reasoning checkpoints. | LangGraph (`PostgresSaver`) |
-| **Gateway & Sandbox** | Ephemeral container execution, GitHub API dispatch, Model Gateway routing. | Isolated Sandbox Host |
-| **Projection Layer** | Live event stream buffer, active session caches, rate-limiting counters. | Redis |
+| PostgreSQL | Tenants, memberships, RBAC, Runs, approvals, audit, idempotency, repository versions, evaluation facts | Redis cannot become a business fact source. |
+| Temporal | Workflow lifecycle, retries, timeouts, signals, compensation, worker recovery | It does not own the agent's internal computation state. |
+| LangGraph | DeliveryPack node state, routing, checkpoint, resume | It does not duplicate the Temporal lifecycle. |
+| Sandbox / gateways | Ephemeral execution and external API dispatch | Every write must pass policy, approval, idempotency, result validation, and audit. |
+| Human reviewer | Final approval and merge decision | The LLM and the implementation agent cannot self-approve or auto-merge. |
 
----
+## Core capabilities
 
-## Core Capabilities
+- **Six-agent DeliveryPack** — Intake, Clarifier, Context, Planner, Executor, and Reviewer use typed contracts and conditional routing inside one fixed delivery workflow.
+- **Durable Human-in-the-Loop** — clarification and approval are persisted workflow interrupts, not browser-only prompts.
+- **Governed tool execution** — MCP/tool schemas, deterministic Policy Gates, tenant/repository scope, idempotency, and a side-effect ledger protect write operations.
+- **Isolated verification** — the Docker Sandbox Broker applies resource, filesystem, network, timeout, and output limits before evidence is accepted.
+- **Local-first model path** — the default MVP uses Ollama through the model gateway; hosted providers remain configuration-driven and separately validated.
+- **Full-stack operator experience** — a Next.js App Router console exposes Run creation, step timelines, clarification, evidence, and approval through a server-only BFF.
+- **Evidence over claims** — audit events, traces, token/cost records, test outputs, diffs, and approval receipts make each Run reviewable.
 
-### 1. DeliveryPack — Six Governed Agents
-- **Intake Agent**: Standardizes raw PRDs, issues, or bug reports into validated, structured input contracts.
-- **Clarifier Agent**: Detects requirement ambiguities and triggers a durable `Clarification` interrupt for human input.
-- **Context Agent**: Performs deterministic repository retrieval and semantic chunking using `pgvector`.
-- **Planner Agent**: Generates structured, evidence-grounded technical execution plans with explicit risk and cost budgets.
-- **Executor Agent**: Applies code modifications inside an isolated Docker sandbox and executes automated build/test suites.
-- **Reviewer Agent**: Evaluates patch correctness, inspects build logs, and prepares cryptographic action previews for approval.
+## Delivery status
 
-### 2. Durable HITL Interruption & Resume
-- **Clarification Loop**: Pauses workflow execution when ambiguous specifications are detected; resumes smoothly upon receiving validated answers via Temporal signals.
-- **Human Approval Loop**: Requires explicit human approval for high-risk external side effects (e.g., Pull Request creation). Implements strict **self-approval prevention** to enforce separation of duties.
+| Scope | Status | Evidence / boundary |
+| --- | --- | --- |
+| Phase 0, M1–M5, Gate 4 | Accepted | Architecture, policy, runtime, sandbox, evaluation baseline, and local deployment gates are recorded in the repository. |
+| AF-R04–AF-R08 local full-stack MVP | Merged | [PR #118](https://github.com/KinguYume-G/AegisFlow/pull/118) closes the loopback-only Ollama, FastAPI, Temporal, LangGraph, PostgreSQL, Redis, sandbox, and Next.js flow. |
+| AF-R09 production OIDC sessions | In review | [Issue #119](https://github.com/KinguYume-G/AegisFlow/issues/119) and [PR #127](https://github.com/KinguYume-G/AegisFlow/pull/127); not complete until checks, review, and Human Merge pass. |
+| AF-R10–AF-R16 production-readiness roadmap | Planned / open | Hardened persistence, Helm, real canary, replay, SLOs, evaluation release gates, staging, and controlled production deployment. |
 
-### 3. Policy Gate & Sandbox Isolation
-- **Deterministic Policy Gate v0**: Evaluates execution intent against contextual rules before allowing physical tool execution.
-- **Docker Sandbox Broker**: Runs code builds and unit tests in temporary containers with network isolation, read-only root filesystems, and strict resource quotas.
-- **Cryptographic Action Previews**: Generates SHA-256 content digests for all proposed file changes prior to execution.
+See the [production-readiness plan](docs/26_PRODUCTION_READINESS_PLAN.md) for owner inputs, acceptance gates, and the exact difference between a local MVP and a production-certified release.
 
-### 4. Developer & Reviewer Management Console
-- **Next.js 16 App Router**: Full-stack management console featuring dynamic timeline monitoring, live step inspection, and interactive HITL response forms.
-- **Server-Only BFF**: Enforces same-origin mutation guards (`X-AegisFlow-Mutation-Origin`) and validates Zod contracts on all API routes.
-- **Dual Persona Workspaces**: Tailored interfaces for Developers (Run creation & progress tracking) and Reviewers (action previews, diff inspection, approval decisions).
+## Technology stack
 
-### 5. Observability, Evaluation & Reliability
-- **OpenTelemetry & Langfuse**: Complete LLM trace capturing latency, prompt versioning, input/output token counts, and cost metrics.
-- **Prometheus & Grafana**: Real-time operational dashboards for workflow queue depth, tool failure rates, and agent step latency.
-- **Golden Dataset Regression**: Automated evaluation framework benchmarking agent task success and tool-calling accuracy.
+| Layer | Technologies |
+| --- | --- |
+| Console | Next.js 16, React 19, TypeScript 5, Zod, Vitest, Playwright |
+| Control plane | Python 3.12, FastAPI, Pydantic 2, SQLAlchemy 2, Alembic |
+| Agent runtime | LangGraph, typed DeliveryPack contracts, PostgreSQL checkpoints |
+| Durable workflow | Temporal workflows, activities, signals, retries, timeouts, compensation |
+| Models and retrieval | LiteLLM, Ollama local profile, pgvector repository context |
+| Tools and isolation | MCP adapters, GitHub App gateway, Docker Sandbox Broker |
+| Data | PostgreSQL, pgvector, Redis projections, versioned migrations |
+| Evidence | OpenTelemetry, Langfuse, Prometheus metrics, evaluation reports, audit ledger |
+| Delivery | Docker Compose, Helm/k3d assets, GitHub Actions |
 
----
-
-## Verified Engineering Evidence
-
-AegisFlow is backed by a rigorous test suite and empirical benchmarks across all architecture layers:
-
-```text
-=========================== Short Test Summary Info ===========================
-Python Backend Test Suite : 612 Passed, 37 Skipped (100% Non-External Pass)
-Coverage Gate             : Passed repository fail_under = 90% threshold
-Frontend Console Suite    : 23 Passed across 9 Vitest test files (100% Pass)
-TypeScript Check          : Passed (0 errors via tsc --noEmit)
-ESLint Code Quality       : Passed (0 warnings / 0 errors)
-Next.js Production Build  : Passed (13 dynamic App Router routes compiled)
-Gate 2 Reliability        : 20/20 fault runs completed, 0 duplicate side effects
-Gate 3 Security Baseline  : 83 security tests passed; 0 credential leaks detected
-===============================================================================
-```
-
----
-
-## Quick Start — Local Full-Stack Execution
-
-Run the complete 10/10 local full-stack MVP loop using Docker Compose and Ollama without requiring external cloud model credentials or GitHub write tokens.
+## Quick start: verified local MVP
 
 ### Prerequisites
-- Docker Desktop with Compose enabled.
-- [Ollama](https://ollama.com/) running locally (`127.0.0.1:11434`) with a pulled model (e.g., `ollama pull qwen2.5:coder` or `llama3.2`).
 
-### 1. Environment Setup
-```bash
-# Clone the repository
-git clone https://github.com/KinguYume-G/AegisFlow.git
-cd AegisFlow
+- Docker Desktop with Docker Compose
+- Ollama reachable from Docker and the configured model pulled (default: `qwen3:8b`)
+- Ports `3000`, `3001`, `8000`, `8088`, `55432`, `56379`, and `57233` available, or overridden in the local environment file
 
-# Create local environment configuration
-cp .env.local-mvp.example .env.local-mvp
+### 1. Configure the local-only profile
+
+```powershell
+Copy-Item .env.local-mvp.example .env.local-mvp
 ```
 
-### 2. Launch Local Stack
-```bash
+Replace every `change-me-*` value in `.env.local-mvp`. These values are for development only and must never be reused in production.
+
+### 2. Start the stack
+
+```powershell
 docker compose --env-file .env.local-mvp -f compose.yaml -f compose.local-mvp.yaml up -d --build
 ```
 
-### 3. Access Services
-Once container health checks pass:
-- **Developer / Reviewer Console**: `http://127.0.0.1:3000`
-- **FastAPI Control Plane Core**: `http://127.0.0.1:8000`
-- **Temporal Web UI**: `http://127.0.0.1:8088`
+### 3. Open the services
 
-### 4. Teardown
-```bash
+- Developer Console: `http://127.0.0.1:3000`
+- Reviewer Console: `http://127.0.0.1:3001`
+- FastAPI: `http://127.0.0.1:8000`
+- Temporal Web: `http://127.0.0.1:8088`
+
+Follow the reproducible acceptance path in [`docs/reports/LOCAL_MVP_RUNBOOK.md`](docs/reports/LOCAL_MVP_RUNBOOK.md). The local profile is deliberately loopback-only, uses development personas, and keeps GitHub in dry-run mode.
+
+### 4. Stop the stack
+
+```powershell
 docker compose --env-file .env.local-mvp -f compose.yaml -f compose.local-mvp.yaml down
 ```
 
----
-
-## Project Repository Layout
+## Repository layout
 
 ```text
 AegisFlow/
-├── src/aegisflow_core/      # Core Modular Monolith
-│   ├── control_plane/       # Identity, Tenants, RBAC, Run Lifecycle, Approvals, Audit
-│   ├── runtime/             # Temporal Workflows & LangGraph Execution Engine
-│   ├── gateway/             # Policy Gate, Sandbox Broker, GitHub App, MCP Adapters
-│   ├── models/              # LiteLLM Model Gateway, Routing, Circuit Breaker
-│   ├── evaluation/          # Golden Dataset, Benchmark Metrics, Regression CI
-│   └── packs/delivery/      # DeliveryPack Six-Agent Implementation
-├── web/console/             # Next.js Management Console & Server-Only BFF
-├── tests/                   # Backend & Frontend Unit, Integration, Security, E2E Suites
-├── deploy/                  # Docker Compose, Helm Charts, Keycloak & Observability Assets
-├── docs/                    # Architecture Blueprint, ADRs, Design Notes & Runbooks
-└── MANIFEST.md              # Engineering Inventory & File Classification
+├── src/aegisflow_core/       FastAPI modular monolith and application core
+│   ├── control_plane/        Identity, tenancy, RBAC, Runs, approvals, audit
+│   ├── runtime/              Temporal workflows and LangGraph checkpoints
+│   ├── gateway/              Policy, MCP, GitHub, sandbox, side-effect controls
+│   ├── models/               LiteLLM routing, budgets, circuit breakers
+│   ├── evaluation/           Datasets, metrics, regression evidence
+│   └── packs/delivery/       Six fixed DeliveryPack agents
+├── web/console/              Next.js management console and server-only BFF
+├── tests/                    Unit, component, integration, security, E2E, load
+├── deploy/                   Helm, k3d, Keycloak, dashboards, deployment assets
+├── scripts/                  Reproducible smoke, fault, evaluation, and ops tools
+├── docs/                     Architecture, ADRs, plans, runbooks, reports
+├── project/                  Canonical GitHub bootstrap data
+└── archive/                  Historical material; never an active fact source
 ```
 
----
+## Verification
 
-## Navigation & Governance Documentation
+```powershell
+# Backend and architecture contracts
+uv run pytest -q -p no:cacheprovider
 
-For contributor guidelines, architecture decisions, and detailed technical specifications:
-- 🚀 [`START_HERE.md`](START_HERE.md) — Mandatory contributor onboarding entry point.
-- 📐 [`docs/DESIGN_BLUEPRINT.md`](docs/DESIGN_BLUEPRINT.md) — Authoritative product and architecture blueprint.
-- 🏛️ [`docs/adr/`](docs/adr/) — Accepted Architecture Decision Records (ADR-0001 through ADR-0014).
-- 📜 [`AGENTS.md`](AGENTS.md) — AI agent development and collaboration constraints.
-- 🗺️ [`docs/26_PRODUCTION_READINESS_PLAN.md`](docs/26_PRODUCTION_READINESS_PLAN.md) — Production readiness plan and execution roadmap.
+# Frontend quality gates
+npm.cmd --prefix web/console run test:run
+npm.cmd --prefix web/console run typecheck
+npm.cmd --prefix web/console run lint
+npm.cmd --prefix web/console run build
 
----
+# Compose and patch hygiene
+docker compose --env-file .env.local-mvp.example -f compose.yaml -f compose.local-mvp.yaml config --quiet
+docker compose --env-file .env.oidc-dev.example -f compose.yaml -f compose.oidc-dev.yaml config --quiet
+git diff --check
+```
 
-## License & Security
+Protected database, Temporal, Docker, browser, hosted-model, and real-GitHub tests require their documented services and authorization. CI and PR evidence—not README claims—are the source of truth for a particular revision.
 
-This project is licensed under the MIT License. Security vulnerabilities or compliance disclosures should follow the policy outlined in [`SECURITY.md`](SECURITY.md).
+## Engineering governance
+
+AegisFlow intentionally uses a modular monolith and one governed delivery workflow. It does not introduce Kafka, Terraform, CrewAI, generic ABAC, automatic merge, automatic production deployment, a visual Workflow Builder, or autonomous policy decisions.
+
+Start with [`START_HERE.md`](START_HERE.md), then read:
+
+- [`docs/DESIGN_BLUEPRINT.md`](docs/DESIGN_BLUEPRINT.md) — authoritative product and architecture blueprint
+- [`docs/02_ARCHITECTURE.md`](docs/02_ARCHITECTURE.md) — containers, modules, state ownership, and trust boundaries
+- [`docs/adr/`](docs/adr/) — accepted architecture decisions
+- [`docs/21_TRACEABILITY_MATRIX.md`](docs/21_TRACEABILITY_MATRIX.md) — requirement-to-evidence mapping
+- [`AGENTS.md`](AGENTS.md) — mandatory human/AI development protocol
+- [`SECURITY.md`](SECURITY.md) — vulnerability reporting and security expectations
+
+## License
+
+No open-source license has been declared. All rights are reserved by the repository owner unless a license is added later.

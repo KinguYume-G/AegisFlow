@@ -1,6 +1,4 @@
-# ==========================================
-# 1. 敏感信息与环境变量 (绝对不能提交到 GitHub)
-# ==========================================
+# Secrets and local environment files
 .env
 .env.*
 !.env.example
@@ -10,91 +8,91 @@
 *.pem
 *.key
 *.cert
+*.crt
+*.p12
+*.pfx
 
-# ==========================================
-# 2. Python & FastAPI 相关缓存与虚拟环境
-# ==========================================
+# Python bytecode, environments, packaging, and tool caches
 __pycache__/
 *.py[cod]
 *$py.class
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
+.venv/
+venv/
+env/
+ENV/
 .eggs/
-/lib/
-/lib64/
-/parts/
-/sdist/
-/var/
-/wheels/
-/share/python-wheels/
+*.egg
 *.egg-info/
 .installed.cfg
-*.egg
-MANIFEST
-
-# Python 虚拟环境
-venv/
-.venv/
-env/
-.env/
-ENV/
-
-# pytest / 测试缓存与覆盖率
+build/
+dist/
+downloads/
+develop-eggs/
+eggs/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.hypothesis/
+.nox/
+.tox/
 .uv-cache/
 .coverage
 .coverage.*
+coverage.xml
 htmlcov/
-.nox/
-.hypothesis/
 
-# ==========================================
-# 3. Node.js 前端 / 工具链相关
-# ==========================================
+# Node.js dependencies, caches, and build outputs
 node_modules/
+.npm/
+.pnpm-store/
+.yarn/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-.pnpm-debug.log*
 lerna-debug.log*
-
-# 构建产物
-dist/
-out/
 .next/
 .nuxt/
+.turbo/
+out/
+*.tsbuildinfo
 
-# ==========================================
-# 4. 编辑器 & AI 编程助手缓存 (Cursor/VSCode/JetBrains)
-# ==========================================
-# IDE 配置文件
+# Test, browser, benchmark, and runtime artifacts
+.tmp/
+test-results/
+playwright-report/
+blob-report/
+coverage/
+junit*.xml
+*.prof
+*.trace
+*.log
+
+# IDE and local AI-tool state
 .idea/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.cursor/
+.claude/
+.gemini/
+.agents/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# AI 工具 (如 Claude Code / Cursor / Gemini 运行日志与索引)
-.cursor/
-.claude/
-.gemini/
-.agents/
-*.log
-
-# ==========================================
-# 5. 操作系统垃圾文件
-# ==========================================
+# Operating-system metadata
 .DS_Store
 .DS_Store?
 ._*
@@ -102,10 +100,3 @@ out/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Local runtime, browser-test, and generated build artifacts
-.tmp/
-test-results/
-playwright-report/
-blob-report/
-*.tsbuildinfo
