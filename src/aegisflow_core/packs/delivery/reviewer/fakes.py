@@ -22,14 +22,28 @@ class InMemoryApprovalGateway:
         self._records: dict[UUID, dict[str, object]] = {}
         self._keys: dict[tuple[UUID, UUID, UUID], UUID] = {}
 
-    async def request_approval(self, tenant_id: UUID, run_id: UUID, step_id: UUID,
-                               findings: list[ReviewFinding]) -> UUID:
+    async def request_approval(
+        self,
+        tenant_id: UUID,
+        run_id: UUID,
+        step_id: UUID,
+        findings: list[ReviewFinding],
+        *,
+        action_preview: dict[str, object] | None = None,
+        action_digest: str | None = None,
+    ) -> UUID:
         key = tenant_id, run_id, step_id
         if key in self._keys:
             return self._keys[key]
         approval_id = uuid4()
         self._keys[key] = approval_id
-        self._records[approval_id] = {"run_id": run_id, "status": "pending", "findings": tuple(findings)}
+        self._records[approval_id] = {
+            "run_id": run_id,
+            "status": "pending",
+            "findings": tuple(findings),
+            "action_preview": action_preview,
+            "action_digest": action_digest,
+        }
         return approval_id
 
     async def submit_decision(self, approval_id: UUID, run_id: UUID,

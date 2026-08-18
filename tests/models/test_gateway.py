@@ -147,6 +147,27 @@ def test_all_model_route_names_must_be_distinct() -> None:
 
 
 @pytest.mark.asyncio
+async def test_explicit_local_only_gateway_uses_one_bounded_route() -> None:
+    adapter = Adapter()
+    gateway = ModelGateway.local_only(
+        adapter,
+        CircuitBreaker(InMemoryCircuitStateStore(), Clock(), failure_threshold=1),
+        Secrets(),
+        route=ModelRoute(
+            "ollama",
+            "ollama_chat/qwen3:8b",
+            "LOCAL_KEY",
+            "http://127.0.0.1:11434",
+        ),
+    )
+
+    response = await gateway.complete(_request())
+
+    assert [item.route for item in response.route_chain] == ["ollama"]
+    assert adapter.calls == [("ollama", "secret-for-LOCAL_KEY")]
+
+
+@pytest.mark.asyncio
 async def test_budget_with_unknown_estimate_fails_closed() -> None:
     adapter = Adapter()
     with pytest.raises(BudgetExceededError, match="estimate"):

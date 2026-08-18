@@ -41,10 +41,14 @@ class LiteLLMAdapter:
                 ],
                 api_key=api_key,
                 num_retries=0,
+                temperature=0,
                 max_tokens=request.max_output_tokens,
+                timeout=60,
             )
             if route.api_base is not None:
                 kwargs["api_base"] = route.api_base
+            if request.response_format == "json_object":
+                kwargs["response_format"] = {"type": "json_object"}
             response = await self._completion(**kwargs)
         except Exception as error:
             raise _safe_provider_error(error) from None

@@ -6,13 +6,25 @@ from typing import Protocol
 
 from temporalio import activity
 
-from aegisflow_core.runtime.temporal.contracts import AdvanceRequest, AdvanceResult
-from aegisflow_core.runtime.temporal.policies import as_application_error
+from aegisflow_core.runtime.temporal.contracts import (
+    AdvanceRequest,
+    AdvanceResult,
+    RuntimeIdentity,
+)
+from aegisflow_core.runtime.temporal.policies import (
+    as_application_error,
+    is_retryable,
+    safe_failure_reference,
+)
 from aegisflow_core.runtime.observability import Correlation, operation_span
 
 
 class DurableGraphPort(Protocol):
     async def advance(self, request: AdvanceRequest) -> AdvanceResult: ...
+
+    async def fail(
+        self, identity: RuntimeIdentity, failure_reference: str
+    ) -> str: ...
 
 
 class DeliveryActivities:
@@ -34,7 +46,15 @@ class DeliveryActivities:
             try:
                 return await self._graph.advance(request)
             except Exception as error:
-                raise as_application_error(error) from None
+                if is_retryable(error):
+                    raise as_application_error(error) from None
+                try:
+                    reference = await self._graph.fail(
+                        identity, safe_failure_reference(error)
+                    )
+                except Exception as projection_error:
+                    raise as_application_error(projection_error) from None
+                return AdvanceResult("failed", reference)
 
 
 class UnconfiguredGraphPort:
@@ -42,4 +62,10 @@ class UnconfiguredGraphPort:
 
     async def advance(self, request: AdvanceRequest) -> AdvanceResult:
         del request
+        raise RuntimeError("durable Gate 1B graph adapter is not configured")
+
+    async def fail(
+        self, identity: RuntimeIdentity, failure_reference: str
+    ) -> str:
+        del identity, failure_reference
         raise RuntimeError("durable Gate 1B graph adapter is not configured")

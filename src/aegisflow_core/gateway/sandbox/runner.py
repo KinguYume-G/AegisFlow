@@ -13,7 +13,7 @@ _DIGEST_IMAGE = re.compile(r"^[^\s@]+@sha256:[0-9a-f]{64}$")
 class TestProfile(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     schema_version: Literal[1] = 1
-    name: Literal["python_pytest"]
+    name: Literal["python_pytest", "python_unittest"]
     image: str
     test_path: str = "tests"
 

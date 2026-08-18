@@ -59,16 +59,44 @@ class ModelGateway:
         secrets: SecretResolver,
         *,
         primary: ModelRoute,
-        fallback: ModelRoute,
+        fallback: ModelRoute | None,
         local_fallback: ModelRoute | None = None,
+        route_labels: tuple[str, ...] | None = None,
     ) -> None:
-        routes = (primary, fallback) + ((local_fallback,) if local_fallback else ())
+        routes = (primary,) + ((fallback,) if fallback else ()) + (
+            (local_fallback,) if local_fallback else ()
+        )
         if len({route.name for route in routes}) != len(routes):
             raise ValueError("model routes must have distinct names")
         self._adapter = adapter
         self._breaker = breaker
         self._secrets = secrets
         self._routes = routes
+        self._route_labels = route_labels or (
+            ("primary", "fallback")[: len(routes)]
+            + (("local_fallback",) if local_fallback else ())
+        )
+        if len(self._route_labels) != len(self._routes):
+            raise ValueError("model route labels must match configured routes")
+
+    @classmethod
+    def local_only(
+        cls,
+        adapter: ModelAdapter,
+        breaker: CircuitBreaker,
+        secrets: SecretResolver,
+        *,
+        route: ModelRoute,
+    ) -> "ModelGateway":
+        """Compose one explicitly approved development-only Ollama route."""
+        return cls(
+            adapter,
+            breaker,
+            secrets,
+            primary=route,
+            fallback=None,
+            route_labels=("local_ollama",),
+        )
 
     async def complete(self, request: ModelRequest) -> ModelResponse:
         if request.budget_limit_usd is not None:
@@ -105,7 +133,7 @@ class ModelGateway:
             attempts.append(RouteAttempt(route.name, route.model, "succeeded"))
             if result.cost.source != "not_available":
                 assert result.cost.amount is not None and result.cost.currency is not None
-                route_label = ("primary", "fallback", "local_fallback")[route_index]
+                route_label = self._route_labels[route_index]
                 observe_model_cost(route_label, result.cost.currency, float(result.cost.amount))
             return ModelResponse(
                 content=result.content,

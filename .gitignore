@@ -5,6 +5,7 @@
 .env.*
 !.env.example
 !.env.template
+!.env.local-mvp.example
 *.pem
 *.key
 *.cert
@@ -22,13 +23,13 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
+/share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -43,6 +44,7 @@ ENV/
 
 # pytest / 测试缓存与覆盖率
 .pytest_cache/
+.uv-cache/
 .coverage
 .coverage.*
 htmlcov/
@@ -97,3 +99,10 @@ out/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Local runtime, browser-test, and generated build artifacts
+.tmp/
+test-results/
+playwright-report/
+blob-report/
+*.tsbuildinfo

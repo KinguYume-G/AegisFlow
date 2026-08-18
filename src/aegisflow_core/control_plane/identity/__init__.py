@@ -9,11 +9,17 @@ from aegisflow_core.control_plane.identity.oidc import (
     Principal,
     parse_bearer_token,
 )
+from aegisflow_core.control_plane.identity.local import (
+    LocalIdentityVerifier,
+    LocalPersona,
+)
 
 __all__ = [
     "AuthenticationError",
     "HttpJwksResolver",
     "JwksResolver",
+    "LocalIdentityVerifier",
+    "LocalPersona",
     "OidcConfig",
     "OidcVerifier",
     "Principal",

@@ -1,19 +1,19 @@
 # AegisFlow 文档总入口
 
-> **Current execution state / 当前执行状态（2026-08-04）**: M5 Gate 4 has been accepted by the Project Owner. The active approved batch is AF-R01–AF-R03 Post-MVP implementation under ADR-0013; it does not change DeliveryPack or the six fixed Agents. / M5 Gate 4 已由 Project Owner 验收；当前获批批次为 ADR-0013 约束下的 AF-R01–AF-R03 Post-MVP 实现，不改变 DeliveryPack 与六个固定 Agent。
+> **Current execution state / 当前执行状态（2026-08-18）**: M5 Gate 4 has been accepted by the Project Owner. AF-R01–AF-R03 are completed extensions. The active approved batch is AF-R04–AF-R08, which closes a loopback-only Ollama, FastAPI, Temporal, LangGraph and Next.js local MVP without changing DeliveryPack or the six fixed Agents. / M5 Gate 4 已由 Project Owner 验收；AF-R01–AF-R03 已完成。当前获批批次为 AF-R04–AF-R08，用于收口回环限定的 Ollama、FastAPI、Temporal、LangGraph 与 Next.js 本地 MVP，不改变 DeliveryPack 与六个固定 Agent。
 
-> 当前批次：AF-211、AF-516、AF-517 最终验收证据；不新增业务能力，最终结论必须由 Human Review/Merge 与 Project Owner 确认。
+> 当前批次：GitHub Issues #113–#117（AF-R04–AF-R08）；Project Owner 已批准作为依赖闭合批次开发，但最终结论仍必须由 Human Review/Merge 与 Project Owner 确认。
 
 本页是 AegisFlow 的文档导航与当前状态入口。首次进入仓库时必须先阅读根目录的 [`START_HERE.md`](../START_HERE.md)，再依次阅读 `README.md`、`AGENTS.md` 和本页；开始具体任务前，再按本页加载当前 Issue、相关 ADR、测试策略与最近 Handoff。
 
 ## 当前状态
 
-- **阶段**：M5 Gate 4 Final Acceptance；M1–M5 规划实现已进入 `main`
-- **实现状态**：AF-211、AF-516、AF-517 是剩余强制验收批次；AF-R01–AF-R03 为可选 Post-MVP 路线项
+- **阶段**：Post-MVP Local Full-Stack MVP；M1–M5 与 Gate 4 已由 Project Owner 验收
+- **实现状态**：AF-R04–AF-R08 已完成本地闭环实现，正在补齐文档、覆盖率和最终可复现证据；生产身份、真实 GitHub canary 与生产部署仍是后续工作
 - **正式 Issue 基线**：75 条，来源为 `docs/05_GITHUB_ISSUE_BACKLOG.md` 与 `project/GITHUB_ISSUE_IMPORT.csv`
 - **GitHub 初始化状态**：56 个权威 Labels、7 个 Milestones、75 个 canonical Issues 已导入并核验
-- **最近证据 SHA**：`af74b419cc73e8975beb9bedd4419db0a37e2793`；最终报告为 Candidate，等待人工审查
-- **范围边界**：当前批次只收集、核验和归档证据，不新增业务代码、依赖、Workflow、架构或 ADR
+- **最近本地证据**：2026-08-18 完成一条 10/10 Ollama + Sandbox + 独立审批 + dry-run Draft PR candidate 闭环；后端 633 passed / 1 protected test skipped，覆盖率门槛通过 90%
+- **范围边界**：当前批次使用 ADR-0014 的可信回环身份与 GitHub dry-run 配置；不得把本地配置表述为生产认证，不得绕过真实 OIDC、Policy Gate 或 Human Review
 - **真实性要求**：CI fixture、组件组合证据、短时压测与单路 Provider smoke 必须保留限制，不得包装成生产结论
 
 ## 权威顺序
@@ -61,6 +61,12 @@
 - [`22_GLOSSARY.md`](22_GLOSSARY.md)：项目术语
 - [`24_REPOSITORY_LAYOUT.md`](24_REPOSITORY_LAYOUT.md)：仓库目录结构与每个文件的分类清单
 - [`25_PHASE0_EXIT_REVIEW.md`](25_PHASE0_EXIT_REVIEW.md)：Phase 0 独立验收审查，逐项核对 AF-000–AF-008 与退出条件
+- [`26_PRODUCTION_READINESS_PLAN.md`](26_PRODUCTION_READINESS_PLAN.md)：当前真实状态、目录与清理边界、项目负责人准备清单和生产化路线图
+- [`adr/0014-local-mvp-execution-profile.md`](adr/0014-local-mvp-execution-profile.md)：可信回环身份、Ollama 与 GitHub dry-run 本地执行边界
+- [`design-notes/LOCAL-MVP-BACKEND-BUNDLE.md`](design-notes/LOCAL-MVP-BACKEND-BUNDLE.md)：AF-R04–AF-R06 后端本地闭环设计
+- [`test-plans/LOCAL-MVP-BACKEND-BUNDLE.md`](test-plans/LOCAL-MVP-BACKEND-BUNDLE.md)：AF-R04–AF-R06 后端验证计划
+- [`design-notes/AF-R07-NEXTJS-CONSOLE.md`](design-notes/AF-R07-NEXTJS-CONSOLE.md)：Next.js Developer/Reviewer Console 设计
+- [`test-plans/AF-R07-NEXTJS-CONSOLE.md`](test-plans/AF-R07-NEXTJS-CONSOLE.md)：Console 单元、契约与浏览器验证计划
 - [`design-notes/AF-101.md`](design-notes/AF-101.md)：AF-101 应用骨架 Design Note（Approved）
 - [`design-notes/AF-102.md`](design-notes/AF-102.md)：AF-102 Docker Compose 基础设施 Design Note（Approved）
 - [`design-notes/CI-001.md`](design-notes/CI-001.md)：CI-001 基础 CI Design Note（Approved；非 canonical 治理插入，见 `20_DECISION_LOG.md`）
@@ -153,6 +159,8 @@ GitHub 仓库、治理写授权和当前验收所需的受保护 Environments �
 - [`reports/GATE1_EVIDENCE_REPORT.md`](reports/GATE1_EVIDENCE_REPORT.md)：Gate 1B、Trace、成本来源与限制证据。
 - [`reports/GATE4_FINAL_ACCEPTANCE.md`](reports/GATE4_FINAL_ACCEPTANCE.md)：Gate 1–4、评测、负载、k3s、Provider 与 Artifact 完整性台账（Candidate）。
 - [`reports/GATE4_DEMO_RUNBOOK.md`](reports/GATE4_DEMO_RUNBOOK.md)：无需强制录屏的可重复最终验收流程。
+- [`reports/LOCAL_MVP_RUNBOOK.md`](reports/LOCAL_MVP_RUNBOOK.md)：AF-R04–AF-R08 本地 Ollama、Temporal、LangGraph、Sandbox 与双 Console 完整闭环运行手册。
+- [`handoffs/2026-08-18-AF-R04-R08.md`](handoffs/2026-08-18-AF-R04-R08.md)：当前批次完成内容、测试证据、风险、Owner 输入和下一最小动作。
 
 ## 维护规则
 

@@ -11,7 +11,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from aegisflow_core.control_plane.domain.base import (
@@ -29,6 +29,11 @@ class Approval(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
         CheckConstraint(
             "decision IN ('pending', 'approved', 'rejected')",
             name="decision",
+        ),
+        CheckConstraint(
+            "(action_preview IS NULL AND action_digest IS NULL) OR "
+            "(action_preview IS NOT NULL AND action_digest ~ '^[0-9a-f]{64}$')",
+            name="action_pair",
         ),
         ForeignKeyConstraint(
             ["tenant_id", "run_id"],
@@ -64,3 +69,5 @@ class Approval(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
         DateTime(timezone=True), nullable=True
     )
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    action_preview: Mapped[dict[str, object] | None] = mapped_column(JSONB, nullable=True)
+    action_digest: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from hashlib import sha256
 import logging
 import re
 from typing import Any, Callable, Literal, Protocol
 from uuid import UUID, uuid5
+
+import psycopg
+from psycopg.rows import dict_row
+from psycopg.types.json import Jsonb
 
 from pydantic import (
     BaseModel,
@@ -267,6 +272,76 @@ class InMemoryTraceRecorder:
             for record in self._records
             if record.tenant_id == tenant_id
         )
+
+
+class PostgresTraceRecorder:
+    """Persist redacted trace measurements without storing prompt text."""
+
+    _SEQUENCE = {
+        "intake": 1,
+        "clarifier": 2,
+        "context": 3,
+        "planner": 4,
+        "executor": 6,
+        "reviewer": 7,
+    }
+
+    def __init__(self, database_url: str) -> None:
+        normalized = database_url.replace(
+            "postgresql+asyncpg://", "postgresql://", 1
+        )
+        if not normalized.startswith(("postgresql://", "postgres://")):
+            raise ValueError("trace database URL must be PostgreSQL")
+        self._database_url = normalized
+
+    def record(self, step: StepTraceRecord) -> None:
+        if step.tenant_id is None or step.step_id is None:
+            raise ValueError("PostgreSQL traces require tenant and step identity")
+        sequence = self._SEQUENCE[step.agent]
+        with psycopg.connect(self._database_url, row_factory=dict_row) as connection:
+            with connection.transaction():
+                stored_step = connection.execute(
+                    """
+                    INSERT INTO steps
+                        (id, tenant_id, run_id, name, sequence, status, completed_at)
+                    VALUES (%s, %s, %s, %s, %s, 'completed', now())
+                    ON CONFLICT (run_id, sequence) DO UPDATE SET
+                        status='completed', completed_at=COALESCE(
+                            steps.completed_at, EXCLUDED.completed_at
+                        )
+                    RETURNING id
+                    """,
+                    (
+                        step.step_id,
+                        step.tenant_id,
+                        step.run_id,
+                        step.agent,
+                        sequence,
+                    ),
+                ).fetchone()
+                assert stored_step is not None
+                connection.execute(
+                    """
+                    INSERT INTO run_traces
+                        (tenant_id, run_id, step_id, trace_id, event_id, agent,
+                         model, prompt_digest, token_usage, cost_usage, latency_ms)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (tenant_id, event_id) DO NOTHING
+                    """,
+                    (
+                        step.tenant_id,
+                        step.run_id,
+                        stored_step["id"],
+                        step.trace_id,
+                        step.event_id,
+                        step.agent,
+                        step.model,
+                        sha256(step.prompt.encode("utf-8")).hexdigest(),
+                        Jsonb(step.token_usage.model_dump(mode="json")),
+                        Jsonb(step.cost.model_dump(mode="json")),
+                        step.latency_ms,
+                    ),
+                )
 
 
 class _Observation(Protocol):

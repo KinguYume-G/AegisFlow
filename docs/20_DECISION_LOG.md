@@ -16,6 +16,8 @@
 | ADR-0010 | Mixed Evaluation Dataset |
 | ADR-0011 | No Workflow Builder |
 | ADR-0012 | OpsPilot Roadmap Only |
+| ADR-0013 | Post-MVP extensions reuse existing Control Plane boundaries |
+| ADR-0014 | Development-only local MVP execution profile |
 
 ## Repository Governance Decisions
 
@@ -53,6 +55,14 @@
 - Protected CI logs, JUnit results, security audit evidence, the limitations statement, and the reproducible runbook are the formal AF-412/AF-413 evidence set.
 - Human Review and Human Merge remain mandatory. This decision changes the evidence medium only and does not weaken any M4 control, test, or branch-protection requirement.
 
+### AF-R04–AF-R08 local full-stack batch (2026-08-17)
+
+- The Project Owner approved AF-R04–AF-R08 (#113–#117) as one dependency-closed branch/PR batch under the existing maximum-ten-Issue exception.
+- ADR-0014 authorizes a default-off `development`/`test` profile for loopback local Persona tokens, Ollama and GitHub dry-run only. Production configuration rejects these conveniences.
+- The batch assembles the existing FastAPI, Temporal, LangGraph, DeliveryPack, sandbox and policy boundaries and adds a Next.js Console; it does not add an Agent, application pack, state owner or microservice split.
+- A local dry-run Draft PR candidate is evidence of the business loop, not evidence of a real GitHub write or production certification.
+- Human Review and Human Merge remain mandatory; a future real GitHub canary requires a dedicated fixture, protected secrets and explicit approval.
+
 ## Open
 
-Python/Node 精确版本、OIDC provider、Policy representation、Object storage、Langfuse hosting、k3s environment 和 Model providers 必须通过 Issue/ADR 决定。
+Production OIDC provider, production deployment environment/region, object storage, Langfuse hosting, primary/fallback model providers, domain/TLS ownership, secret store, backup/retention objectives and production SLOs remain owner decisions. Any choice that changes an architecture boundary or persistent dependency requires an Issue and, when applicable, an ADR.

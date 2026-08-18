@@ -57,7 +57,7 @@ class PostgresRuntimeUnitOfWork:
             )
             .returning(Step.id)
         )
-        return (await self._session.execute(statement)).scalar_one()
+        return UUID(str((await self._session.execute(statement)).scalar_one()))
 
     async def record_audit(
         self,

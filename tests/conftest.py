@@ -46,6 +46,16 @@ def valid_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "MODEL_LOCAL_FALLBACK_NAME",
         "MODEL_LOCAL_FALLBACK_API_KEY_ENV",
         "MODEL_LOCAL_FALLBACK_BASE_URL",
+        "LOCAL_MVP_PROFILE_ENABLED",
+        "LOCAL_MVP_DEVELOPER_TOKEN",
+        "LOCAL_MVP_REVIEWER_TOKEN",
+        "LOCAL_MVP_TENANT_SLUG",
+        "LOCAL_MVP_WORKSPACE_ROOT",
+        "LOCAL_MVP_GITHUB_DRY_RUN",
+        "MODEL_OLLAMA_ENABLED",
+        "MODEL_OLLAMA_NAME",
+        "MODEL_OLLAMA_API_KEY_ENV",
+        "MODEL_OLLAMA_BASE_URL",
     ):
         monkeypatch.delenv(name, raising=False)
 

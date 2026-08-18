@@ -12,6 +12,11 @@ from aegisflow_core.control_plane.domain import (
     PromptVersion,
     RoleAssignment,
     Run,
+    RunArtifact,
+    RunEvaluation,
+    RunEvent,
+    RunRequest,
+    RunTrace,
     RepositoryChunk,
     RunPromptVersion,
     Step,
@@ -20,6 +25,7 @@ from aegisflow_core.control_plane.domain import (
     ToolDisablement,
     ToolRegistration,
     Workflow,
+    ClarificationRequest,
 )
 
 
@@ -34,6 +40,12 @@ MODELS = (
     RoleAssignment,
     ToolRegistration,
     ToolDisablement,
+    RunRequest,
+    ClarificationRequest,
+    RunEvent,
+    RunTrace,
+    RunArtifact,
+    RunEvaluation,
 )
 
 
@@ -63,6 +75,12 @@ def test_all_tables_declared() -> None:
         "role_assignments",
         "tool_registrations",
         "tool_disablements",
+        "run_requests",
+        "clarification_requests",
+        "run_events",
+        "run_traces",
+        "run_artifacts",
+        "run_evaluations",
     }
     assert {model.__tablename__ for model in MODELS} == set(Base.metadata.tables)
 
@@ -147,3 +165,6 @@ def test_tenant_scoped_foreign_keys_are_declared() -> None:
 
 def test_audit_events_are_structurally_append_only() -> None:
     assert "updated_at" not in AuditEvent.__table__.c
+    assert "updated_at" not in RunEvent.__table__.c
+    assert "updated_at" not in RunTrace.__table__.c
+    assert "updated_at" not in RunArtifact.__table__.c

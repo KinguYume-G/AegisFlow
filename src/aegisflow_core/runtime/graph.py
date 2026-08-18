@@ -6,21 +6,21 @@ from collections.abc import Mapping
 import json
 from time import perf_counter
 from typing import Any, Literal, cast
-from uuid import UUID
+from uuid import UUID, uuid5
 
 from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.types import Command, interrupt
 
+from aegisflow_core.models.contracts import ModelResponse
 from aegisflow_core.packs.delivery.clarifier.agent import (
     ClarifierAgent,
     IncompleteClarificationAnswersError,
 )
-from aegisflow_core.packs.delivery.clarifier.hitl import (
-    InMemoryClarificationGateway,
-)
+from aegisflow_core.packs.delivery.clarifier.hitl import ClarificationGateway
 from aegisflow_core.packs.delivery.clarifier.ports import ClarificationReasoner
 from aegisflow_core.packs.delivery.context.agent import ContextAgent
 from aegisflow_core.packs.delivery.context.ports import ContextRetriever
@@ -40,6 +40,13 @@ from aegisflow_core.runtime.tracing import (
 
 
 NodeName = Literal["intake", "clarifier", "context", "planner"]
+_STEP_NAMESPACE = UUID("2dd2ba1e-11e1-4c03-9ea1-d20c0aac76b5")
+_STEP_SEQUENCE: dict[NodeName, int] = {
+    "intake": 1,
+    "clarifier": 2,
+    "context": 3,
+    "planner": 4,
+}
 
 
 class Gate1ANodeError(RuntimeError):
@@ -66,10 +73,59 @@ def build_gate1a_graph(
     clarification_reasoner: ClarificationReasoner,
     context_retriever: ContextRetriever,
     plan_reasoner: PlanReasoner,
-    hitl_gateway: InMemoryClarificationGateway,
+    hitl_gateway: ClarificationGateway,
     trace_recorder: TraceRecorder,
 ) -> CompiledStateGraph[AgentState, None, AgentState, AgentState]:
     """Assemble the approved Gate 1A graph without implicit fake dependencies."""
+    return _build_gate1a_graph(
+        clock=clock,
+        id_generator=id_generator,
+        clarification_reasoner=clarification_reasoner,
+        context_retriever=context_retriever,
+        plan_reasoner=plan_reasoner,
+        hitl_gateway=hitl_gateway,
+        trace_recorder=trace_recorder,
+        checkpointer=InMemorySaver(),
+        name="aegisflow-gate1a",
+    )
+
+
+def build_gate1a_subgraph(
+    *,
+    clock: Clock,
+    id_generator: IdGenerator,
+    clarification_reasoner: ClarificationReasoner,
+    context_retriever: ContextRetriever,
+    plan_reasoner: PlanReasoner,
+    hitl_gateway: ClarificationGateway,
+    trace_recorder: TraceRecorder,
+) -> CompiledStateGraph[AgentState, None, AgentState, AgentState]:
+    """Build Gate 1A as a parent-checkpointed subgraph for Gate 1B."""
+    return _build_gate1a_graph(
+        clock=clock,
+        id_generator=id_generator,
+        clarification_reasoner=clarification_reasoner,
+        context_retriever=context_retriever,
+        plan_reasoner=plan_reasoner,
+        hitl_gateway=hitl_gateway,
+        trace_recorder=trace_recorder,
+        checkpointer=None,
+        name="aegisflow-gate1a-subgraph",
+    )
+
+
+def _build_gate1a_graph(
+    *,
+    clock: Clock,
+    id_generator: IdGenerator,
+    clarification_reasoner: ClarificationReasoner,
+    context_retriever: ContextRetriever,
+    plan_reasoner: PlanReasoner,
+    hitl_gateway: ClarificationGateway,
+    trace_recorder: TraceRecorder,
+    checkpointer: BaseCheckpointSaver[Any] | None,
+    name: str,
+) -> CompiledStateGraph[AgentState, None, AgentState, AgentState]:
     intake_agent = IntakeAgent(clock)
     clarifier_agent = ClarifierAgent(clarification_reasoner)
     context_agent = ContextAgent(context_retriever)
@@ -112,6 +168,7 @@ def build_gate1a_graph(
                     started=started,
                     id_generator=id_generator,
                     trace_recorder=trace_recorder,
+                    model_response=_model_response(clarification_reasoner),
                 )
             return {"clarification": clarification}
         except Exception as exc:
@@ -147,11 +204,17 @@ def build_gate1a_graph(
         )
 
         try:
+            response_answers, answered_by = _clarification_resume(answers)
             mapped_answers = _validate_answers_before_commit(
                 clarification,
-                answers,
+                response_answers,
             )
-            hitl_gateway.submit_response(request_id, run_id, mapped_answers)
+            hitl_gateway.submit_response(
+                request_id,
+                run_id,
+                mapped_answers,
+                answered_by=answered_by,
+            )
             resolved = clarifier_agent.resolve(clarification, mapped_answers)
             _record_completion(
                 node="clarifier",
@@ -164,6 +227,7 @@ def build_gate1a_graph(
                 started=started,
                 id_generator=id_generator,
                 trace_recorder=trace_recorder,
+                model_response=_model_response(clarification_reasoner),
             )
             return {"clarification": resolved}
         except Exception as exc:
@@ -202,6 +266,7 @@ def build_gate1a_graph(
                 started=started,
                 id_generator=id_generator,
                 trace_recorder=trace_recorder,
+                model_response=_model_response(plan_reasoner),
             )
             return {"plan": plan}
         except Exception as exc:
@@ -226,7 +291,7 @@ def build_gate1a_graph(
     builder.add_edge("clarification_wait", "context")
     builder.add_edge("context", "planner")
     builder.add_edge("planner", END)
-    return builder.compile(checkpointer=InMemorySaver(), name="aegisflow-gate1a")
+    return builder.compile(checkpointer=checkpointer, name=name)
 
 
 def resume_gate1a(
@@ -315,6 +380,13 @@ def _validate_answers_before_commit(
     return cast(dict[str, str], copied)
 
 
+def _clarification_resume(value: Any) -> tuple[Any, str]:
+    if isinstance(value, Mapping) and "answers" in value:
+        actor = str(value.get("actor_reference") or "human")
+        return value.get("answers"), actor
+    return value, "human"
+
+
 def _record_completion(
     *,
     node: NodeName,
@@ -323,28 +395,59 @@ def _record_completion(
     started: float,
     id_generator: IdGenerator,
     trace_recorder: TraceRecorder,
+    model_response: ModelResponse | None = None,
 ) -> None:
     run_id = _run_id(state)
     trace_id = state.get("trace_id")
     if not isinstance(trace_id, UUID):
         raise TypeError("trace_id must be a UUID")
-    step_id = id_generator.new_id()
+    del id_generator
+    tenant_id = state.get("tenant_id")
+    workflow_id = state.get("workflow_id")
+    workflow_version = state.get("workflow_version")
+    if tenant_id is not None and not isinstance(tenant_id, UUID):
+        raise TypeError("tenant_id must be a UUID")
+    if workflow_id is not None and not isinstance(workflow_id, UUID):
+        raise TypeError("workflow_id must be a UUID")
+    if workflow_version is not None and not isinstance(workflow_version, int):
+        raise TypeError("workflow_version must be an integer")
+    step_id = uuid5(
+        _STEP_NAMESPACE,
+        f"{tenant_id}:{run_id}:{_STEP_SEQUENCE[node]}:{node}",
+    )
     trace_recorder.record(
         build_step_trace_record(
-            tenant_id=None,
-            workflow_id=None,
-            workflow_version=None,
+            tenant_id=tenant_id,
+            workflow_id=workflow_id,
+            workflow_version=workflow_version,
             run_id=run_id,
             step_id=step_id,
             trace_id=trace_id,
             agent=node,
             raw_prompt=raw_prompt,
-            model=f"deterministic-{node}-v1",
-            token_usage=unavailable_token_usage(),
-            cost=unavailable_cost_usage(),
+            model=(
+                model_response.resolved_model
+                if model_response is not None
+                else f"deterministic-{node}-v1"
+            ),
+            token_usage=(
+                model_response.token_usage
+                if model_response is not None
+                else unavailable_token_usage()
+            ),
+            cost=(
+                model_response.cost
+                if model_response is not None
+                else unavailable_cost_usage()
+            ),
             latency_ms=max(0.0, (perf_counter() - started) * 1000),
         )
     )
+
+
+def _model_response(reasoner: object) -> ModelResponse | None:
+    value = getattr(reasoner, "last_model_response", None)
+    return value if isinstance(value, ModelResponse) else None
 
 
 def _node_error(node: NodeName, cause: Exception) -> Gate1ANodeError:

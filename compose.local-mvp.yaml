@@ -1,0 +1,100 @@
+name: aegisflow-mvp
+
+x-local-mvp-environment: &local-mvp-environment
+  APP_ENV: development
+  APP_BASE_URL: http://127.0.0.1:${CORE_HOST_PORT:-8000}
+  LOCAL_MVP_PROFILE_ENABLED: "true"
+  LOCAL_MVP_DEVELOPER_TOKEN: ${LOCAL_MVP_DEVELOPER_TOKEN:-local-mvp-developer-token-change-me}
+  LOCAL_MVP_REVIEWER_TOKEN: ${LOCAL_MVP_REVIEWER_TOKEN:-local-mvp-reviewer-token-change-me}
+  LOCAL_MVP_TENANT_SLUG: ${LOCAL_MVP_TENANT_SLUG:-local-mvp}
+  LOCAL_MVP_WORKSPACE_ROOT: /workspaces
+  LOCAL_MVP_GITHUB_DRY_RUN: "true"
+  MODEL_OLLAMA_ENABLED: "true"
+  MODEL_OLLAMA_NAME: ${OLLAMA_MODEL:-qwen3:8b}
+  MODEL_OLLAMA_API_KEY_ENV: OLLAMA_API_KEY
+  MODEL_OLLAMA_BASE_URL: http://host.docker.internal:11434
+  OLLAMA_API_KEY: ${OLLAMA_API_KEY:-ollama-local-placeholder}
+  LITELLM_LOCAL_MODEL_COST_MAP: "true"
+  SANDBOX_TEST_IMAGE: python:3.12-slim@sha256:57cd7c3a7a273101a6485ba99423ee568157882804b1124b4dd04266317710de
+  TEMPORAL_ADDRESS: temporal:7233
+  TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE:-default}
+  TEMPORAL_TASK_QUEUE: ${TEMPORAL_TASK_QUEUE:-aegisflow-delivery}
+  LANGGRAPH_STRICT_MSGPACK: "true"
+
+services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  core:
+    environment:
+      <<: *local-mvp-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+
+  temporal-worker:
+    environment:
+      <<: *local-mvp-environment
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      LANGGRAPH_DATABASE_URL: postgresql://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      SANDBOX_BROKER_URL: http://sandbox-broker:8081
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - sandbox_workspaces:/workspaces
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      temporal:
+        condition: service_healthy
+      sandbox-broker:
+        condition: service_healthy
+
+  console:
+    image: aegisflow-console:local
+    build:
+      context: ./web/console
+      dockerfile: Dockerfile
+    environment:
+      AEGISFLOW_CORE_URL: http://core:8000
+      AEGISFLOW_CONSOLE_PERSONA: "developer"
+      AEGISFLOW_LOCAL_TOKEN: ${LOCAL_MVP_DEVELOPER_TOKEN:-local-mvp-developer-token-change-me}
+      AEGISFLOW_DEVELOPER_CONSOLE_URL: http://localhost:${CONSOLE_HOST_PORT:-3000}
+      AEGISFLOW_REVIEWER_CONSOLE_URL: http://localhost:${REVIEWER_CONSOLE_HOST_PORT:-3001}
+    ports:
+      - "127.0.0.1:${CONSOLE_HOST_PORT:-3000}:3000"
+    depends_on:
+      core:
+        condition: service_healthy
+    restart: unless-stopped
+
+  reviewer-console:
+    image: aegisflow-console:local
+    build:
+      context: ./web/console
+      dockerfile: Dockerfile
+    environment:
+      AEGISFLOW_CORE_URL: http://core:8000
+      AEGISFLOW_CONSOLE_PERSONA: "reviewer"
+      AEGISFLOW_LOCAL_TOKEN: ${LOCAL_MVP_REVIEWER_TOKEN:-local-mvp-reviewer-token-change-me}
+      AEGISFLOW_DEVELOPER_CONSOLE_URL: http://localhost:${CONSOLE_HOST_PORT:-3000}
+      AEGISFLOW_REVIEWER_CONSOLE_URL: http://localhost:${REVIEWER_CONSOLE_HOST_PORT:-3001}
+    ports:
+      - "127.0.0.1:${REVIEWER_CONSOLE_HOST_PORT:-3001}:3000"
+    depends_on:
+      core:
+        condition: service_healthy
+    restart: unless-stopped

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from threading import RLock
 from types import MappingProxyType
-from typing import cast
+from typing import Protocol, cast
 from uuid import UUID
 
 from aegisflow_core.packs.delivery.contracts.clarification import ClarificationQuestion
@@ -56,6 +56,24 @@ class ClarificationRequestIdCollisionError(RuntimeError):
     def __init__(self, request_id: UUID) -> None:
         self.request_id = request_id
         super().__init__(f"clarification request identifier collision: {request_id}")
+
+
+class ClarificationGateway(Protocol):
+    def request_clarification(
+        self,
+        run_id: UUID,
+        step_key: str,
+        questions: Sequence[ClarificationQuestion],
+    ) -> UUID: ...
+
+    def submit_response(
+        self,
+        request_id: UUID,
+        run_id: UUID,
+        answers: Mapping[str, str],
+        *,
+        answered_by: str = "human",
+    ) -> "ClarificationOutcome": ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,8 +151,11 @@ class InMemoryClarificationGateway:
         request_id: UUID,
         run_id: UUID,
         answers: Mapping[str, str],
+        *,
+        answered_by: str = "human",
     ) -> ClarificationOutcome:
         """Atomically answer one pending request after enforcing run isolation."""
+        del answered_by
         _validate_run_id(request_id, field="request_id")
         _validate_run_id(run_id)
         with self._lock:

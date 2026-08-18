@@ -16,7 +16,10 @@ from aegisflow_core.gateway.sandbox.runner import (
 from aegisflow_core.packs.delivery.clarifier.hitl import InMemoryClarificationGateway
 from aegisflow_core.packs.delivery.context.fakes import LocalFixtureContextRetriever
 from aegisflow_core.packs.delivery.contracts.context_package import CitedSnippet, ContextPackage
-from aegisflow_core.packs.delivery.contracts.clarification import Clarification
+from aegisflow_core.packs.delivery.contracts.clarification import (
+    Clarification,
+    ClarificationQuestion,
+)
 from aegisflow_core.packs.delivery.contracts.determinism import FixedClock, SequentialIdGenerator
 from aegisflow_core.packs.delivery.planner.fakes import DeterministicPlanReasoner
 from aegisflow_core.packs.delivery.reviewer.fakes import (
@@ -38,6 +41,21 @@ IMAGE = "python:3.12-slim@sha256:" + "a" * 64
 class SufficientReasoner:
     def identify_gaps(self, request: object) -> Clarification:
         return Clarification(questions=[], is_sufficient=True, reasoner_id="fixed", answers={})
+
+
+class InsufficientReasoner:
+    def identify_gaps(self, request: object) -> Clarification:
+        del request
+        return Clarification(
+            questions=[
+                ClarificationQuestion(
+                    field="acceptance_scope",
+                    question="Which behavior defines acceptance?",
+                )
+            ],
+            is_sufficient=False,
+            reasoner_id="fixed",
+        )
 
 
 class FixedPatchReasoner:
@@ -67,8 +85,9 @@ class FakeUow:
 
 
 class Authorizer:
-    async def verify(self, authorization: object, digest: str) -> None:
+    async def verify(self, authorization: object, digest: str, action_digest: str) -> None:
         assert getattr(authorization, "content_digest") == digest
+        assert getattr(authorization, "action_digest") == action_digest
 
 
 class Guard:
@@ -117,6 +136,8 @@ def _build(
     *,
     allow_repository: str = "owner/fixture",
     context_retriever: object | None = None,
+    clarification_reasoner: object | None = None,
+    github_dry_run: bool = False,
 ) -> tuple[Any, Writer, list[tuple[str, Any]]]:
     workspace = tmp_path / "workspace"
     workspace.mkdir()
@@ -130,7 +151,7 @@ def _build(
     graph = build_gate1b_graph(
         clock=FixedClock(datetime(2026, 8, 3, tzinfo=timezone.utc)),
         id_generator=SequentialIdGenerator("gate1b"),
-        clarification_reasoner=SufficientReasoner(),
+        clarification_reasoner=clarification_reasoner or SufficientReasoner(),
         context_retriever=context_retriever
         or LocalFixtureContextRetriever(Path(__file__).parents[1] / "fixtures" / "context"),
         plan_reasoner=DeterministicPlanReasoner(),
@@ -154,6 +175,7 @@ def _build(
         idempotency_guard=Guard(),
         trace_recorder=InMemoryTraceRecorder(),
         unit_of_work_factory=lambda: FakeUow(facts),
+        github_dry_run=github_dry_run,
     )
     graph.workspace = workspace
     return graph, writer, facts
@@ -191,6 +213,58 @@ async def test_gate1b_interrupts_then_human_approval_creates_draft_pr(tmp_path: 
     assert completed["draft_pr_result"].pull_request_number == 21
     assert writer.calls == 2
     assert any(kind == "audit" and value["action"] == "create" for kind, value in facts)
+
+
+@pytest.mark.asyncio
+async def test_gate1b_resumes_clarification_then_approval(tmp_path: Path) -> None:
+    graph, writer, _ = _build(
+        tmp_path, clarification_reasoner=InsufficientReasoner()
+    )
+
+    clarification_pause = await graph.ainvoke(
+        _state(graph.workspace), config=_config()
+    )
+    assert clarification_pause["__interrupt__"][0].value["step_key"] == "clarifier"
+
+    approval_pause = await resume_gate1b(
+        graph, RUN_ID, {"acceptance_scope": "The existing test suite passes."}
+    )
+    assert approval_pause["__interrupt__"][0].value["action_preview"]["effect"] == (
+        "create_github_draft_pr"
+    )
+    assert writer.calls == 0
+
+    completed = await resume_gate1b(
+        graph, RUN_ID, {"decision": "approved", "decided_by": "project-owner"}
+    )
+    assert completed["run_status"] == "completed"
+    assert writer.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_gate1b_local_dry_run_never_calls_github(tmp_path: Path) -> None:
+    graph, writer, facts = _build(tmp_path, github_dry_run=True)
+    paused = await graph.ainvoke(_state(graph.workspace), config=_config())
+    preview = paused["__interrupt__"][0].value["action_preview"]
+    assert preview["effect"] == "create_draft_pr_candidate"
+    assert preview["effect_mode"] == "dry_run"
+    assert preview["risk"] in {"L1", "L2", "L3"}
+    assert preview["repository"] == "owner/fixture"
+    assert preview["changed_files"] == ["app.py"]
+
+    completed = await resume_gate1b(
+        graph, RUN_ID, {"decision": "approved", "decided_by": "project-owner"}
+    )
+
+    result = completed["draft_pr_result"]
+    assert result.effect_mode == "dry_run"
+    assert result.pull_request_url is None
+    assert result.candidate_reference == f"aegisflow://draft-pr-candidates/{RUN_ID}"
+    assert writer.calls == 0
+    assert any(
+        kind == "audit" and value["action"] == "create_candidate"
+        for kind, value in facts
+    )
 
 
 @pytest.mark.asyncio

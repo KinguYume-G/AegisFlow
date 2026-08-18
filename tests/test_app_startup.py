@@ -9,6 +9,7 @@ from fastapi import FastAPI
 
 from aegisflow_core.app import create_app
 from aegisflow_core.settings import ConfigurationError
+from aegisflow_core.control_plane.run_service import PostgresRunService
 
 
 def test_create_app_succeeds_with_valid_env(valid_env: None) -> None:
@@ -20,6 +21,26 @@ def test_create_app_succeeds_with_valid_env(valid_env: None) -> None:
     assert app.state.oidc_verifier is None
     assert app.state.metrics is not None
     assert app.state.tracer_provider is not None
+    assert app.state.local_identity_verifier is None
+    assert isinstance(app.state.run_service, PostgresRunService)
+
+
+def test_create_app_composes_explicit_local_mvp_identity_and_service(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name, value in {
+        "APP_ENV": "development",
+        "LOCAL_MVP_PROFILE_ENABLED": "true",
+        "LOCAL_MVP_DEVELOPER_TOKEN": "local-developer-token-123",
+        "LOCAL_MVP_REVIEWER_TOKEN": "local-reviewer-token-456",
+        "LOCAL_MVP_GITHUB_DRY_RUN": "true",
+    }.items():
+        monkeypatch.setenv(name, value)
+
+    app = create_app()
+
+    assert app.state.local_identity_verifier is not None
+    assert isinstance(app.state.run_service, PostgresRunService)
 
 
 def test_create_app_registers_github_token_provider(

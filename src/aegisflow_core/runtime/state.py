@@ -32,7 +32,10 @@ class AgentState(TypedDict, total=False):
     context: ContextPackage | None
     plan: Plan | None
     tenant_id: UUID
+    workflow_id: UUID
+    workflow_version: int
     repository_target: RepositoryTarget
+    base_ref: str
     base_sha: str
     workspace_path: str
     test_profile: TestProfile
@@ -41,6 +44,8 @@ class AgentState(TypedDict, total=False):
     review_decision: ReviewDecision | None
     approval_reference: UUID | None
     review_step_id: UUID | None
+    approval_step_id: UUID | None
     draft_pr_result: DraftPullRequestResult | None
     rework_count: int
     run_status: str
+    failure_reason: str

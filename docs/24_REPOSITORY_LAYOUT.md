@@ -4,6 +4,8 @@
 
 > M3 implementation update: AF-301–AF-311 add durable Temporal/Signal/checkpoint ownership, Saga compensation, real worker-loss fault injection, an isolated LiteLLM adapter, and tenant-scoped PostgreSQL circuit state. AF-312 adds the reviewed Gate 2 evidence package; Gate acceptance remains a Human Review decision.
 
+> Post-MVP local product update: AF-R04–AF-R08 add a default-off loopback identity/Ollama/dry-run profile, tenant-scoped Run lifecycle API, production Delivery graph adapter, Temporal projection, and a Next.js developer/reviewer Console. The modular-monolith boundary is unchanged.
+
 本文件是仓库目录结构与每个文件分类的权威清单，随文档架构整理一并建立。新增、移动或归档文件时，需同步更新本表与 `docs/index.md`、根目录 `MANIFEST.md`。
 
 ## 设计原则
@@ -24,6 +26,7 @@
 | SECURITY.md | 安全 | 漏洞上报渠道、Secret 处理规则 |
 | MANIFEST.md | 治理 | 仓库文件清单、Source-of-Truth 策略、应用源码与测试文件计数 |
 | .env.example | 配置 | 环境变量占位符清单，禁止真实密钥 |
+| .env.local-mvp.example | 配置 | 可复制的本地 MVP 非敏感模板；真实本地值仍保持 ignored |
 | .gitignore | 配置 | Git 忽略规则 |
 | .dockerignore | 安全/配置 | 排除 Secret、Git 元数据、开发缓存、文档与测试源码，缩小镜像构建上下文 |
 | .python-version | 配置 | AF-101 批准的 Python 3.12 工具链选择 |
@@ -31,6 +34,7 @@
 | uv.lock | 配置 | uv 解析的可复现 Python 依赖锁文件 |
 | Dockerfile | 配置/安全 | AF-102 多阶段 Core 镜像构建，锁定镜像摘要并以非 root 用户运行 |
 | compose.yaml | 配置 | AF-102 本地 Core/PostgreSQL/Redis 编排、回环端口与健康检查 |
+| compose.local-mvp.yaml | 配置 | AF-R04–AF-R08 migration/Core/Worker/Sandbox/双 Console 本地完整闭环覆盖层 |
 | alembic.ini | 配置 | AF-103 Alembic CLI 根入口，指向 `control_plane/migrations/` |
 
 ## .github/（GitHub 强制要求在仓库根目录才生效）
@@ -86,6 +90,7 @@
 | 23_PHASE0_ACCEPTANCE.md | 治理 | Phase 0 验收清单与外部阻塞项 |
 | 24_REPOSITORY_LAYOUT.md | 治理 | 本文件：仓库目录与文件分类清单 |
 | 25_PHASE0_EXIT_REVIEW.md | 治理 | Phase 0 独立验收、bootstrap exception 风险与人工退出依据 |
+| 26_PRODUCTION_READINESS_PLAN.md | 治理/生产化 | 真实现状、目录和清理边界、Owner 准备清单、生产路线与 DoD |
 
 ## docs/design-notes/（Design Note，非文档 Issue 开工前必需）
 
@@ -367,6 +372,7 @@
 | 0011-no-workflow-builder.md | 架构 | 否决可视化 Workflow Builder |
 | 0012-opspilot-roadmap-only.md | 治理 | OpsPilot 仅 Post-MVP Roadmap |
 | 0013-post-mvp-extension-boundaries.md | 架构/治理 | OpsPilot、可选 vLLM 与 Actions Read-only MCP 的现有边界复用决策 |
+| 0014-local-mvp-execution-profile.md | 架构/安全 | default-off、本地回环、Ollama 与 GitHub dry-run 执行边界 |
 
 ## docs/templates/
 
@@ -377,6 +383,35 @@
 | HANDOFF_TEMPLATE.md | AI流程 | AI 会话交接模板 |
 | ISSUE_DESIGN_TEMPLATE.md | 治理 | Issue 设计评审模板 |
 | TEST_PLAN_TEMPLATE.md | 质量 | 测试计划模板 |
+
+## Post-MVP local full-stack additions（AF-R04–AF-R08）
+
+| 路径 | 分类 | 用途 |
+|---|---|---|
+| docs/design-notes/LOCAL-MVP-BACKEND-BUNDLE.md | AI流程 | AF-R04–AF-R06 后端业务闭环设计 |
+| docs/test-plans/LOCAL-MVP-BACKEND-BUNDLE.md | 质量 | AF-R04–AF-R06 单元、数据库、Temporal、Compose 与 E2E 计划 |
+| docs/design-notes/AF-R07-NEXTJS-CONSOLE.md | AI流程/前端 | Console BFF、Persona 分离、审批与状态页面设计 |
+| docs/test-plans/AF-R07-NEXTJS-CONSOLE.md | 质量/前端 | Console 契约、组件、构建与浏览器验证计划 |
+| docs/reports/LOCAL_MVP_RUNBOOK.md | 质量/运行手册 | 本地完整闭环、自动化验证、失败解释和安全停止步骤 |
+| docs/handoffs/2026-08-18-AF-R04-R08.md | AI流程/交接 | 当前批次变更、证据、风险、阻塞与下一最小动作 |
+| src/aegisflow_core/control_plane/run_service.py | 代码/控制平面 | PostgreSQL tenant-scoped Run application service 与 HITL Signal 接口 |
+| src/aegisflow_core/control_plane/run_projection.py | 代码/数据 | Agent 过程、artifact、trace、evaluation 与 terminal state 投影 |
+| src/aegisflow_core/control_plane/runs.py | 代码/契约 | Run API 请求、响应、会话和校验契约 |
+| src/aegisflow_core/control_plane/clarifications.py | 代码/控制平面 | Clarification 持久事实与恢复支持 |
+| src/aegisflow_core/control_plane/identity/local.py | 代码/安全 | 仅开发/测试可启用的常量时间本地 Persona 验证 |
+| src/aegisflow_core/control_plane/domain/run_lifecycle.py | 代码/数据 | RunRequest、Clarification、Event、Trace、Artifact 与 Evaluation 模型 |
+| src/aegisflow_core/control_plane/migrations/versions/0010_add_run_lifecycle_read_model.py | 数据/迁移 | Run 生命周期读模型迁移与约束 |
+| src/aegisflow_core/runtime/temporal/graph_adapter.py | 代码/运行时 | 六 Agent、Policy、Sandbox、Reviewer、Approval 与 Draft PR graph 装配 |
+| src/aegisflow_core/runtime/temporal/run_gateway.py | 代码/运行时 | Control Plane 到 Temporal start/signal gateway |
+| src/aegisflow_core/packs/delivery/model_reasoners.py | 代码/模型 | 结构化 Intake/Clarifier/Planner/Reviewer 模型推理适配 |
+| src/aegisflow_core/run_router.py | 代码/API | tenant-scoped Run/Clarification/Approval HTTP endpoints |
+| src/aegisflow_core/request_identity.py | 代码/安全 | OIDC 与本地 Persona 的 fail-closed HTTP 身份解析 |
+| web/console/ | 代码/前端 | Next.js App Router 管理界面、server-only BFF、Zod 契约和 Playwright 测试 |
+| web/console/src/components/create-run-form.test.tsx | 质量/前端 | HTML UnicodeSets pattern、仓库输入与浏览器兼容性回归测试 |
+| tests/control_plane/test_run_service.py | 质量/数据 | PostgreSQL Run、跨租户、HITL、self-approval 与幂等测试 |
+| tests/control_plane/test_run_api.py | 质量/API | HTTP 契约、身份与安全错误映射测试 |
+| tests/runtime/temporal/test_graph_adapter.py | 质量/Agent | production graph adapter 的节点、恢复与失败边界测试 |
+| tests/test_local_mvp_console_compose.py | 质量/部署 | Compose 本地闭环配置与安全边界测试 |
 
 ## project/（GitHub 导入用机器可读数据）
 

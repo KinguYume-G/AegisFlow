@@ -37,5 +37,11 @@ def test_alembic_metadata_is_complete() -> None:
         "role_assignments",
         "tool_registrations",
         "tool_disablements",
+        "run_requests",
+        "clarification_requests",
+        "run_events",
+        "run_traces",
+        "run_artifacts",
+        "run_evaluations",
     }
     assert all(table.schema is None for table in Base.metadata.tables.values())

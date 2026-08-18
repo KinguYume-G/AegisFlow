@@ -2,6 +2,8 @@
 
 > Implementation status (non-normative): AF-203 materializes the existing `runtime/context` boundary with tenant-isolated pgvector ingestion and retrieval. This does not change the frozen ownership model below.
 
+> Local full-stack status (non-normative, 2026-08-18): AF-R04–AF-R08 assemble the existing boundaries into a runnable loopback-only Ollama + FastAPI + Temporal + LangGraph + Sandbox + Next.js workflow. GitHub remains dry-run by default; production OIDC, live provider canary and production deployment certification remain outside this evidence.
+
 ## 架构目标
 
 采用模块化单体，以最小复杂度证明可靠执行、状态恢复、幂等、工具治理、审批、评测、可观测性、成本控制和多租户隔离。
@@ -205,3 +207,23 @@ GitHub 写操作还写入 AegisFlow Marker，同时检查本地 Ledger 和远端
 ## Deployment Evolution
 
 Development 使用 Docker Compose；Demo 使用 k3s + Helm。微服务拆分、新消息队列、新 Agent、新应用包、新持久化系统和状态所有权变化必须 ADR。
+
+### Local MVP assembly
+
+`compose.yaml` remains the base infrastructure definition. `compose.local-mvp.yaml` is a development-only overlay that adds a migration job, the assembled Temporal Worker configuration, and two instances of `web/console` for separate Developer and Reviewer personas.
+
+```text
+Browser
+  → Next.js Route Handler (server-only local credential)
+  → FastAPI Run API (identity + tenant + RBAC)
+  → PostgreSQL Run fact + Temporal start/signal
+  → LangGraph six-Agent computation + PostgresSaver
+  → Policy → Sandbox/tool evidence → Reviewer → Human Approval
+  → dry-run Draft PR candidate → evaluation/trace/audit projection
+```
+
+The local Persona verifier is not a production authentication option. It is default-off, restricted to development/test, and rejected in production. The Console still treats every Route Handler as a public HTTP surface: inputs are schema validated, Core remains the authorization owner, and internal errors are mapped to bounded codes.
+
+### Production deployment gap
+
+The current Helm demo chart proves install/upgrade/rollback foundations but does not yet package the new Console or Sandbox Broker as production workloads. Production work must be Issue-scoped and add OIDC sessions, external secret references, controlled migrations, ingress/TLS, egress policy, state-service backup/restore, workload security, capacity controls and operational evidence. See [`26_PRODUCTION_READINESS_PLAN.md`](26_PRODUCTION_READINESS_PLAN.md).

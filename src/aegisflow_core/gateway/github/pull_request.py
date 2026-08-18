@@ -31,6 +31,9 @@ from aegisflow_core.packs.delivery.contracts.idempotency import (
     InProgress,
     Reuse,
 )
+from aegisflow_core.packs.delivery.contracts.action_approval import (
+    digest_action_preview,
+)
 
 
 class FileChange(BaseModel):
@@ -66,8 +69,12 @@ class WriteAuthorization(BaseModel):
     run_id: UUID
     step_id: UUID
     repository_target: RepositoryTarget
+    base_ref: str = Field(min_length=1, max_length=255)
     base_sha: str = Field(pattern=r"^[0-9a-f]{40}$")
     content_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    action_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    effect_mode: Literal["github", "dry_run"]
+    risk: Literal["L1", "L2", "L3"]
 
 
 class DraftPullRequestResult(BaseModel):
@@ -76,11 +83,28 @@ class DraftPullRequestResult(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal[1] = 1
-    pull_request_url: str
-    pull_request_number: int = Field(gt=0)
+    effect_mode: Literal["github", "dry_run"] = "github"
+    pull_request_url: str | None
+    pull_request_number: int | None = Field(default=None, gt=0)
+    candidate_reference: str | None = None
     branch_name: str
     commit_sha: str | None = None
     reused_existing: bool
+
+    @model_validator(mode="after")
+    def validate_effect_result(self) -> DraftPullRequestResult:
+        if self.effect_mode == "github":
+            if self.pull_request_url is None or self.pull_request_number is None:
+                raise ValueError("GitHub results require a pull request URL and number")
+            if self.candidate_reference is not None:
+                raise ValueError("GitHub results cannot contain a dry-run candidate reference")
+        elif (
+            self.pull_request_url is not None
+            or self.pull_request_number is not None
+            or self.candidate_reference is None
+        ):
+            raise ValueError("dry-run results require only a candidate reference")
+        return self
 
 
 class MissingApprovalError(RuntimeError):
@@ -99,7 +123,10 @@ class IdempotencyFinalFailureError(RuntimeError):
 
 class ApprovalAuthorizer(Protocol):
     async def verify(
-        self, authorization: WriteAuthorization, actual_content_digest: str
+        self,
+        authorization: WriteAuthorization,
+        actual_content_digest: str,
+        actual_action_digest: str,
     ) -> None: ...
 
 
@@ -165,6 +192,55 @@ def digest_file_changes(changes: Sequence[FileChange]) -> str:
     ).hexdigest()
 
 
+def draft_pr_action_preview(
+    *,
+    effect_mode: Literal["github", "dry_run"],
+    target: RepositoryTarget,
+    base_ref: str,
+    base_sha: str,
+    branch_name: str,
+    changes: Sequence[FileChange],
+    risk: Literal["L1", "L2", "L3"],
+) -> dict[str, object]:
+    return {
+        "effect": (
+            "create_draft_pr_candidate"
+            if effect_mode == "dry_run"
+            else "create_github_draft_pr"
+        ),
+        "effect_mode": effect_mode,
+        "repository": target.full_name,
+        "base_ref": base_ref,
+        "base_sha": base_sha,
+        "branch_name": branch_name,
+        "changed_files": [change.path for change in changes],
+        "content_digest": digest_file_changes(changes),
+        "risk": risk,
+    }
+
+
+def _verify_exact_action(
+    authorization: WriteAuthorization,
+    changes: Sequence[FileChange],
+    *,
+    required_effect_mode: Literal["github", "dry_run"],
+    base_ref: str,
+) -> tuple[str, str]:
+    if authorization.effect_mode != required_effect_mode or authorization.base_ref != base_ref:
+        raise MissingApprovalError("write authorization effect or base ref mismatch")
+    actual_content_digest = digest_file_changes(changes)
+    preview = draft_pr_action_preview(
+        effect_mode=required_effect_mode,
+        target=authorization.repository_target,
+        base_ref=base_ref,
+        base_sha=authorization.base_sha,
+        branch_name=f"aegisflow/run-{authorization.run_id}",
+        changes=changes,
+        risk=authorization.risk,
+    )
+    return actual_content_digest, digest_action_preview(preview)
+
+
 def marker_for(command: IdempotentCommand) -> str:
     return (
         "<!-- aegisflow:marker "
@@ -180,14 +256,22 @@ async def create_draft_pull_request(
     authorization: WriteAuthorization,
     approval_authorizer: ApprovalAuthorizer,
     idempotency_guard: IdempotencyGuard,
-    base_ref: str = "main",
+    base_ref: str | None = None,
 ) -> DraftPullRequestResult:
     """Create exactly one draft PR after exact-scope human authorization."""
     if not changes or len({change.path for change in changes}) != len(changes):
         raise ValueError("changes must be non-empty with unique paths")
-    actual_digest = digest_file_changes(changes)
+    resolved_base_ref = base_ref or authorization.base_ref
+    actual_digest, actual_action_digest = _verify_exact_action(
+        authorization,
+        changes,
+        required_effect_mode="github",
+        base_ref=resolved_base_ref,
+    )
     try:
-        await approval_authorizer.verify(authorization, actual_digest)
+        await approval_authorizer.verify(
+            authorization, actual_digest, actual_action_digest
+        )
     except Exception:
         raise MissingApprovalError("write authorization was not verified") from None
     if actual_digest != authorization.content_digest:
@@ -251,7 +335,7 @@ async def create_draft_pull_request(
         snapshot = await github_client.open_draft_pull_request(
             target=authorization.repository_target,
             branch_name=branch_name,
-            base_ref=base_ref,
+            base_ref=resolved_base_ref,
             title=f"AegisFlow draft for run {authorization.run_id}",
             body=marker,
         )
@@ -275,6 +359,86 @@ async def create_draft_pull_request(
         raise
 
 
+async def create_draft_pull_request_candidate(
+    *,
+    github_client: GitHubWritePort,
+    read_client: GitHubReadReconciler,
+    changes: tuple[FileChange, ...],
+    authorization: WriteAuthorization,
+    approval_authorizer: ApprovalAuthorizer,
+    idempotency_guard: IdempotencyGuard,
+    base_ref: str | None = None,
+) -> DraftPullRequestResult:
+    """Persist an approved, idempotent candidate without a GitHub side effect."""
+    del github_client, read_client
+    if not changes or len({change.path for change in changes}) != len(changes):
+        raise ValueError("changes must be non-empty with unique paths")
+    resolved_base_ref = base_ref or authorization.base_ref
+    actual_digest, actual_action_digest = _verify_exact_action(
+        authorization,
+        changes,
+        required_effect_mode="dry_run",
+        base_ref=resolved_base_ref,
+    )
+    try:
+        await approval_authorizer.verify(
+            authorization, actual_digest, actual_action_digest
+        )
+    except Exception:
+        raise MissingApprovalError("write authorization was not verified") from None
+    if actual_digest != authorization.content_digest:
+        raise MissingApprovalError("write authorization content digest mismatch")
+    if actual_action_digest != authorization.action_digest:
+        raise MissingApprovalError("write authorization action digest mismatch")
+    if actual_action_digest != authorization.action_digest:
+        raise MissingApprovalError("write authorization action digest mismatch")
+
+    arguments_hash = sha256(
+        (
+            f"{authorization.repository_target.full_name}\0{authorization.base_sha}\0"
+            f"{actual_digest}"
+        ).encode()
+    ).hexdigest()
+    key = sha256(
+        f"tool_call\0{authorization.tenant_id}\0{authorization.run_id}\0"
+        f"{authorization.step_id}\0github.create_draft_pr_candidate\0{arguments_hash}".encode()
+    ).hexdigest()
+    command = IdempotentCommand(
+        scope="tool_call",
+        idempotency_key=key,
+        arguments_hash=arguments_hash,
+        tenant_id=authorization.tenant_id,
+        run_id=authorization.run_id,
+        step_id=authorization.step_id,
+        tool_name="github.create_draft_pr_candidate",
+    )
+    claim = await idempotency_guard.begin(command)
+    if isinstance(claim, Reuse):
+        result = _decode_result_reference(claim.result_reference, reused=True)
+        if result.effect_mode != "dry_run":
+            raise IdempotencyFinalFailureError(
+                "candidate ledger contained a remote GitHub result"
+            )
+        return result
+    if isinstance(claim, InProgress):
+        raise IdempotencyInProgressError(claim.retry_after_seconds)
+    if isinstance(claim, FinalFailure):
+        raise IdempotencyFinalFailureError(claim.reason)
+
+    result = DraftPullRequestResult(
+        effect_mode="dry_run",
+        pull_request_url=None,
+        pull_request_number=None,
+        candidate_reference=f"aegisflow://draft-pr-candidates/{authorization.run_id}",
+        branch_name=f"aegisflow/run-{authorization.run_id}",
+        reused_existing=False,
+    )
+    await idempotency_guard.complete(
+        claim.claim_token, _encode_result_reference(result)
+    )
+    return result
+
+
 def _from_snapshot(
     snapshot: PullRequestSnapshot,
     target: RepositoryTarget,
@@ -284,6 +448,7 @@ def _from_snapshot(
     commit_sha: str | None = None,
 ) -> DraftPullRequestResult:
     return DraftPullRequestResult(
+        effect_mode="github",
         pull_request_url=(
             f"https://github.com/{target.owner}/{target.repository}/pull/{snapshot.number}"
         ),
