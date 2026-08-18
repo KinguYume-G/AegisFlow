@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -135,7 +136,99 @@ async def test_worker_bootstrap_initializes_checkpoints_and_runs(monkeypatch) ->
     setup.assert_awaited_once()
     run.assert_awaited_once()
 
+    captured_graphs = []
+    monkeypatch.setattr(
+        worker_module,
+        "get_settings",
+        lambda: SimpleNamespace(local_mvp_profile_enabled=False),
+    )
+    monkeypatch.setattr(
+        worker_module,
+        "create_database_engine",
+        lambda _: pytest.fail("non-local worker must not construct local MVP storage"),
+    )
+    monkeypatch.setattr(
+        worker_module,
+        "build_worker",
+        lambda _client, graph, **_kwargs: (
+            captured_graphs.append(graph)
+            or type("WorkerStub", (), {"run": AsyncMock()})()
+        ),
+    )
+    await worker_module.run_worker()
+    assert isinstance(captured_graphs[-1], UnconfiguredGraphPort)
+
     monkeypatch.delenv("DATABASE_URL")
     monkeypatch.delenv("LANGGRAPH_DATABASE_URL", raising=False)
     with pytest.raises(RuntimeError, match="DATABASE_URL"):
         await worker_module.run_worker()
+
+
+@pytest.mark.asyncio
+async def test_worker_builds_delivery_adapter_only_for_explicit_local_profile(
+    monkeypatch,
+) -> None:
+    manager = SimpleNamespace(setup=AsyncMock())
+    manager_calls = []
+
+    def manager_factory(url, **kwargs):
+        manager_calls.append((url, kwargs))
+        return manager
+
+    settings = SimpleNamespace(local_mvp_profile_enabled=True)
+    engine = SimpleNamespace(dispose=AsyncMock())
+    sessions = object()
+    adapter = StubGraph(AdvanceResult("completed"))
+    adapter_calls = []
+
+    def adapter_factory(**kwargs):
+        adapter_calls.append(kwargs)
+        return adapter
+
+    captured_graphs = []
+    worker = SimpleNamespace(run=AsyncMock())
+    monkeypatch.setenv("DATABASE_URL", "postgresql://db")
+    monkeypatch.setattr(worker_module, "PostgresCheckpointManager", manager_factory)
+    monkeypatch.setattr(worker_module, "get_settings", lambda: settings)
+    monkeypatch.setattr(worker_module, "create_database_engine", lambda _: engine)
+    monkeypatch.setattr(
+        worker_module, "create_session_factory", lambda _: sessions
+    )
+    monkeypatch.setattr(
+        worker_module, "PostgresDeliveryGraphAdapter", adapter_factory
+    )
+    monkeypatch.setattr(
+        worker_module, "connect_temporal", AsyncMock(return_value=object())
+    )
+    monkeypatch.setattr(
+        worker_module,
+        "build_worker",
+        lambda _client, graph, **_kwargs: (
+            captured_graphs.append(graph) or worker
+        ),
+    )
+    monkeypatch.setattr(
+        worker_module,
+        "configure_tracer",
+        lambda **_kwargs: SimpleNamespace(shutdown=lambda: None),
+    )
+
+    await worker_module.run_worker()
+
+    assert captured_graphs == [adapter]
+    assert manager_calls == [
+        (
+            "postgresql://db",
+            {"allowed_types": worker_module.CHECKPOINT_ALLOWED_TYPES},
+        )
+    ]
+    assert adapter_calls == [
+        {
+            "settings": settings,
+            "session_factory": sessions,
+            "checkpoint_manager": manager,
+        }
+    ]
+    manager.setup.assert_awaited_once()
+    worker.run.assert_awaited_once()
+    engine.dispose.assert_awaited_once()

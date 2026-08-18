@@ -37,7 +37,6 @@ spec:
       ports: [{protocol: TCP, port: 6379}]
     - to: [{podSelector: {matchLabels: {app.kubernetes.io/component: temporal}}}]
       ports: [{protocol: TCP, port: 7233}]
-{{- if .Values.worker.enabled }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -50,7 +49,6 @@ spec:
       ports: [{protocol: TCP, port: 5432}]
     - to: [{podSelector: {matchLabels: {app.kubernetes.io/component: temporal}}}]
       ports: [{protocol: TCP, port: 7233}]
-{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

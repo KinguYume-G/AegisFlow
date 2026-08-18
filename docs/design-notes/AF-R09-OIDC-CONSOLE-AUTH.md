@@ -243,11 +243,11 @@ AF-R09 performs no GitHub, model, MCP, sandbox or deployment write.
 
 The authenticated local Compose profile supplies the DeliveryPack Worker with its
 complete development-only Ollama, governed Sandbox Broker, workspace and GitHub
-dry-run contract. The historical M5 k3s chart does not package that execution plane:
-its Worker therefore remains disabled by default until AF-R11 owns the complete
-Kubernetes packaging. This prevents a crash-looping partial deployment from being
-reported as a successful Agent runtime and does not claim production deployment in
-AF-R09.
+dry-run contract. Outside that explicitly enabled profile, the worker retains the
+original fail-closed `UnconfiguredGraphPort`: it can prove Temporal registration and
+readiness for the accepted M5 install/upgrade/rollback gate, but rejects any Agent
+task rather than constructing a partially configured execution adapter. AF-R11 owns
+packaging the complete Kubernetes execution plane; AF-R09 does not claim it.
 
 ## Security Impact
 

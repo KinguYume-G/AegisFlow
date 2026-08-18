@@ -14,10 +14,7 @@ core:
     requests: {cpu: 100m, memory: 128Mi}
     limits: {cpu: 500m, memory: 512Mi}
 
-# AF-R11 owns packaging the Sandbox Broker and complete worker dependencies.
-# Keep the historical M5 chart honest until that production slice lands.
 worker:
-  enabled: false
   replicaCount: 1
   resources:
     requests: {cpu: 100m, memory: 128Mi}

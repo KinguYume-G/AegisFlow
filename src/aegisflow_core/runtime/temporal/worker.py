@@ -11,6 +11,7 @@ from aegisflow_core.runtime.checkpoint import PostgresCheckpointManager
 from aegisflow_core.runtime.temporal.activities import (
     DeliveryActivities,
     DurableGraphPort,
+    UnconfiguredGraphPort,
 )
 from aegisflow_core.runtime.temporal.client import connect_temporal
 from aegisflow_core.runtime.temporal.workflow import DeliveryWorkflow
@@ -56,19 +57,22 @@ async def run_worker(graph: DurableGraphPort | None = None) -> None:
         service_name="aegisflow-temporal-worker",
         endpoint=os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT") or None,
     )
-    settings = None
     database_engine = None
     if graph is None:
         settings = get_settings()
-        manager = PostgresCheckpointManager(
-            checkpoint_url, allowed_types=CHECKPOINT_ALLOWED_TYPES
-        )
-        database_engine = create_database_engine(settings)
-        graph = PostgresDeliveryGraphAdapter(
-            settings=settings,
-            session_factory=create_session_factory(database_engine),
-            checkpoint_manager=manager,
-        )
+        if settings.local_mvp_profile_enabled:
+            manager = PostgresCheckpointManager(
+                checkpoint_url, allowed_types=CHECKPOINT_ALLOWED_TYPES
+            )
+            database_engine = create_database_engine(settings)
+            graph = PostgresDeliveryGraphAdapter(
+                settings=settings,
+                session_factory=create_session_factory(database_engine),
+                checkpoint_manager=manager,
+            )
+        else:
+            manager = PostgresCheckpointManager(checkpoint_url)
+            graph = UnconfiguredGraphPort()
     else:
         manager = PostgresCheckpointManager(checkpoint_url)
     await manager.setup()
