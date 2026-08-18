@@ -229,6 +229,93 @@ def test_local_model_fallback_rejects_production_or_non_loopback(
         get_settings()
 
 
+def test_local_mvp_and_ollama_are_disabled_by_default(valid_env: None) -> None:
+    settings = get_settings()
+
+    assert settings.local_mvp_profile_enabled is False
+    assert settings.local_mvp_identity_configured is False
+    assert settings.model_ollama_enabled is False
+    assert settings.model_ollama_configured is False
+
+
+def test_complete_local_mvp_ollama_profile_is_accepted(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name, value in {
+        "APP_ENV": "development",
+        "LOCAL_MVP_PROFILE_ENABLED": "true",
+        "LOCAL_MVP_DEVELOPER_TOKEN": "local-developer-token-123",
+        "LOCAL_MVP_REVIEWER_TOKEN": "local-reviewer-token-456",
+        "LOCAL_MVP_TENANT_SLUG": "local-demo",
+        "LOCAL_MVP_WORKSPACE_ROOT": "/workspaces",
+        "LOCAL_MVP_GITHUB_DRY_RUN": "true",
+        "MODEL_OLLAMA_ENABLED": "true",
+        "MODEL_OLLAMA_NAME": "ollama_chat/qwen3:8b",
+        "MODEL_OLLAMA_API_KEY_ENV": "OLLAMA_API_KEY",
+        "MODEL_OLLAMA_BASE_URL": "http://host.docker.internal:11434",
+    }.items():
+        monkeypatch.setenv(name, value)
+
+    settings = get_settings()
+
+    assert settings.local_mvp_identity_configured is True
+    assert settings.model_ollama_configured is True
+    assert settings.local_mvp_tenant_slug == "local-demo"
+    assert settings.model_ollama_name == "ollama_chat/qwen3:8b"
+
+
+@pytest.mark.parametrize(
+    "overrides,error",
+    [
+        ({"APP_ENV": "production"}, "production"),
+        ({"LOCAL_MVP_REVIEWER_TOKEN": "local-developer-token-123"}, "distinct"),
+        ({"LOCAL_MVP_REVIEWER_TOKEN": "short"}, "token"),
+        ({"LOCAL_MVP_GITHUB_DRY_RUN": "false"}, "dry-run"),
+        ({"MODEL_OLLAMA_BASE_URL": "https://models.example.test"}, "Ollama"),
+        ({"MODEL_OLLAMA_BASE_URL": "http://user:pass@localhost:11434"}, "Ollama"),
+        ({"MODEL_OLLAMA_BASE_URL": "http://docker.internal:11434"}, "Ollama"),
+    ],
+)
+def test_local_mvp_profile_rejects_unsafe_configuration(
+    valid_env: None,
+    monkeypatch: pytest.MonkeyPatch,
+    overrides: dict[str, str],
+    error: str,
+) -> None:
+    values = {
+        "APP_ENV": "development",
+        "LOCAL_MVP_PROFILE_ENABLED": "true",
+        "LOCAL_MVP_DEVELOPER_TOKEN": "local-developer-token-123",
+        "LOCAL_MVP_REVIEWER_TOKEN": "local-reviewer-token-456",
+        "LOCAL_MVP_GITHUB_DRY_RUN": "true",
+        "MODEL_OLLAMA_ENABLED": "true",
+        "MODEL_OLLAMA_NAME": "ollama_chat/qwen3:8b",
+        "MODEL_OLLAMA_API_KEY_ENV": "OLLAMA_API_KEY",
+        "MODEL_OLLAMA_BASE_URL": "http://127.0.0.1:11434",
+    }
+    values.update(overrides)
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+
+    with pytest.raises(ConfigurationError, match=error):
+        get_settings()
+
+
+def test_ollama_requires_explicit_local_mvp_profile(
+    valid_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name, value in {
+        "MODEL_OLLAMA_ENABLED": "true",
+        "MODEL_OLLAMA_NAME": "ollama_chat/qwen3:8b",
+        "MODEL_OLLAMA_API_KEY_ENV": "OLLAMA_API_KEY",
+        "MODEL_OLLAMA_BASE_URL": "http://127.0.0.1:11434",
+    }.items():
+        monkeypatch.setenv(name, value)
+
+    with pytest.raises(ConfigurationError, match="local MVP"):
+        get_settings()
+
+
 def test_complete_oidc_configuration_is_accepted(
     valid_env: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:

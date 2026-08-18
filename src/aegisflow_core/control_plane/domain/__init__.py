@@ -9,6 +9,14 @@ from aegisflow_core.control_plane.domain.idempotency import IdempotencyRecord
 from aegisflow_core.control_plane.domain.knowledge import RepositoryChunk
 from aegisflow_core.control_plane.domain.model_routing import ModelCircuitState
 from aegisflow_core.control_plane.domain.registry import ToolDisablement, ToolRegistration
+from aegisflow_core.control_plane.domain.run_lifecycle import (
+    ClarificationRequest,
+    RunArtifact,
+    RunEvaluation,
+    RunEvent,
+    RunRequest,
+    RunTrace,
+)
 from aegisflow_core.control_plane.domain.tenant import Tenant
 from aegisflow_core.control_plane.domain.versioning import (
     PromptSeries,
@@ -21,12 +29,18 @@ __all__ = [
     "Approval",
     "AuditEvent",
     "Base",
+    "ClarificationRequest",
     "IdempotencyRecord",
     "ModelCircuitState",
     "PromptSeries",
     "PromptVersion",
     "RoleAssignment",
     "Run",
+    "RunArtifact",
+    "RunEvaluation",
+    "RunEvent",
+    "RunRequest",
+    "RunTrace",
     "RepositoryChunk",
     "RunPromptVersion",
     "Step",

@@ -22,6 +22,8 @@ from aegisflow_core.gateway.github.pull_request import (
     GitHubWriteClient,
     WriteAuthorization,
     create_draft_pull_request,
+    draft_pr_action_preview,
+    digest_action_preview,
     digest_file_changes,
 )
 from aegisflow_core.gateway.github.read_tools import GitHubReadClient
@@ -109,22 +111,36 @@ async def test_real_github_draft_pr_is_deduplicated_and_marker_cleaned() -> None
                 completed_at=datetime.now(timezone.utc),
             ))
 
-        approval_gateway = PostgresApprovalGateway(sessions)
-        approval_id = await approval_gateway.request_approval(
-            tenant_id, run_id, step_id,
-            [ReviewFinding(severity="info", message="protected manual E2E")],
-        )
-        await approval_gateway.submit_decision(
-            approval_id, run_id, "approved", "protected-environment"
-        )
         changes = (FileChange(
             path=f"aegisflow-e2e/{run_id}.txt", operation="add",
             content=f"AegisFlow Gate 1B E2E {run_id}\n".encode(),
         ),)
+        preview = draft_pr_action_preview(
+            effect_mode="github",
+            target=target,
+            base_ref="main",
+            base_sha=base_sha,
+            branch_name=f"aegisflow/run-{run_id}",
+            changes=changes,
+            risk="L3",
+        )
+        action_digest = digest_action_preview(preview)
+        approval_gateway = PostgresApprovalGateway(sessions)
+        approval_id = await approval_gateway.request_approval(
+            tenant_id, run_id, step_id,
+            [ReviewFinding(severity="info", message="protected manual E2E")],
+            action_preview=preview,
+            action_digest=action_digest,
+        )
+        await approval_gateway.submit_decision(
+            approval_id, run_id, "approved", "protected-environment"
+        )
         authorization = WriteAuthorization(
             approval_id=approval_id, tenant_id=tenant_id, run_id=run_id,
-            step_id=step_id, repository_target=target, base_sha=base_sha,
+            step_id=step_id, repository_target=target, base_ref="main",
+            base_sha=base_sha,
             content_digest=digest_file_changes(changes),
+            action_digest=action_digest, effect_mode="github", risk="L3",
         )
         guard = PostgresIdempotencyGuard(
             IdempotencyLedger(sessions, SystemClock())

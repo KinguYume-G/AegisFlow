@@ -12,8 +12,16 @@ class ReviewReasoner(Protocol):
 
 
 class ApprovalGateway(Protocol):
-    async def request_approval(self, tenant_id: UUID, run_id: UUID, step_id: UUID,
-                               findings: list[ReviewFinding]) -> UUID: ...
+    async def request_approval(
+        self,
+        tenant_id: UUID,
+        run_id: UUID,
+        step_id: UUID,
+        findings: list[ReviewFinding],
+        *,
+        action_preview: dict[str, object] | None = None,
+        action_digest: str | None = None,
+    ) -> UUID: ...
     async def submit_decision(self, approval_id: UUID, run_id: UUID,
                               decision: Literal["approved", "rejected"], decided_by: str,
                               reason: str | None = None) -> ApprovalOutcome: ...

@@ -85,8 +85,10 @@ def test_domain_packages_contain_only_approved_modules() -> None:
             PACKAGE_ROOT / "runtime" / "temporal" / "policies.py",
             PACKAGE_ROOT / "runtime" / "temporal" / "saga.py",
             PACKAGE_ROOT / "runtime" / "temporal" / "saga_ledger.py",
-            PACKAGE_ROOT / "runtime" / "temporal" / "worker.py",
-            PACKAGE_ROOT / "runtime" / "temporal" / "workflow.py",
+                PACKAGE_ROOT / "runtime" / "temporal" / "worker.py",
+                PACKAGE_ROOT / "runtime" / "temporal" / "workflow.py",
+                PACKAGE_ROOT / "runtime" / "temporal" / "run_gateway.py",
+                PACKAGE_ROOT / "runtime" / "temporal" / "graph_adapter.py",
         PACKAGE_ROOT / "gateway" / "__init__.py",
         PACKAGE_ROOT / "gateway" / "github" / "__init__.py",
         PACKAGE_ROOT / "gateway" / "github" / "auth.py",
@@ -126,7 +128,8 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "packs" / "opspilot" / "contracts.py",
         PACKAGE_ROOT / "packs" / "opspilot" / "simulation.py",
         PACKAGE_ROOT / "packs" / "delivery" / "__init__.py",
-        PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "__init__.py",
+            PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "__init__.py",
+            PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "action_approval.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "clarification.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "context_package.py",
         PACKAGE_ROOT / "packs" / "delivery" / "contracts" / "determinism.py",
@@ -160,7 +163,8 @@ def test_domain_packages_contain_only_approved_modules() -> None:
         PACKAGE_ROOT / "packs" / "delivery" / "planner" / "__init__.py",
         PACKAGE_ROOT / "packs" / "delivery" / "planner" / "agent.py",
         PACKAGE_ROOT / "packs" / "delivery" / "planner" / "fakes.py",
-        PACKAGE_ROOT / "packs" / "delivery" / "planner" / "ports.py",
+            PACKAGE_ROOT / "packs" / "delivery" / "planner" / "ports.py",
+            PACKAGE_ROOT / "packs" / "delivery" / "model_reasoners.py",
     }
     actual_files = {
         path
@@ -208,7 +212,13 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("versions/__init__.py"),
                 Path("versions/service.py"),
                 Path("identity/__init__.py"),
-                Path("identity/oidc.py"),
+                    Path("identity/oidc.py"),
+                    Path("identity/local.py"),
+                    Path("clarifications.py"),
+                    Path("run_projection.py"),
+                    Path("run_service.py"),
+                    Path("runs.py"),
+                    Path("domain/run_lifecycle.py"),
         Path("migrations/env.py"),
         Path("migrations/versions/0001_initial_domain_model.py"),
             Path("migrations/versions/0002_normalize_check_names.py"),
@@ -218,7 +228,8 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("migrations/versions/0006_add_model_circuit_state.py"),
                 Path("migrations/versions/0007_add_tenant_version_foundations.py"),
                 Path("migrations/versions/0008_add_identity_rbac.py"),
-                Path("migrations/versions/0009_add_tool_registry.py"),
+                    Path("migrations/versions/0009_add_tool_registry.py"),
+                    Path("migrations/versions/0010_add_run_lifecycle_read_model.py"),
     }
     actual_relative_files = {
         path.relative_to(control_plane)

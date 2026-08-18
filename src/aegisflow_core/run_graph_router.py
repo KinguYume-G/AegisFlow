@@ -5,10 +5,14 @@ from uuid import UUID
 from fastapi import APIRouter, Header, Request
 from fastapi.responses import JSONResponse
 
-from aegisflow_core.control_plane.identity import AuthenticationError, parse_bearer_token
+from aegisflow_core.control_plane.identity import AuthenticationError
 from aegisflow_core.control_plane.rbac import Capability, RbacService
 from aegisflow_core.control_plane.run_graph import load_run_graph
 from aegisflow_core.gateway.tenant import resolve_tenant_scope
+from aegisflow_core.request_identity import (
+    IdentityNotConfiguredError,
+    authenticate_request,
+)
 
 router = APIRouter(prefix="/v1")
 
@@ -19,15 +23,21 @@ async def get_run_graph(
     run_id: UUID,
     request: Request,
     authorization: str | None = Header(default=None),
+    local_token: str | None = Header(default=None, alias="X-AegisFlow-Local-Token"),
+    local_persona: str | None = Header(default=None, alias="X-AegisFlow-Local-Persona"),
 ):
-    verifier = request.app.state.oidc_verifier
-    if verifier is None:
+    try:
+        principal = await authenticate_request(
+            request,
+            authorization=authorization,
+            local_token=local_token,
+            local_persona=local_persona,
+        )
+    except IdentityNotConfiguredError:
         return JSONResponse(
             status_code=503,
             content={"error": {"code": "identity_not_configured"}},
         )
-    try:
-        principal = await verifier.verify(parse_bearer_token(authorization))
     except AuthenticationError as exc:
         return JSONResponse(status_code=401, content={"error": {"code": exc.code}})
     session_factory = request.app.state.session_factory

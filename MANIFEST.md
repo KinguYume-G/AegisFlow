@@ -1,12 +1,13 @@
 # Engineering System Manifest
 
-- Repository files: 465
-- Active project files: 458
+- Repository files: 542 (465 tracked baseline + 77 AF-R04–AF-R08 intended files)
+- Active project files: 535
 - Archived snapshots and pending patch files: 7
 - Canonical planned GitHub Issues: 75
 - Archived pending-patch Issues: 80
-- Application source files: 162
-- Test files: 125
+- Application source files: 175
+- Test files: 135
+- Next.js Console files: 45
 - Real secrets generated: 0
 
 ## Source-of-Truth Policy
@@ -15,6 +16,7 @@
 - The canonical GitHub import source is `project/GITHUB_ISSUE_IMPORT.csv` with 75 Issues.
 - `archive/phase0-gap-patch/` is an unmerged proposal and is not an active source of truth.
 - Byte-identical historical and duplicate files are retained under `archive/`; no original file was deleted.
+- The owner-authored `AegisFlow_Project_Guide.md` and architecture PNG are preserved locally but excluded from this engineering inventory until the owner chooses whether they belong in version control.
 
 ## Files
 
@@ -483,3 +485,83 @@
 - `tests/packs/opspilot/test_simulation.py`
 - `tests/personal_workbench/__init__.py`
 - `tests/personal_workbench/test_seed_requests.py`
+
+## AF-R04–AF-R08 Intended Additions
+
+- `.env.local-mvp.example`
+- `compose.local-mvp.yaml`
+- `docs/26_PRODUCTION_READINESS_PLAN.md`
+- `docs/adr/0014-local-mvp-execution-profile.md`
+- `docs/design-notes/AF-R07-NEXTJS-CONSOLE.md`
+- `docs/design-notes/LOCAL-MVP-BACKEND-BUNDLE.md`
+- `docs/handoffs/2026-08-18-AF-R04-R08.md`
+- `docs/reports/LOCAL_MVP_RUNBOOK.md`
+- `docs/test-plans/AF-R07-NEXTJS-CONSOLE.md`
+- `docs/test-plans/LOCAL-MVP-BACKEND-BUNDLE.md`
+- `src/aegisflow_core/control_plane/clarifications.py`
+- `src/aegisflow_core/control_plane/domain/run_lifecycle.py`
+- `src/aegisflow_core/control_plane/identity/local.py`
+- `src/aegisflow_core/control_plane/migrations/versions/0010_add_run_lifecycle_read_model.py`
+- `src/aegisflow_core/control_plane/run_projection.py`
+- `src/aegisflow_core/control_plane/run_service.py`
+- `src/aegisflow_core/control_plane/runs.py`
+- `src/aegisflow_core/packs/delivery/contracts/action_approval.py`
+- `src/aegisflow_core/packs/delivery/model_reasoners.py`
+- `src/aegisflow_core/request_identity.py`
+- `src/aegisflow_core/run_router.py`
+- `src/aegisflow_core/runtime/temporal/graph_adapter.py`
+- `src/aegisflow_core/runtime/temporal/run_gateway.py`
+- `tests/control_plane/test_clarifications.py`
+- `tests/control_plane/test_local_identity.py`
+- `tests/control_plane/test_run_api.py`
+- `tests/control_plane/test_run_contracts.py`
+- `tests/control_plane/test_run_service.py`
+- `tests/packs/delivery/test_model_reasoners.py`
+- `tests/runtime/temporal/test_graph_adapter.py`
+- `tests/runtime/temporal/test_run_gateway.py`
+- `tests/test_local_mvp_console_compose.py`
+- `web/console/.dockerignore`
+- `web/console/Dockerfile`
+- `web/console/e2e/local-mvp.spec.ts`
+- `web/console/eslint.config.mjs`
+- `web/console/next-env.d.ts`
+- `web/console/next.config.ts`
+- `web/console/package-lock.json`
+- `web/console/package.json`
+- `web/console/playwright.config.ts`
+- `web/console/public/.gitkeep`
+- `web/console/public/favicon.svg`
+- `web/console/src/app/api/runs/[runId]/approvals/[approvalId]/route.ts`
+- `web/console/src/app/api/runs/[runId]/clarifications/[requestId]/route.ts`
+- `web/console/src/app/api/runs/[runId]/route.ts`
+- `web/console/src/app/api/runs/route.ts`
+- `web/console/src/app/globals.css`
+- `web/console/src/app/layout.tsx`
+- `web/console/src/app/not-found.tsx`
+- `web/console/src/app/page.tsx`
+- `web/console/src/app/runs/[runId]/page.tsx`
+- `web/console/src/app/runs/new/page.tsx`
+- `web/console/src/components/approval-panel.test.tsx`
+- `web/console/src/components/approval-panel.tsx`
+- `web/console/src/components/brand-mark.tsx`
+- `web/console/src/components/clarification-panel.test.tsx`
+- `web/console/src/components/clarification-panel.tsx`
+- `web/console/src/components/create-run-form.tsx`
+- `web/console/src/components/create-run-form.test.tsx`
+- `web/console/src/components/run-live-view.tsx`
+- `web/console/src/components/run-timeline.test.tsx`
+- `web/console/src/components/run-timeline.tsx`
+- `web/console/src/components/status-pill.tsx`
+- `web/console/src/lib/bff-response.ts`
+- `web/console/src/lib/contracts.test.ts`
+- `web/console/src/lib/contracts.ts`
+- `web/console/src/lib/core-client.ts`
+- `web/console/src/lib/environment.test.ts`
+- `web/console/src/lib/environment.ts`
+- `web/console/src/lib/format.test.ts`
+- `web/console/src/lib/format.ts`
+- `web/console/src/lib/mutation-guard.test.ts`
+- `web/console/src/lib/mutation-guard.ts`
+- `web/console/src/test/setup.ts`
+- `web/console/tsconfig.json`
+- `web/console/vitest.config.ts`

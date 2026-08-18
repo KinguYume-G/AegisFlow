@@ -1,13 +1,19 @@
 """Minimal process-environment configuration for the application skeleton."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 import os
+import re
 from urllib.parse import urlsplit
 
 from aegisflow_core.control_plane.identity import OidcConfig
 
 _ALLOWED_APP_ENVS = frozenset({"development", "test", "production"})
+_PINNED_IMAGE = re.compile(r"^[^\s@]+@sha256:[0-9a-f]{64}$")
+_DEFAULT_SANDBOX_TEST_IMAGE = (
+    "python:3.12-slim@sha256:"
+    "57cd7c3a7a273101a6485ba99423ee568157882804b1124b4dd04266317710de"
+)
 
 
 class ConfigurationError(RuntimeError):
@@ -36,6 +42,7 @@ class Settings:
     sandbox_default_memory_limit_mb: int = 512
     sandbox_default_cpu_limit: float = 1.0
     sandbox_default_pids_limit: int = 128
+    sandbox_test_image: str = _DEFAULT_SANDBOX_TEST_IMAGE
     temporal_address: str = "localhost:7233"
     temporal_namespace: str = "default"
     temporal_task_queue: str = "aegisflow-delivery"
@@ -57,6 +64,16 @@ class Settings:
     oidc_http_timeout_seconds: float = 5.0
     otel_exporter_otlp_endpoint: str | None = None
     otel_service_name: str = "aegisflow-core"
+    local_mvp_profile_enabled: bool = False
+    local_mvp_developer_token: str | None = field(default=None, repr=False)
+    local_mvp_reviewer_token: str | None = field(default=None, repr=False)
+    local_mvp_tenant_slug: str = "local-mvp"
+    local_mvp_workspace_root: str = "/workspaces"
+    local_mvp_github_dry_run: bool = False
+    model_ollama_enabled: bool = False
+    model_ollama_name: str | None = None
+    model_ollama_api_key_env: str | None = None
+    model_ollama_base_url: str | None = None
 
     @property
     def github_app_configured(self) -> bool:
@@ -106,6 +123,22 @@ class Settings:
             http_timeout_seconds=self.oidc_http_timeout_seconds,
         )
 
+    @property
+    def local_mvp_identity_configured(self) -> bool:
+        return self.local_mvp_profile_enabled and all(
+            (self.local_mvp_developer_token, self.local_mvp_reviewer_token)
+        )
+
+    @property
+    def model_ollama_configured(self) -> bool:
+        return self.model_ollama_enabled and all(
+            (
+                self.model_ollama_name,
+                self.model_ollama_api_key_env,
+                self.model_ollama_base_url,
+            )
+        )
+
 
 def get_settings() -> Settings:
     """Load and validate the minimal application configuration."""
@@ -114,6 +147,45 @@ def get_settings() -> Settings:
         raise ConfigurationError(
             "APP_ENV must be one of: development, test, production"
         )
+
+    local_mvp_enabled = _boolean_env("LOCAL_MVP_PROFILE_ENABLED", False)
+    local_developer_token = os.environ.get("LOCAL_MVP_DEVELOPER_TOKEN") or None
+    local_reviewer_token = os.environ.get("LOCAL_MVP_REVIEWER_TOKEN") or None
+    local_tenant_slug = os.environ.get("LOCAL_MVP_TENANT_SLUG") or "local-mvp"
+    local_workspace_root = os.environ.get("LOCAL_MVP_WORKSPACE_ROOT") or "/workspaces"
+    local_github_dry_run = _boolean_env(
+        "LOCAL_MVP_GITHUB_DRY_RUN", local_mvp_enabled
+    )
+    local_explicit_values = (
+        local_developer_token,
+        local_reviewer_token,
+        os.environ.get("LOCAL_MVP_TENANT_SLUG"),
+        os.environ.get("LOCAL_MVP_WORKSPACE_ROOT"),
+        os.environ.get("LOCAL_MVP_GITHUB_DRY_RUN"),
+    )
+    if not local_mvp_enabled and any(value is not None for value in local_explicit_values):
+        raise ConfigurationError(
+            "Local MVP configuration requires explicit profile enablement"
+        )
+    if local_mvp_enabled:
+        if app_env == "production":
+            raise ConfigurationError("Local MVP profile is forbidden in production")
+        if not local_developer_token or not local_reviewer_token:
+            raise ConfigurationError("Local MVP requires both local identity tokens")
+        if not 16 <= len(local_developer_token) <= 256 or not 16 <= len(
+            local_reviewer_token
+        ) <= 256:
+            raise ConfigurationError("Local MVP token length must be 16 through 256")
+        if local_developer_token == local_reviewer_token:
+            raise ConfigurationError("Local MVP identity tokens must be distinct")
+        if not local_github_dry_run:
+            raise ConfigurationError("Local MVP requires GitHub dry-run mode")
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,62}", local_tenant_slug):
+            raise ConfigurationError("Local MVP tenant slug is invalid")
+        if not local_workspace_root.startswith(("/", "\\")) and not re.match(
+            r"^[A-Za-z]:[\\/]", local_workspace_root
+        ):
+            raise ConfigurationError("Local MVP workspace root must be absolute")
 
     app_base_url = os.environ.get("APP_BASE_URL") or None
     database_url = os.environ.get("DATABASE_URL")
@@ -201,6 +273,48 @@ def get_settings() -> Settings:
         if len(set(configured_names)) != len(configured_names):
             raise ConfigurationError("Model route names must be distinct")
 
+    ollama_enabled = _boolean_env("MODEL_OLLAMA_ENABLED", False)
+    ollama_values = {
+        "model_ollama_name": os.environ.get("MODEL_OLLAMA_NAME") or None,
+        "model_ollama_api_key_env": os.environ.get("MODEL_OLLAMA_API_KEY_ENV") or None,
+        "model_ollama_base_url": os.environ.get("MODEL_OLLAMA_BASE_URL") or None,
+    }
+    ollama_count = sum(value is not None for value in ollama_values.values())
+    if not ollama_enabled and ollama_count:
+        raise ConfigurationError("Ollama configuration requires explicit enablement")
+    if ollama_enabled:
+        if not local_mvp_enabled:
+            raise ConfigurationError(
+                "Ollama local-only route requires the local MVP profile"
+            )
+        if app_env == "production" or ollama_count != len(ollama_values):
+            raise ConfigurationError(
+                "Ollama local-only route is non-production and requires complete configuration"
+            )
+        if local_enabled:
+            raise ConfigurationError(
+                "Ollama local-only route and local vLLM fallback cannot both be enabled"
+            )
+        parsed_ollama = urlsplit(ollama_values["model_ollama_base_url"] or "")
+        if (
+            parsed_ollama.scheme != "http"
+            or parsed_ollama.hostname
+            not in {"127.0.0.1", "localhost", "host.docker.internal"}
+            or parsed_ollama.username is not None
+            or parsed_ollama.password is not None
+            or parsed_ollama.query
+            or parsed_ollama.fragment
+            or parsed_ollama.path not in {"", "/"}
+        ):
+            raise ConfigurationError(
+                "Ollama base URL must be approved local HTTP without credentials"
+            )
+        if not re.fullmatch(
+            r"[A-Za-z_][A-Za-z0-9_]*",
+            ollama_values["model_ollama_api_key_env"] or "",
+        ):
+            raise ConfigurationError("Ollama API key environment reference is invalid")
+
     oidc_values = {
         "oidc_issuer": os.environ.get("OIDC_ISSUER") or None,
         "oidc_audience": os.environ.get("OIDC_AUDIENCE") or None,
@@ -243,6 +357,12 @@ def get_settings() -> Settings:
             "GITHUB_API_TIMEOUT_SECONDS must be a positive number"
         )
 
+    sandbox_test_image = (
+        os.environ.get("SANDBOX_TEST_IMAGE") or _DEFAULT_SANDBOX_TEST_IMAGE
+    )
+    if not _PINNED_IMAGE.fullmatch(sandbox_test_image):
+        raise ConfigurationError("SANDBOX_TEST_IMAGE must be digest pinned")
+
     otel_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT") or None
     if otel_endpoint is not None and not otel_endpoint.startswith(("http://", "https://")):
         raise ConfigurationError("OTEL_EXPORTER_OTLP_ENDPOINT must be an HTTP URL")
@@ -274,6 +394,7 @@ def get_settings() -> Settings:
         sandbox_default_memory_limit_mb=int(os.environ.get("SANDBOX_DEFAULT_MEMORY_LIMIT_MB") or "512"),
         sandbox_default_cpu_limit=float(os.environ.get("SANDBOX_DEFAULT_CPU_LIMIT") or "1"),
         sandbox_default_pids_limit=int(os.environ.get("SANDBOX_DEFAULT_PIDS_LIMIT") or "128"),
+        sandbox_test_image=sandbox_test_image,
         temporal_address=os.environ.get("TEMPORAL_ADDRESS") or "localhost:7233",
         temporal_namespace=os.environ.get("TEMPORAL_NAMESPACE") or "default",
         temporal_task_queue=(
@@ -285,4 +406,22 @@ def get_settings() -> Settings:
         ),
         otel_exporter_otlp_endpoint=otel_endpoint,
         otel_service_name=otel_service_name,
+        local_mvp_profile_enabled=local_mvp_enabled,
+        local_mvp_developer_token=local_developer_token,
+        local_mvp_reviewer_token=local_reviewer_token,
+        local_mvp_tenant_slug=local_tenant_slug,
+        local_mvp_workspace_root=local_workspace_root,
+        local_mvp_github_dry_run=local_github_dry_run,
+        model_ollama_enabled=ollama_enabled,
+        **ollama_values,
     )
+
+
+def _boolean_env(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    normalized = raw.casefold()
+    if normalized not in {"true", "false"}:
+        raise ConfigurationError(f"{name} must be true or false")
+    return normalized == "true"

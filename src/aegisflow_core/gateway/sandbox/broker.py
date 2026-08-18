@@ -152,7 +152,29 @@ def _run(request: SandboxRequest) -> SandboxResult:
     started = monotonic()
     try:
         _cleanup_orphans(client)
-        command = ["python", "-m", "pytest", request.test_profile.test_path, "-q"]
+        command = (
+            [
+                "python",
+                "-B",
+                "-m",
+                "unittest",
+                "discover",
+                "-s",
+                request.test_profile.test_path,
+                "-v",
+            ]
+            if request.test_profile.name == "python_unittest"
+            else [
+                "python",
+                "-B",
+                "-m",
+                "pytest",
+                request.test_profile.test_path,
+                "-q",
+                "-p",
+                "no:cacheprovider",
+            ]
+        )
         # Pulling the already digest-validated reference avoids tag drift and
         # matches Docker CLI behavior without accepting a mutable image name.
         client.pull(request.test_profile.image)

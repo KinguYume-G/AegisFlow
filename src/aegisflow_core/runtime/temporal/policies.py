@@ -119,5 +119,21 @@ def as_application_error(error: BaseException) -> ApplicationError:
     )
 
 
+def safe_failure_reference(error: BaseException) -> str:
+    """Return a bounded diagnostic code without persisting exception text."""
+    category = classify_failure(error).value
+    error_type = type(error).__name__
+    node = getattr(error, "node", None)
+    cause_type = getattr(error, "cause_type", None)
+    if (
+        isinstance(node, str)
+        and node.replace("_", "").isalnum()
+        and isinstance(cause_type, str)
+        and cause_type.replace("_", "").isalnum()
+    ):
+        return f"{category}:{node}:{cause_type}"[:200]
+    return f"{category}:{error_type}"[:200]
+
+
 def is_retryable(error: BaseException) -> bool:
     return classify_failure(error) not in _NON_RETRYABLE

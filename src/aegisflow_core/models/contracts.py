@@ -43,6 +43,7 @@ class ModelRequest:
     max_output_tokens: int = 512
     budget_limit_usd: Decimal | None = None
     estimated_cost_usd: Decimal | None = None
+    response_format: Literal["text", "json_object"] = "text"
 
     def __post_init__(self) -> None:
         if not self.messages:

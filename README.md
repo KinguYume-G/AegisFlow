@@ -1,18 +1,18 @@
-# AegisFlow — Production-Grade Agent Control Plane
+# AegisFlow — Production-Oriented Agent Control Plane
 
 > **Enterprise Software Delivery Agent Platform**
 
 > **Mandatory onboarding / 强制入门：在阅读或修改仓库内容前，先阅读 [`START_HERE.md`](START_HERE.md)。**
 
-AegisFlow is a production-grade Agent Control Plane for reliable execution, tool authorization, human approval, evaluation, audit, observability, and cost governance. `DeliveryPack` validates the platform through a requirement-to-delivery workflow. / AegisFlow 是一个生产级 Agent Control Plane，负责企业 AI Agent 的可靠执行、工具权限、人工审批、评测、审计、可观测性与成本治理，并以 `DeliveryPack` 的“需求 → 交付”研发闭环验证平台能力。
+AegisFlow is a production-oriented Agent Control Plane for reliable execution, tool authorization, human approval, evaluation, audit, observability, and cost governance. `DeliveryPack` validates the platform through a requirement-to-delivery workflow. The repository contains a verified local full-stack MVP and substantial production foundations; it is not yet production certified. / AegisFlow 是一个面向生产的 Agent Control Plane，负责企业 AI Agent 的可靠执行、工具权限、人工审批、评测、审计、可观测性与成本治理，并以 `DeliveryPack` 的“需求 → 交付”研发闭环验证平台能力。仓库已有经过验证的本地全栈 MVP 和较完整的生产化底座，但尚未完成生产认证。
 
 ## Current Phase / 当前阶段
 
-**M5：Gate 4 Final Acceptance / Gate 4 最终验收**
+**Post-MVP：AF-R04–AF-R08 Local Full-Stack MVP / 本地全栈 MVP 收口**
 
 Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
 
-M1–M5 and Gate 4 have been accepted by the Project Owner. AF-R01–AF-R03 are the active approved Post-MVP batch under ADR-0013; they remain optional extensions and do not change DeliveryPack or constitute production certification. / M1–M5 与 Gate 4 已由 Project Owner 验收；当前获批批次为 ADR-0013 约束下的 AF-R01–AF-R03 可选扩展，不改变 DeliveryPack，也不代表生产认证。
+M1–M5 and Gate 4 have been accepted by the Project Owner. AF-R01–AF-R03 are completed Post-MVP extensions. The active approved batch is AF-R04–AF-R08: a loopback-only Ollama profile, tenant-scoped Run API, production Delivery graph wiring, Temporal workflow, and Next.js developer/reviewer Console. GitHub writes remain dry-run by default and this batch does not constitute production certification. / M1–M5 与 Gate 4 已由 Project Owner 验收；AF-R01–AF-R03 已完成。当前获批批次为 AF-R04–AF-R08：回环限定的 Ollama 配置、租户级 Run API、生产 Delivery Graph 接线、Temporal 工作流以及 Next.js 开发者/审查者控制台。GitHub 写入默认保持 dry-run，本批次不代表生产认证。
 
 ## Frozen Positioning / 不可改变的定位
 
@@ -79,7 +79,44 @@ M1–M5 and Gate 4 have been accepted by the Project Owner. AF-R01–AF-R03 are 
 - M5 load profile: 100 users, 1906 requests, 0 failures, aggregate p95 140 ms on an ephemeral GitHub runner.
 - k3s/Helm, primary Model Gateway, Langfuse trace write/read, and protected Personal Workbench smokes passed with the limitations recorded in the final report.
 - Full evidence, artifact identities, SHA-256 values, and limitations: [`docs/reports/GATE4_FINAL_ACCEPTANCE.md`](docs/reports/GATE4_FINAL_ACCEPTANCE.md).
+- Local MVP observed one complete 10/10 Ollama + Docker Sandbox + separate Human Approval + dry-run Draft PR candidate path on 2026-08-18.
+- Current backend regression: 633 passed, 1 protected real-GitHub test skipped; repository coverage gate passes at 90%.
+- Current Console checks: 17 unit tests, lint, TypeScript and production build pass; local browser smoke passed, with two project-specific browser cases intentionally skipped per run.
 - Final acceptance remains a Human decision / 最终验收仍由人工决定。
+
+## Local Full-Stack MVP / 本地全栈 MVP
+
+Prerequisites: Docker Desktop with Compose, Ollama listening on `127.0.0.1:11434`, and the selected local model already pulled. No real GitHub or model-provider Secret is required for this dry-run profile.
+
+```powershell
+Copy-Item .env.local-mvp.example .env.local-mvp
+# Change the local-only database password and the two persona tokens.
+docker compose --env-file .env.local-mvp -f compose.yaml -f compose.local-mvp.yaml up -d --build
+```
+
+After the health checks pass:
+
+- Developer Console: <http://127.0.0.1:3000>
+- Reviewer Console: <http://127.0.0.1:3001>
+- Core API: <http://127.0.0.1:8000>
+
+The demonstrated path is:
+
+```text
+PRD / Issue → Run → Temporal → LangGraph
+→ Intake → Clarifier → Context → Planner → Policy
+→ Executor → Sandbox Build/Test → Reviewer
+→ separate Human Approval → dry-run Draft PR candidate
+→ Evaluation + Trace + Cost + Audit
+```
+
+Stop the local stack without deleting its volumes:
+
+```powershell
+docker compose --env-file .env.local-mvp -f compose.yaml -f compose.local-mvp.yaml down
+```
+
+See [`docs/26_PRODUCTION_READINESS_PLAN.md`](docs/26_PRODUCTION_READINESS_PLAN.md) for the truthful current-state matrix, owner preparation checklist, repository cleanup boundaries and production roadmap.
 
 ## Truthfulness Rule / 真实性规则
 

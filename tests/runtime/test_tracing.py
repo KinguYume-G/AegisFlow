@@ -5,6 +5,7 @@ from __future__ import annotations
 from decimal import Decimal
 import itertools
 import logging
+import os
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -18,6 +19,7 @@ from aegisflow_core.runtime.tracing import (
     InMemoryTraceRecorder,
     LangfuseTraceRecorder,
     NoOpTraceRecorder,
+    PostgresTraceRecorder,
     StepTraceRecord,
     TokenMeasurement,
     TokenUsage,
@@ -281,6 +283,83 @@ def test_inmemory_returns_defensive_copy() -> None:
     assert first_read == (original,)
     assert first_read is not second_read
     assert first_read[0] is not second_read[0]
+
+
+@pytest.mark.database
+@pytest.mark.asyncio
+async def test_postgres_trace_records_digest_measurements_and_step_once() -> None:
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        pytest.skip("DATABASE_URL is required")
+    from sqlalchemy import text
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    engine = create_async_engine(database_url)
+    tenant, workflow, run, step, trace = (
+        uuid4(),
+        uuid4(),
+        uuid4(),
+        uuid4(),
+        uuid4(),
+    )
+    async with engine.begin() as connection:
+        await connection.execute(
+            text("INSERT INTO tenants (id,slug,name) VALUES (:id,:slug,'Trace Test')"),
+            {"id": tenant, "slug": f"trace-{tenant.hex}"},
+        )
+        await connection.execute(
+            text(
+                "INSERT INTO workflows (id,tenant_id,name,version,definition_hash) "
+                "VALUES (:id,:tenant,'delivery',1,'hash')"
+            ),
+            {"id": workflow, "tenant": tenant},
+        )
+        await connection.execute(
+            text(
+                "INSERT INTO runs (id,tenant_id,workflow_id,workflow_version,status) "
+                "VALUES (:id,:tenant,:workflow,1,'running')"
+            ),
+            {"id": run, "tenant": tenant, "workflow": workflow},
+        )
+    record = _record(
+        tenant_id=tenant,
+        workflow_id=workflow,
+        workflow_version=1,
+        run_id=run,
+        step_id=step,
+        trace_id=trace,
+        agent="planner",
+        raw_prompt="Bearer must-never-be-stored",
+        model="ollama_chat/qwen3:8b",
+        token_usage=TokenUsage(
+            input_tokens=TokenMeasurement(status="measured", value=10),
+            output_tokens=TokenMeasurement(status="measured", value=4),
+            total_tokens=TokenMeasurement(status="measured", value=14),
+        ),
+        cost=CostUsage(amount=Decimal("0"), currency="USD", source="estimated"),
+    )
+    recorder = PostgresTraceRecorder(database_url)
+    recorder.record(record)
+    recorder.record(record)
+
+    async with engine.connect() as connection:
+        row = (
+            await connection.execute(
+                text(
+                    "SELECT t.prompt_digest, t.token_usage, t.cost_usage, s.sequence, "
+                    "count(*) OVER () AS trace_count FROM run_traces t "
+                    "JOIN steps s ON s.id=t.step_id WHERE t.run_id=:run"
+                ),
+                {"run": run},
+            )
+        ).mappings().one()
+    assert row["prompt_digest"] != record.prompt
+    assert "must-never" not in repr(row)
+    assert row["token_usage"]["total_tokens"]["value"] == 14
+    assert row["cost_usage"]["amount"] == "0"
+    assert row["sequence"] == 4
+    assert row["trace_count"] == 1
+    await engine.dispose()
 
 
 def test_langfuse_uses_deterministic_trace_id_and_event_metadata() -> None:

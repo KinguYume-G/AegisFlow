@@ -78,6 +78,44 @@ def test_broker_runs_with_fixed_security_parameters(tmp_path: Path, monkeypatch:
     assert (workspace / "output.txt").read_text() == "ok\n"
 
 
+def test_local_unittest_profile_uses_stdlib_without_network_install(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import io, tarfile
+    root = tmp_path / "owned"; workspace = root / "job"; workspace.mkdir(parents=True)
+    (workspace / "input.py").write_text("x=1\n")
+    output = io.BytesIO()
+    with tarfile.open(fileobj=output, mode="w") as archive:
+        data = b"ok\n"; info = tarfile.TarInfo("workspace/output.txt"); info.size = len(data)
+        archive.addfile(info, io.BytesIO(data))
+
+    class Client:
+        def containers(self, **kwargs): return []
+        def pull(self, image): return None
+        def create_host_config(self, **kwargs): return kwargs
+        def create_container(self, **kwargs): self.created = kwargs; return {"Id":"owned"}
+        def put_archive(self, *args): return None
+        def start(self, identifier): return None
+        def wait(self, *args, **kwargs): return {"StatusCode":0}
+        def logs(self, *args, **kwargs): return b""
+        def get_archive(self, *args): return [output.getvalue()], {}
+        def remove_container(self, *args, **kwargs): return None
+
+    client = Client()
+    profile = SandboxTestProfile(
+        name="python_unittest", image="python@sha256:" + "a" * 64
+    )
+    monkeypatch.setenv("SANDBOX_WORKSPACE_ROOT", str(root))
+    monkeypatch.setitem(sys.modules, "docker", SimpleNamespace(APIClient=lambda **kwargs: client))
+
+    assert broker._run(
+        SandboxRequest(workspace_source=workspace, test_profile=profile)
+    ).status == "completed"
+    assert client.created["command"] == [
+        "python", "-B", "-m", "unittest", "discover", "-s", "tests", "-v"
+    ]
+
+
 @pytest.mark.parametrize("name", [".env", "id_rsa", "credentials.json", "token.txt", "client.pem", "signing.key"])
 def test_archive_rejects_sensitive_filenames(tmp_path: Path, name: str) -> None:
     workspace = tmp_path / "workspace"; workspace.mkdir()

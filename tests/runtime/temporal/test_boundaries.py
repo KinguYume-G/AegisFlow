@@ -17,17 +17,23 @@ from aegisflow_core.runtime.temporal.contracts import (
     DeliveryWorkflowInput,
     HumanSignal,
 )
+from aegisflow_core.runtime.temporal.policies import safe_failure_reference
 from tests.runtime.temporal.test_contracts import identity
 
 
 class StubGraph:
     def __init__(self, result: AdvanceResult | Exception) -> None:
         self.result = result
+        self.failures = []
 
     async def advance(self, request: AdvanceRequest) -> AdvanceResult:
         if isinstance(self.result, Exception):
             raise self.result
         return self.result
+
+    async def fail(self, identity, failure_reference: str) -> str:
+        self.failures.append((identity, failure_reference))
+        return f"run:{identity.run_id}:failed"
 
 
 @pytest.mark.asyncio
@@ -35,10 +41,32 @@ async def test_activity_boundary_returns_result_and_classifies_failure() -> None
     request = AdvanceRequest(identity())
     expected = AdvanceResult("completed", "result:1")
     assert await DeliveryActivities(StubGraph(expected)).advance_gate1b(request) == expected
-    with pytest.raises(ApplicationError):
-        await DeliveryActivities(StubGraph(ValueError("bad input"))).advance_gate1b(request)
+    failed_graph = StubGraph(ValueError("sensitive input must not escape"))
+    failed = await DeliveryActivities(failed_graph).advance_gate1b(request)
+    assert failed == AdvanceResult("failed", f"run:{request.identity.run_id}:failed")
+    assert failed_graph.failures == [
+        (request.identity, "invalid_input:ValueError")
+    ]
+    with pytest.raises(ApplicationError) as captured:
+        await DeliveryActivities(StubGraph(ConnectionError("temporary"))).advance_gate1b(
+            request
+        )
+    assert captured.value.type == "transient"
     with pytest.raises(RuntimeError, match="not configured"):
         await UnconfiguredGraphPort().advance(request)
+
+
+def test_failure_reference_uses_only_stable_error_types() -> None:
+    error = type(
+        "NodeFailure",
+        (RuntimeError,),
+        {"node": "clarifier", "cause_type": "StructuredReasoningError"},
+    )("must never be persisted")
+
+    assert safe_failure_reference(error) == (
+        "irreversible:clarifier:StructuredReasoningError"
+    )
+    assert "persisted" not in safe_failure_reference(error)
 
 
 @pytest.mark.asyncio

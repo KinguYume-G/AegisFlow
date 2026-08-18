@@ -11,11 +11,19 @@ from aegisflow_core.runtime.checkpoint import PostgresCheckpointManager
 from aegisflow_core.runtime.temporal.activities import (
     DeliveryActivities,
     DurableGraphPort,
-    UnconfiguredGraphPort,
 )
 from aegisflow_core.runtime.temporal.client import connect_temporal
 from aegisflow_core.runtime.temporal.workflow import DeliveryWorkflow
 from aegisflow_core.runtime.observability import configure_tracer
+from aegisflow_core.control_plane.domain.session import (
+    create_database_engine,
+    create_session_factory,
+)
+from aegisflow_core.runtime.temporal.graph_adapter import (
+    CHECKPOINT_ALLOWED_TYPES,
+    PostgresDeliveryGraphAdapter,
+)
+from aegisflow_core.settings import get_settings
 
 
 def build_worker(
@@ -48,16 +56,33 @@ async def run_worker(graph: DurableGraphPort | None = None) -> None:
         service_name="aegisflow-temporal-worker",
         endpoint=os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT") or None,
     )
-    await PostgresCheckpointManager(checkpoint_url).setup()
+    settings = None
+    database_engine = None
+    if graph is None:
+        settings = get_settings()
+        manager = PostgresCheckpointManager(
+            checkpoint_url, allowed_types=CHECKPOINT_ALLOWED_TYPES
+        )
+        database_engine = create_database_engine(settings)
+        graph = PostgresDeliveryGraphAdapter(
+            settings=settings,
+            session_factory=create_session_factory(database_engine),
+            checkpoint_manager=manager,
+        )
+    else:
+        manager = PostgresCheckpointManager(checkpoint_url)
+    await manager.setup()
     client = await connect_temporal(address, namespace)
     worker = build_worker(
         client,
-        graph or UnconfiguredGraphPort(),
+        graph,
         task_queue=task_queue,
     )
     try:
         await worker.run()
     finally:
+        if database_engine is not None:
+            await database_engine.dispose()
         provider.shutdown()
 
 

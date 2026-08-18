@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Awaitable, Callable, Mapping
 from pathlib import Path
 from time import perf_counter
 from typing import Any, Literal, cast
-from uuid import UUID
+from uuid import UUID, uuid5
 
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import BaseCheckpointSaver
@@ -15,6 +16,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.types import Command, interrupt
 
+from aegisflow_core.models.contracts import ModelResponse
 from aegisflow_core.gateway.github.pull_request import (
     ApprovalAuthorizer,
     FileChange,
@@ -23,6 +25,8 @@ from aegisflow_core.gateway.github.pull_request import (
     IdempotencyGuard,
     WriteAuthorization,
     create_draft_pull_request,
+    create_draft_pull_request_candidate,
+    draft_pr_action_preview,
     digest_file_changes,
 )
 from aegisflow_core.gateway.github.webhook import WebhookVerificationResult
@@ -30,17 +34,20 @@ from aegisflow_core.gateway.policy.config import PolicyConfig
 from aegisflow_core.gateway.policy.gate import ExecutionScope, PolicyGate
 from aegisflow_core.gateway.policy.injection import InjectionPolicyGuard, Severity
 from aegisflow_core.gateway.sandbox.runner import SandboxRunner
-from aegisflow_core.packs.delivery.clarifier.hitl import InMemoryClarificationGateway
+from aegisflow_core.packs.delivery.clarifier.hitl import ClarificationGateway
 from aegisflow_core.packs.delivery.clarifier.ports import ClarificationReasoner
 from aegisflow_core.packs.delivery.context.ports import ContextRetriever
 from aegisflow_core.packs.delivery.contracts.determinism import Clock, IdGenerator
+from aegisflow_core.packs.delivery.contracts.action_approval import (
+    digest_action_preview,
+)
 from aegisflow_core.packs.delivery.contracts.unit_of_work import AsyncUnitOfWork
 from aegisflow_core.packs.delivery.executor.agent import ExecutorAgent
 from aegisflow_core.packs.delivery.executor.ports import PatchReasoner
 from aegisflow_core.packs.delivery.planner.ports import PlanReasoner
 from aegisflow_core.packs.delivery.reviewer.agent import ReviewerAgent
 from aegisflow_core.packs.delivery.reviewer.ports import ApprovalGateway, ReviewReasoner
-from aegisflow_core.runtime.graph import InvalidResumeThreadError, build_gate1a_graph
+from aegisflow_core.runtime.graph import InvalidResumeThreadError, build_gate1a_subgraph
 from aegisflow_core.runtime.checkpoint import CheckpointIdentity, build_checkpoint_config
 from aegisflow_core.runtime.state import AgentState
 from aegisflow_core.runtime.tracing import (
@@ -52,6 +59,7 @@ from aegisflow_core.runtime.tracing import (
 
 
 Gate1BNodeName = Literal["policy_gate", "executor", "reviewer", "approval_wait", "draft_pr"]
+_STEP_NAMESPACE = UUID("2dd2ba1e-11e1-4c03-9ea1-d20c0aac76b5")
 
 
 class Gate1BNodeError(RuntimeError):
@@ -92,7 +100,7 @@ def build_gate1b_graph(
     clarification_reasoner: ClarificationReasoner,
     context_retriever: ContextRetriever,
     plan_reasoner: PlanReasoner,
-    hitl_gateway: InMemoryClarificationGateway,
+    hitl_gateway: ClarificationGateway,
     policy_config: PolicyConfig,
     execution_scope: ExecutionScope,
     patch_reasoner: PatchReasoner,
@@ -107,11 +115,12 @@ def build_gate1b_graph(
     unit_of_work_factory: Callable[[], AsyncUnitOfWork],
     max_rework_attempts: int = 2,
     checkpointer: BaseCheckpointSaver[Any] | None = None,
+    github_dry_run: bool = False,
 ) -> CompiledStateGraph[AgentState, None, AgentState, AgentState]:
     """Build Gate 1B with no implicit adapters or external-write bypass."""
     if max_rework_attempts < 1:
         raise ValueError("max_rework_attempts must be positive")
-    gate1a = build_gate1a_graph(
+    gate1a = build_gate1a_subgraph(
         clock=clock,
         id_generator=id_generator,
         clarification_reasoner=clarification_reasoner,
@@ -129,12 +138,6 @@ def build_gate1b_graph(
     injection_guard = InjectionPolicyGuard(audit=UnitOfWorkInjectionAudit())
     executor = ExecutorAgent(patch_reasoner)
     reviewer = ReviewerAgent(review_reasoner)
-
-    async def gate1a_node(state: AgentState, config: RunnableConfig) -> AgentState:
-        result = await gate1a.ainvoke(dict(state), config=config)
-        if result.get("plan") is None:
-            raise Gate1BNodeError("policy_gate", "Gate1AIncomplete")
-        return cast(AgentState, result)
 
     async def policy_node(state: AgentState) -> AgentState:
         started = perf_counter()
@@ -194,9 +197,21 @@ def build_gate1b_graph(
             workspace = state.get("workspace_path")
             if plan is None or test_profile is None or not workspace:
                 raise ValueError("plan, test_profile, and workspace_path are required")
-            result = executor.execute(plan, Path(workspace), sandbox_runner, test_profile)
-            await _record_step(unit_of_work_factory, id_generator, state, "executor", 6, "completed")
-            _trace(trace_recorder, id_generator, state, "executor", started)
+            result = await asyncio.to_thread(
+                executor.execute, plan, Path(workspace), sandbox_runner, test_profile
+            )
+            step_id = await _record_step(
+                unit_of_work_factory, id_generator, state, "executor", 6, "completed"
+            )
+            _trace(
+                trace_recorder,
+                id_generator,
+                state,
+                "executor",
+                started,
+                step_id=step_id,
+                model_response=_model_response(patch_reasoner),
+            )
             return {"execution_result": result}
         except Exception as exc:
             raise _node_error("executor", exc) from None
@@ -207,11 +222,19 @@ def build_gate1b_graph(
             plan, execution = state.get("plan"), state.get("execution_result")
             if plan is None or execution is None:
                 raise ValueError("plan and execution_result are required")
-            decision = reviewer.review(plan, execution)
+            decision = await asyncio.to_thread(reviewer.review, plan, execution)
             step_id = await _record_step(
                 unit_of_work_factory, id_generator, state, "reviewer", 7, "completed"
             )
-            _trace(trace_recorder, id_generator, state, "reviewer", started, step_id=step_id)
+            _trace(
+                trace_recorder,
+                id_generator,
+                state,
+                "reviewer",
+                started,
+                step_id=step_id,
+                model_response=_model_response(review_reasoner),
+            )
             count = int(state.get("rework_count", 0))
             update: AgentState = {"review_decision": decision, "review_step_id": step_id}
             if decision.outcome == "rework":
@@ -240,11 +263,48 @@ def build_gate1b_graph(
     async def approval_wait_node(state: AgentState) -> AgentState:
         try:
             decision = state.get("review_decision")
-            step_id = state.get("review_step_id")
-            if decision is None or step_id is None:
-                raise ValueError("review decision and step identity are required")
+            execution = state.get("execution_result")
+            workspace_path = state.get("workspace_path")
+            target = state.get("repository_target")
+            base_ref = state.get("base_ref") or "main"
+            base_sha = state.get("base_sha")
+            if (
+                decision is None
+                or execution is None
+                or not workspace_path
+                or target is None
+                or not base_sha
+            ):
+                raise ValueError("review decision and exact action preview are required")
+            changes = _file_changes(Path(workspace_path), execution.changed_files)
+            step_id = await _record_step(
+                unit_of_work_factory,
+                id_generator,
+                state,
+                "human_approval",
+                8,
+                "running",
+            )
+            plan = state.get("plan")
+            if plan is None:
+                raise ValueError("approval requires the exact plan risk")
+            action_preview = draft_pr_action_preview(
+                effect_mode="dry_run" if github_dry_run else "github",
+                target=target,
+                base_ref=base_ref,
+                base_sha=base_sha,
+                branch_name=f"aegisflow/run-{_run_id(state)}",
+                changes=changes,
+                risk=plan.risk_level,
+            )
+            action_digest = digest_action_preview(action_preview)
             approval_id = await approval_gateway.request_approval(
-                _tenant_id(state), _run_id(state), step_id, decision.findings
+                _tenant_id(state),
+                _run_id(state),
+                step_id,
+                decision.findings,
+                action_preview=action_preview,
+                action_digest=action_digest,
             )
             async with unit_of_work_factory() as uow:
                 await uow.set_run_status(
@@ -258,6 +318,7 @@ def build_gate1b_graph(
                 "run_id": str(_run_id(state)),
                 "approval_id": str(approval_id),
                 "findings": [item.model_dump() for item in decision.findings],
+                "action_preview": action_preview,
             }
         )
         try:
@@ -278,6 +339,7 @@ def build_gate1b_graph(
                 )
             return {
                 "approval_reference": approval_id,
+                "approval_step_id": step_id,
                 "review_decision": resolved,
                 "run_status": status,
             }
@@ -292,35 +354,66 @@ def build_gate1b_graph(
         try:
             execution = state.get("execution_result")
             approval_id = state.get("approval_reference")
-            step_id = state.get("review_step_id")
+            step_id = state.get("approval_step_id")
             workspace_path = state.get("workspace_path")
             target = state.get("repository_target")
             base_sha = state.get("base_sha")
+            base_ref = state.get("base_ref") or "main"
             if None in (execution, approval_id, step_id, target) or not workspace_path or not base_sha:
                 raise ValueError("approved draft PR state is incomplete")
             changes = _file_changes(Path(workspace_path), execution.changed_files)  # type: ignore[union-attr]
+            plan = state.get("plan")
+            if plan is None:
+                raise ValueError("approved draft PR requires the exact plan risk")
+            action_preview = draft_pr_action_preview(
+                effect_mode="dry_run" if github_dry_run else "github",
+                target=target,  # type: ignore[arg-type]
+                base_ref=base_ref,
+                base_sha=base_sha,
+                branch_name=f"aegisflow/run-{_run_id(state)}",
+                changes=changes,
+                risk=plan.risk_level,
+            )
             authorization = WriteAuthorization(
                 approval_id=approval_id,
                 tenant_id=_tenant_id(state),
                 run_id=_run_id(state),
                 step_id=step_id,
                 repository_target=target,
+                base_ref=base_ref,
                 base_sha=base_sha,
                 content_digest=digest_file_changes(changes),
+                action_digest=digest_action_preview(action_preview),
+                effect_mode="dry_run" if github_dry_run else "github",
+                risk=plan.risk_level,
             )
-            result = await create_draft_pull_request(
+            create_result = (
+                create_draft_pull_request_candidate
+                if github_dry_run
+                else create_draft_pull_request
+            )
+            result = await create_result(
                 github_client=github_write_client,
                 read_client=github_read_client,
                 changes=changes,
                 authorization=authorization,
                 approval_authorizer=approval_authorizer,
                 idempotency_guard=idempotency_guard,
+                base_ref=base_ref,
             )
-            await _record_step(unit_of_work_factory, id_generator, state, "draft_pr", 8, "completed")
+            await _record_step(unit_of_work_factory, id_generator, state, "draft_pr", 9, "completed")
             async with unit_of_work_factory() as uow:
                 await uow.record_audit(
-                    tenant_id=_tenant_id(state), actor="github_draft_pr", action="create",
-                    resource_type="pull_request", resource_id=str(result.pull_request_number),
+                    tenant_id=_tenant_id(state), actor="github_draft_pr",
+                    action="create_candidate" if github_dry_run else "create",
+                    resource_type=(
+                        "draft_pr_candidate" if github_dry_run else "pull_request"
+                    ),
+                    resource_id=(
+                        result.candidate_reference
+                        if github_dry_run
+                        else str(result.pull_request_number)
+                    ),
                     decision="allow", reason="human_approved", trace_id=_trace_id(state),
                 )
                 await uow.set_run_status(
@@ -331,7 +424,7 @@ def build_gate1b_graph(
             raise _node_error("draft_pr", exc) from None
 
     builder = StateGraph(AgentState)
-    builder.add_node("gate1a", gate1a_node)
+    builder.add_node("gate1a", gate1a)
     builder.add_node("policy_gate", policy_node)
     builder.add_node("executor", executor_node)
     builder.add_node("reviewer", reviewer_node)
@@ -401,7 +494,11 @@ async def _record_step(
     sequence: int,
     status: str,
 ) -> UUID:
-    step_id = id_generator.new_id()
+    del id_generator
+    step_id = uuid5(
+        _STEP_NAMESPACE,
+        f"{_tenant_id(state)}:{_run_id(state)}:{sequence}:{name}",
+    )
     async with factory() as uow:
         return await uow.record_step(
             tenant_id=_tenant_id(state), run_id=_run_id(state), step_id=step_id,
@@ -417,17 +514,43 @@ def _trace(
     started: float,
     *,
     step_id: UUID | None = None,
+    model_response: ModelResponse | None = None,
 ) -> None:
+    workflow_id = state.get("workflow_id")
+    workflow_version = state.get("workflow_version")
+    if workflow_id is not None and not isinstance(workflow_id, UUID):
+        raise TypeError("workflow_id must be a UUID")
+    if workflow_version is not None and not isinstance(workflow_version, int):
+        raise TypeError("workflow_version must be an integer")
     recorder.record(
         build_step_trace_record(
-            tenant_id=_tenant_id(state), workflow_id=None, workflow_version=None,
+            tenant_id=_tenant_id(state), workflow_id=workflow_id,
+            workflow_version=workflow_version,
             run_id=_run_id(state), step_id=step_id or id_generator.new_id(),
             trace_id=_trace_id(state), agent=agent, raw_prompt=agent,
-            model=f"deterministic-{agent}-v1",
-            token_usage=unavailable_token_usage(), cost=unavailable_cost_usage(),
+            model=(
+                model_response.resolved_model
+                if model_response is not None
+                else f"deterministic-{agent}-v1"
+            ),
+            token_usage=(
+                model_response.token_usage
+                if model_response is not None
+                else unavailable_token_usage()
+            ),
+            cost=(
+                model_response.cost
+                if model_response is not None
+                else unavailable_cost_usage()
+            ),
             latency_ms=max(0.0, (perf_counter() - started) * 1000),
         )
     )
+
+
+def _model_response(reasoner: object) -> ModelResponse | None:
+    value = getattr(reasoner, "last_model_response", None)
+    return value if isinstance(value, ModelResponse) else None
 
 
 def _run_id(state: AgentState) -> UUID:

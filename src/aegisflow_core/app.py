@@ -9,11 +9,15 @@ from fastapi.responses import JSONResponse
 
 from aegisflow_core.health.router import router as health_router
 from aegisflow_core.run_graph_router import router as run_graph_router
+from aegisflow_core.run_router import router as run_router
+from aegisflow_core.control_plane.run_service import PostgresRunService
+from aegisflow_core.control_plane.bootstrap import bootstrap_local_mvp
 from aegisflow_core.control_plane.domain.session import (
     create_database_engine,
     create_session_factory,
 )
 from aegisflow_core.control_plane.identity import HttpJwksResolver, OidcVerifier
+from aegisflow_core.control_plane.identity import LocalIdentityVerifier, Principal
 from aegisflow_core.gateway.github.webhook import (
     InMemoryReplayGuard,
     NoOpWebhookDispatcher,
@@ -26,6 +30,7 @@ from aegisflow_core.settings import get_settings
 from aegisflow_core.packs.delivery.contracts.determinism import SystemClock
 from aegisflow_core.metrics_endpoint import install_metrics
 from aegisflow_core.runtime.metrics import Metrics, activate_metrics
+from aegisflow_core.runtime.temporal.run_gateway import TemporalRunGateway
 from aegisflow_core.telemetry import configure_telemetry
 
 
@@ -34,6 +39,25 @@ def create_app() -> FastAPI:
     configure_logging()
     settings = get_settings()
     database_engine = create_database_engine(settings)
+    session_factory = create_session_factory(database_engine)
+    local_identity_verifier = (
+        LocalIdentityVerifier(
+            developer_token=settings.local_mvp_developer_token or "",
+            reviewer_token=settings.local_mvp_reviewer_token or "",
+        )
+        if settings.local_mvp_identity_configured
+        else None
+    )
+    temporal_gateway = TemporalRunGateway(
+        address=settings.temporal_address,
+        namespace=settings.temporal_namespace,
+        task_queue=settings.temporal_task_queue,
+    )
+    run_service = PostgresRunService(
+        session_factory,
+        temporal_gateway,
+        profile="local_mvp" if settings.local_mvp_profile_enabled else "oidc",
+    )
     github_read_client: GitHubReadClient | None = None
     oidc_resolver = (
         HttpJwksResolver(
@@ -51,6 +75,14 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        if settings.local_mvp_profile_enabled:
+            async with session_factory.begin() as session:
+                _app.state.local_bootstrap = await bootstrap_local_mvp(
+                    session,
+                    slug=settings.local_mvp_tenant_slug,
+                    developer=Principal(LocalIdentityVerifier.issuer, "developer"),
+                    reviewer=Principal(LocalIdentityVerifier.issuer, "reviewer"),
+                )
         yield
         if github_read_client is not None:
             await github_read_client.aclose()
@@ -71,7 +103,7 @@ def create_app() -> FastAPI:
     )
     app.state.settings = settings
     app.state.database_engine = database_engine
-    app.state.session_factory = create_session_factory(database_engine)
+    app.state.session_factory = session_factory
     app.state.github_replay_guard = InMemoryReplayGuard()
     app.state.github_webhook_dispatcher = NoOpWebhookDispatcher()
     app.state.github_token_provider = (
@@ -94,6 +126,9 @@ def create_app() -> FastAPI:
     )
     app.state.github_read_client = github_read_client
     app.state.oidc_verifier = oidc_verifier
+    app.state.local_identity_verifier = local_identity_verifier
+    app.state.temporal_gateway = temporal_gateway
+    app.state.run_service = run_service
     app.state.metrics = metrics
     app.state.tracer_provider = tracer_provider
     logger = logging.getLogger("aegisflow")
@@ -116,4 +151,5 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(github_webhook_router)
     app.include_router(run_graph_router)
+    app.include_router(run_router)
     return app

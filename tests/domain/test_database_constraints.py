@@ -164,9 +164,10 @@ async def test_schema_and_triggers_exist(db_connection: AsyncConnection) -> None
         "ck_workflows_status",
         "ck_workflows_version_positive",
         "ck_runs_status",
-        "ck_steps_status",
-        "ck_approvals_decision",
-    }
+            "ck_steps_status",
+            "ck_approvals_decision",
+            "ck_approvals_action_pair",
+        }
 
 
 async def test_valid_chain_and_run_level_approval(

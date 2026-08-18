@@ -28,6 +28,8 @@ async def test_adapter_disables_sdk_retry_and_extracts_usage_cost() -> None:
     )
     assert captured["num_retries"] == 0
     assert captured["max_tokens"] == 512
+    assert captured["timeout"] == 60
+    assert captured["temperature"] == 0
     assert captured["api_key"] == "secret"
     assert result.resolved_model == "provider/resolved-v1"
     assert result.token_usage.total_tokens.value == 5
