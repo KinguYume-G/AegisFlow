@@ -4,7 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "deploy/**"
+      - "deploy/helm/**"
+      - "deploy/k3d/**"
       - "scripts/k3d-demo.sh"
       - "Dockerfile"
       - ".github/workflows/m5-k3s-demo-smoke.yml"

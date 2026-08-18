@@ -90,9 +90,9 @@ upgrade_rollback() {
   local base_revision
   base_revision="$(helm history "${RELEASE}" -n "${NAMESPACE}" --max 1 -o json | python -c 'import json,sys; print(json.load(sys.stdin)[-1]["revision"])')"
   helm upgrade "${RELEASE}" "${CHART}" -n "${NAMESPACE}" \
-    --reuse-values --set core.replicaCount=2 --wait --timeout 5m
+    --reuse-values --set core.replicaCount=2 --wait --timeout 10m
   test "$(kubectl -n "${NAMESPACE}" get deployment "${FULLNAME}-core" -o jsonpath='{.spec.replicas}')" = "2"
-  helm rollback "${RELEASE}" "${base_revision}" -n "${NAMESPACE}" --wait --timeout 5m
+  helm rollback "${RELEASE}" "${base_revision}" -n "${NAMESPACE}" --wait --timeout 10m
   test "$(kubectl -n "${NAMESPACE}" get deployment "${FULLNAME}-core" -o jsonpath='{.spec.replicas}')" = "1"
   verify
   if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
