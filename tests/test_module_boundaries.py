@@ -214,11 +214,13 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("identity/__init__.py"),
                     Path("identity/oidc.py"),
                     Path("identity/local.py"),
+                    Path("identity/sessions.py"),
                     Path("clarifications.py"),
                     Path("run_projection.py"),
                     Path("run_service.py"),
                     Path("runs.py"),
                     Path("domain/run_lifecycle.py"),
+                    Path("domain/console_session.py"),
         Path("migrations/env.py"),
         Path("migrations/versions/0001_initial_domain_model.py"),
             Path("migrations/versions/0002_normalize_check_names.py"),
@@ -230,6 +232,7 @@ def test_control_plane_contains_only_approved_modules() -> None:
                 Path("migrations/versions/0008_add_identity_rbac.py"),
                     Path("migrations/versions/0009_add_tool_registry.py"),
                     Path("migrations/versions/0010_add_run_lifecycle_read_model.py"),
+                    Path("migrations/versions/0011_add_console_sessions.py"),
     }
     actual_relative_files = {
         path.relative_to(control_plane)

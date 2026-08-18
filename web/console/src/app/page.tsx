@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { LogoutButton } from "@/components/logout-button";
 import { StatusPill } from "@/components/status-pill";
 import { CoreApiError, getDashboardData } from "@/lib/core-client";
 import { formatDate, shortId } from "@/lib/format";
@@ -10,6 +12,9 @@ export default async function DashboardPage() {
   try {
     loaded = await getDashboardData();
   } catch (error) {
+    if (error instanceof CoreApiError && error.status === 401) {
+      redirect("/login?reason=authentication_required");
+    }
     failureCode = error instanceof CoreApiError ? error.code : failureCode;
   }
   if (!loaded) {
@@ -18,7 +23,7 @@ export default async function DashboardPage() {
     );
   }
 
-    const { session, tenant, profile, runs } = loaded;
+    const { session, tenant, profile, runs, csrf } = loaded;
     const waiting = runs.items.filter((run) => run.status.startsWith("waiting_")).length;
     const active = runs.items.filter((run) => ["pending", "running"].includes(run.status)).length;
     const completed = runs.items.filter((run) => run.status === "completed").length;
@@ -34,6 +39,7 @@ export default async function DashboardPage() {
             <p className="hero-copy">Every Agent step is bounded by durable state, deterministic policy, isolated execution and Human authority.</p>
             {canCreate && <Link className="button button--primary button--large" href="/runs/new">＋ Start a Run</Link>}
           </div>
+          {csrf && <LogoutButton csrf={csrf} />}
           <div className="architecture-orbit" aria-label="Active local architecture">
             <span className="orbit orbit--one" /><span className="orbit orbit--two" />
             <div className="orbit-core"><b>10</b><small>governed steps</small></div>

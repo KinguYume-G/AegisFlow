@@ -24,7 +24,7 @@ const pending = {
 
 describe("ApprovalPanel", () => {
   it("keeps the action read-only for the developer actor", () => {
-    render(<ApprovalPanel pending={pending} persona="developer" onDecision={vi.fn()} />);
+    render(<ApprovalPanel pending={pending} canDecide={false} onDecision={vi.fn()} />);
 
     expect(screen.getByText("KinguYume-G/AegisFlow")).toBeInTheDocument();
     expect(screen.getByText(/dry-run/i)).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("ApprovalPanel", () => {
   it("requires exact-scope acknowledgement before reviewer approval", async () => {
     const user = userEvent.setup();
     const onDecision = vi.fn();
-    render(<ApprovalPanel pending={pending} persona="reviewer" onDecision={onDecision} />);
+    render(<ApprovalPanel pending={pending} canDecide onDecision={onDecision} />);
 
     const approve = screen.getByRole("button", { name: /approve exact action/i });
     expect(approve).toBeDisabled();

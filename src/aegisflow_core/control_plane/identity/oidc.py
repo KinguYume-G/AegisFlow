@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from time import monotonic
 from typing import Protocol
+from urllib.parse import urlsplit
 
 import httpx
 import jwt
@@ -38,6 +40,18 @@ class Principal:
 
 
 @dataclass(frozen=True, slots=True)
+class VerifiedIdentity:
+    """The minimum session input derived from a fully verified provider token."""
+
+    principal: Principal
+    expires_at: datetime
+
+    def __post_init__(self) -> None:
+        if self.expires_at.tzinfo is None or self.expires_at.utcoffset() is None:
+            raise ValueError("verified identity expiry must be timezone-aware")
+
+
+@dataclass(frozen=True, slots=True)
 class OidcConfig:
     issuer: str
     audience: str
@@ -46,12 +60,15 @@ class OidcConfig:
     cache_ttl_seconds: int = 300
     max_cached_keys: int = 16
     http_timeout_seconds: float = 5.0
+    allow_insecure_http: bool = False
 
     def __post_init__(self) -> None:
-        if not self.issuer.startswith("https://") or len(self.issuer) > 2048:
-            raise ValueError("OIDC issuer must use HTTPS")
-        if not self.jwks_url.startswith("https://") or len(self.jwks_url) > 2048:
-            raise ValueError("OIDC JWKS URL must use HTTPS")
+        self._validate_url(self.issuer, "issuer", {"localhost", "127.0.0.1"})
+        self._validate_url(
+            self.jwks_url,
+            "JWKS URL",
+            {"localhost", "127.0.0.1", "host.docker.internal", "keycloak"},
+        )
         if not self.audience.strip() or len(self.audience) > 255:
             raise ValueError("OIDC audience is required")
         if self.algorithm not in _ASYMMETRIC_ALGORITHMS:
@@ -62,6 +79,29 @@ class OidcConfig:
             raise ValueError("OIDC cache must contain between 1 and 64 keys")
         if not 0.1 <= self.http_timeout_seconds <= 30:
             raise ValueError("OIDC HTTP timeout must be between 0.1 and 30 seconds")
+
+    def _validate_url(
+        self, value: str, label: str, approved_local_hosts: set[str]
+    ) -> None:
+        if len(value) > 2048:
+            raise ValueError(f"OIDC {label} is too long")
+        parsed = urlsplit(value)
+        if (
+            parsed.username is not None
+            or parsed.password is not None
+            or parsed.query
+            or parsed.fragment
+            or not parsed.hostname
+        ):
+            raise ValueError(f"OIDC {label} is invalid")
+        if parsed.scheme == "https":
+            return
+        if not (
+            self.allow_insecure_http
+            and parsed.scheme == "http"
+            and parsed.hostname in approved_local_hosts
+        ):
+            raise ValueError(f"OIDC {label} must use HTTPS")
 
 
 class JwksResolver(Protocol):
@@ -122,6 +162,9 @@ class OidcVerifier:
         return len(self._keys)
 
     async def verify(self, token: str) -> Principal:
+        return (await self.verify_identity(token)).principal
+
+    async def verify_identity(self, token: str) -> VerifiedIdentity:
         if not token or len(token.encode("utf-8")) > _MAX_TOKEN_BYTES:
             raise AuthenticationError("token_too_large" if token else "malformed_token")
         try:
@@ -163,7 +206,14 @@ class OidcVerifier:
         subject = claims.get("sub")
         if not isinstance(subject, str) or not subject.strip() or len(subject) > 255:
             raise AuthenticationError("invalid_subject")
-        return Principal(self._config.issuer, subject)
+        expires = claims.get("exp")
+        if isinstance(expires, bool) or not isinstance(expires, (int, float)):
+            raise AuthenticationError("invalid_claims")
+        try:
+            expires_at = datetime.fromtimestamp(expires, timezone.utc)
+        except (OverflowError, OSError, ValueError) as exc:
+            raise AuthenticationError("invalid_claims") from exc
+        return VerifiedIdentity(Principal(self._config.issuer, subject), expires_at)
 
     async def _refresh(self, requested_kid: str) -> None:
         try:

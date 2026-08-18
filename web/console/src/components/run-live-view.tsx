@@ -8,13 +8,13 @@ import { ClarificationPanel } from "./clarification-panel";
 import { RunTimeline } from "./run-timeline";
 import { StatusPill } from "./status-pill";
 import type { RunDetail } from "@/lib/contracts";
-import type { ConsolePersona } from "@/lib/environment";
 import { formatCost, formatDate, formatDuration, formatTokenCount, shortId } from "@/lib/format";
 
 interface RunLiveViewProps {
   initial: RunDetail;
-  persona: ConsolePersona;
-  reviewerConsoleUrl: string;
+  capabilities: string[];
+  csrf: string | null;
+  reviewerConsoleUrl?: string;
 }
 
 const TERMINAL = new Set(["completed", "failed", "rejected", "cancelled"]);
@@ -28,12 +28,14 @@ function errorCode(payload: unknown): string {
   return "request_failed";
 }
 
-export function RunLiveView({ initial, persona, reviewerConsoleUrl }: RunLiveViewProps) {
+export function RunLiveView({ initial, capabilities, csrf, reviewerConsoleUrl }: RunLiveViewProps) {
   const [detail, setDetail] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
   const runId = detail.summary.run_id;
+  const canClarify = capabilities.includes("run:execute");
+  const canDecide = capabilities.includes("approval:decide");
 
   const refresh = useCallback(async () => {
     try {
@@ -78,7 +80,10 @@ export function RunLiveView({ initial, persona, reviewerConsoleUrl }: RunLiveVie
     try {
       const response = await fetch(path, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          ...(csrf ? { "x-aegisflow-csrf": csrf } : {}),
+        },
         body: JSON.stringify(body),
       });
       const payload: unknown = await response.json();
@@ -105,8 +110,8 @@ export function RunLiveView({ initial, persona, reviewerConsoleUrl }: RunLiveVie
           <p>{repository} <span>·</span> {detail.request.repository.base_ref} <span>·</span> created {formatDate(detail.summary.created_at)}</p>
         </div>
         <div className="run-hero__authority">
-          <small>Active authority</small><b>{persona === "reviewer" ? "Human Reviewer" : "Developer"}</b>
-          <span>{persona === "reviewer" ? "May decide exact approvals" : "May create and clarify Runs"}</span>
+          <small>Active authority</small><b>{canDecide ? "Human Reviewer" : "Developer"}</b>
+          <span>{canDecide ? "May decide exact approvals" : "May create and clarify Runs"}</span>
         </div>
       </section>
 
@@ -125,7 +130,7 @@ export function RunLiveView({ initial, persona, reviewerConsoleUrl }: RunLiveVie
 
           {pending?.kind === "clarification" && (
             <ClarificationPanel
-              persona={persona}
+              canClarify={canClarify}
               questions={pending.questions}
               submitting={busy}
               onSubmit={(answers) => mutate(
@@ -139,7 +144,7 @@ export function RunLiveView({ initial, persona, reviewerConsoleUrl }: RunLiveVie
             <>
               <ApprovalPanel
                 pending={pending}
-                persona={persona}
+                canDecide={canDecide}
                 submitting={busy}
                 onDecision={(decision, reason) => mutate(
                   `/api/runs/${runId}/approvals/${pending.request_id}`,
@@ -147,7 +152,7 @@ export function RunLiveView({ initial, persona, reviewerConsoleUrl }: RunLiveVie
                   `${decision === "approved" ? "Approval" : "Rejection"} accepted. Temporal will resume the same Run.`,
                 )}
               />
-              {persona === "developer" && (
+              {!canDecide && reviewerConsoleUrl && (
                 <a className="reviewer-handoff" href={`${reviewerConsoleUrl}/runs/${runId}`} rel="noreferrer" target="_blank">
                   <span>◇</span><div><b>Independent review required</b><p>Open this exact Run in the isolated Reviewer console.</p></div><strong>Open Reviewer ↗</strong>
                 </a>

@@ -7,17 +7,25 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from aegisflow_core.auth_router import router as auth_router
 from aegisflow_core.health.router import router as health_router
 from aegisflow_core.run_graph_router import router as run_graph_router
 from aegisflow_core.run_router import router as run_router
 from aegisflow_core.control_plane.run_service import PostgresRunService
-from aegisflow_core.control_plane.bootstrap import bootstrap_local_mvp
+from aegisflow_core.control_plane.bootstrap import (
+    bootstrap_local_mvp,
+    bootstrap_oidc_development,
+)
 from aegisflow_core.control_plane.domain.session import (
     create_database_engine,
     create_session_factory,
 )
 from aegisflow_core.control_plane.identity import HttpJwksResolver, OidcVerifier
 from aegisflow_core.control_plane.identity import LocalIdentityVerifier, Principal
+from aegisflow_core.control_plane.identity.sessions import (
+    ConsoleSessionManager,
+    PostgresConsoleSessionRepository,
+)
 from aegisflow_core.gateway.github.webhook import (
     InMemoryReplayGuard,
     NoOpWebhookDispatcher,
@@ -83,6 +91,28 @@ def create_app() -> FastAPI:
                     developer=Principal(LocalIdentityVerifier.issuer, "developer"),
                     reviewer=Principal(LocalIdentityVerifier.issuer, "reviewer"),
                 )
+        elif settings.oidc_development_bootstrap_configured:
+            async with session_factory.begin() as session:
+                _app.state.oidc_development_bootstrap = (
+                    await bootstrap_oidc_development(
+                        session,
+                        slug=settings.aegisflow_bootstrap_tenant_slug,
+                        principals={
+                            "Developer": Principal(
+                                settings.oidc_issuer or "",
+                                settings.oidc_development_developer_subject or "",
+                            ),
+                            "Reviewer": Principal(
+                                settings.oidc_issuer or "",
+                                settings.oidc_development_reviewer_subject or "",
+                            ),
+                            "Admin": Principal(
+                                settings.oidc_issuer or "",
+                                settings.oidc_development_admin_subject or "",
+                            ),
+                        },
+                    )
+                )
         yield
         if github_read_client is not None:
             await github_read_client.aclose()
@@ -127,6 +157,10 @@ def create_app() -> FastAPI:
     app.state.github_read_client = github_read_client
     app.state.oidc_verifier = oidc_verifier
     app.state.local_identity_verifier = local_identity_verifier
+    app.state.console_session_manager_factory = lambda session: ConsoleSessionManager(
+        PostgresConsoleSessionRepository(session),
+        max_lifetime_seconds=settings.console_session_ttl_seconds,
+    )
     app.state.temporal_gateway = temporal_gateway
     app.state.run_service = run_service
     app.state.metrics = metrics
@@ -149,6 +183,7 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(health_router)
+    app.include_router(auth_router)
     app.include_router(github_webhook_router)
     app.include_router(run_graph_router)
     app.include_router(run_router)

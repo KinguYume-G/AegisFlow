@@ -1,123 +1,261 @@
-# AegisFlow — Production-Oriented Agent Control Plane
+# AegisFlow
 
-> **Enterprise Software Delivery Agent Platform**
+> A governed Agent Control Plane for reliable, durable, and evidence-driven software delivery.
 
-> **Mandatory onboarding / 强制入门：在阅读或修改仓库内容前，先阅读 [`START_HERE.md`](START_HERE.md)。**
+[![CI](https://github.com/KinguYume-G/AegisFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/KinguYume-G/AegisFlow/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Control_Plane-009688?logo=fastapi&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![Temporal](https://img.shields.io/badge/Temporal-Durable_Workflows-141414)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agent_Runtime-1C3C3C)
 
-AegisFlow is a production-oriented Agent Control Plane for reliable execution, tool authorization, human approval, evaluation, audit, observability, and cost governance. `DeliveryPack` validates the platform through a requirement-to-delivery workflow. The repository contains a verified local full-stack MVP and substantial production foundations; it is not yet production certified. / AegisFlow 是一个面向生产的 Agent Control Plane，负责企业 AI Agent 的可靠执行、工具权限、人工审批、评测、审计、可观测性与成本治理，并以 `DeliveryPack` 的“需求 → 交付”研发闭环验证平台能力。仓库已有经过验证的本地全栈 MVP 和较完整的生产化底座，但尚未完成生产认证。
+AegisFlow turns a PRD, GitHub Issue, or bug report into a governed software-delivery run. Six fixed agents analyze the request, recover repository context, plan the work, execute inside an isolated sandbox, review the evidence, and stop for a separate human approval before any protected external write.
 
-## Current Phase / 当前阶段
+The repository currently provides a verified local full-stack MVP. Production OIDC is under review in [AF-R09](https://github.com/KinguYume-G/AegisFlow/issues/119); hosted-model canaries, hardened persistence, disaster recovery, production observability, evaluation gates, and deployment certification remain explicitly tracked work. AegisFlow is therefore **not yet represented as production-certified or production-hosted**.
 
-**Post-MVP：AF-R04–AF-R08 Local Full-Stack MVP / 本地全栈 MVP 收口**
+## Why AegisFlow
 
-Phase 0 已由 Project Owner / Human Reviewer 正式确认退出：PR #76 已人工审查并合并，AF-000–AF-008 已全部关闭并标记为 `status:verified`。56 个权威 Labels、7 个 Milestones 和 75 个 canonical Issues 保持为治理基线。
+An agent that can generate code is useful. An agent that can safely participate in an enterprise delivery process also needs deterministic authorization, recoverable state, bounded execution, reviewable evidence, and a human-owned release boundary.
 
-M1–M5 and Gate 4 have been accepted by the Project Owner. AF-R01–AF-R03 are completed Post-MVP extensions. The active approved batch is AF-R04–AF-R08: a loopback-only Ollama profile, tenant-scoped Run API, production Delivery graph wiring, Temporal workflow, and Next.js developer/reviewer Console. GitHub writes remain dry-run by default and this batch does not constitute production certification. / M1–M5 与 Gate 4 已由 Project Owner 验收；AF-R01–AF-R03 已完成。当前获批批次为 AF-R04–AF-R08：回环限定的 Ollama 配置、租户级 Run API、生产 Delivery Graph 接线、Temporal 工作流以及 Next.js 开发者/审查者控制台。GitHub 写入默认保持 dry-run，本批次不代表生产认证。
+| Production concern | AegisFlow approach |
+| --- | --- |
+| Uncontrolled tool calls | Default-deny Policy Gates validate intent, parameters, tenant/repository scope, and approval before execution. |
+| Lost long-running work | Temporal owns the durable workflow lifecycle; LangGraph owns the bounded agent computation state and checkpoints. |
+| Hallucinated completion | Build, test, diff, risk, and action-preview evidence is persisted and reviewed instead of trusting a model claim. |
+| Unsafe autonomous writes | External side effects are idempotent, auditable, and held behind a separate Human Approval step. |
+| Cross-tenant leakage | PostgreSQL-backed membership and fixed RBAC remain authoritative; model output never grants permissions. |
+| Model/provider failure | LiteLLM routing, budgets, retry boundaries, and a local Ollama profile separate model availability from workflow control. |
 
-## Frozen Positioning / 不可改变的定位
+## Governed delivery loop
 
-> This is not a code-review product; it is an Agent Control Plane. Software delivery is the stress workload used to prove the platform. / 我做的不是代码审查工具，是 Agent 控制平面。研发交付是压力最大的那个负载，所以我用它来证明底座。
-
-唯一首发应用包是 `DeliveryPack`：
-
-```text
-需求 / PRD / Bug / GitHub Issue
-  → Intake
-  → Clarifier
-  → Context
-  → Planner
-  → Policy Gate
-  → Executor
-  → Reviewer
-  → Human Approval
-  → Draft PR / 部署
-  → Trace / Cost / Evaluation / Learning
+```mermaid
+flowchart LR
+    Request["PRD / Issue / Bug"] --> API["FastAPI Control Plane"]
+    API --> Run["Create durable Run"]
+    Run --> Temporal["Temporal workflow"]
+    Temporal --> Intake
+    subgraph Graph["LangGraph DeliveryPack"]
+        Intake --> Clarifier --> Context --> Planner --> Gate1["Run Policy Gate"]
+        Gate1 --> Executor --> Reviewer
+        Reviewer -. changes requested .-> Executor
+    end
+    Executor --> Tools["MCP / GitHub adapter / Docker Sandbox"]
+    Tools --> Evidence["Diff + Build + Test evidence"]
+    Evidence --> Reviewer
+    Reviewer --> Approval["Separate Human Approval"]
+    Approval --> Gate2["Tool Policy Gate"]
+    Gate2 --> DraftPR["GitHub Draft PR"]
+    DraftPR --> Record["Trace + Cost + Evaluation + Audit"]
 ```
 
-六个命名 Agent 固定为：Intake、Clarifier、Context、Planner、Executor、Reviewer。不得新增平级 Agent，也不得把项目改造成 mini-CodeRabbit、通用聊天助手或 OpsPilot 主项目。
+The local profile exercises this loop without a real GitHub write: it produces a governed Draft PR candidate after sandbox execution and separate approval. A real fixture-repository canary remains protected work under [AF-R12](https://github.com/KinguYume-G/AegisFlow/issues/122).
 
-## 首次进入项目
+## System architecture
 
-任何开发者或 AI 第一次进入仓库时，先按顺序阅读：
+The following panorama is the approved production target, delivered incrementally through the status gates below. It is not evidence that every production component has already passed acceptance.
 
-1. [`START_HERE.md`](START_HERE.md)：所有人类贡献者与 AI Agent 的强制第一入口；
-2. [`README.md`](README.md)：项目定位与当前阶段；
-3. [`AGENTS.md`](AGENTS.md)：不可违反的协作与开发约束；
-4. [`docs/index.md`](docs/index.md)：文档总入口、事实源、当前工作与任务导航。
+<p align="center">
+  <img src="./ChatGPT%20Image%20Aug%2017,%202026,%2010_03_25%20PM.png" alt="AegisFlow production target architecture panorama" width="100%" />
+</p>
 
-完成这些入口文档后，再按照 `docs/index.md` 为当前任务加载相关 Issue、ADR、测试策略与最近 Handoff。
+The same boundaries are expressed below as a reviewable, version-controlled topology:
 
-## 深入阅读顺序
+```mermaid
+flowchart TB
+    subgraph Experience["Users and entry surfaces"]
+        Users["Developer · Reviewer · Administrator"]
+        Console["Next.js Console + server-only BFF"]
+        Ingress["REST API · GitHub webhook"]
+        Users --> Console
+        Console --> Ingress
+    end
 
-1. [`docs/DESIGN_BLUEPRINT.md`](docs/DESIGN_BLUEPRINT.md)
-2. [`docs/00_PROJECT_CHARTER.md`](docs/00_PROJECT_CHARTER.md)
-3. [`docs/02_ARCHITECTURE.md`](docs/02_ARCHITECTURE.md)
-4. [`docs/adr/`](docs/adr/)
-5. [`docs/03_ROADMAP.md`](docs/03_ROADMAP.md)
-6. [`docs/04_MILESTONES.md`](docs/04_MILESTONES.md)
-7. [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md)
-8. [`docs/06_DEVELOPER_GUIDE.md`](docs/06_DEVELOPER_GUIDE.md)
-9. [`docs/index.md`](docs/index.md)
+    subgraph Control["FastAPI modular control plane"]
+        Identity["OIDC / session boundary"]
+        RBAC["Tenant membership + fixed RBAC"]
+        Runs["Runs · approvals · audit · idempotency"]
+        Policy["Deterministic Policy Gates"]
+        Ingress --> Identity --> RBAC --> Runs --> Policy
+    end
 
-## 工程原则
+    subgraph Durable["Durable execution"]
+        Temporal["Temporal<br/>workflow lifecycle, retry, signal, recovery"]
+        LangGraph["LangGraph<br/>agent graph, checkpoint, resume"]
+        Agents["Intake → Clarifier → Context → Planner → Executor → Reviewer"]
+        Temporal --> LangGraph --> Agents
+    end
 
-- Documentation First
-- Architecture First
-- Test First
-- Security by Default
-- Small Iterations
-- GitHub Driven
-- One Issue, One Pull Request
-- Human Review Required
-- No Secrets in Git, Chat, Logs, Prompts, Issues or PRs
+    subgraph Governed["Governed tools and models"]
+        Model["LiteLLM → Ollama / approved provider"]
+        MCP["MCP Gateway + schema validation"]
+        Sandbox["Docker Sandbox Broker"]
+        GitHub["GitHub App adapter"]
+    end
 
-## Verified Snapshot / 已验证快照
+    subgraph State["State and evidence"]
+        Postgres[("PostgreSQL + pgvector<br/>business facts and retrieval")]
+        Redis[("Redis<br/>transient projections only")]
+        Artifacts[("Artifact storage<br/>diffs, logs, reports")]
+    end
 
-- Gate 1B real GitHub Draft PR boundary: passed on `main`.
-- Gate 2: 20/20 fault runs completed, duplicate effects 0, lost signals 0, p95 2972.42 ms.
-- Gate 3: 83 security tests passed; tracked credential signatures 0.
-- M5 load profile: 100 users, 1906 requests, 0 failures, aggregate p95 140 ms on an ephemeral GitHub runner.
-- k3s/Helm, primary Model Gateway, Langfuse trace write/read, and protected Personal Workbench smokes passed with the limitations recorded in the final report.
-- Full evidence, artifact identities, SHA-256 values, and limitations: [`docs/reports/GATE4_FINAL_ACCEPTANCE.md`](docs/reports/GATE4_FINAL_ACCEPTANCE.md).
-- Local MVP observed one complete 10/10 Ollama + Docker Sandbox + separate Human Approval + dry-run Draft PR candidate path on 2026-08-18.
-- Current backend regression: 633 passed, 1 protected real-GitHub test skipped; repository coverage gate passes at 90%.
-- Current Console checks: 17 unit tests, lint, TypeScript and production build pass; local browser smoke passed, with two project-specific browser cases intentionally skipped per run.
-- Final acceptance remains a Human decision / 最终验收仍由人工决定。
+    subgraph Observe["Evidence and observability"]
+        Trace["OpenTelemetry + Langfuse"]
+        Metrics["Prometheus + Grafana"]
+        Eval["Evaluation and regression gates"]
+    end
 
-## Local Full-Stack MVP / 本地全栈 MVP
+    Policy --> Temporal
+    Agents --> Model
+    Agents --> MCP
+    MCP --> Sandbox
+    MCP --> GitHub
+    Runs --> Postgres
+    LangGraph --> Postgres
+    Temporal --> Postgres
+    Runs --> Redis
+    Sandbox --> Artifacts
+    GitHub --> Artifacts
+    Temporal --> Trace
+    MCP --> Trace
+    Trace --> Metrics
+    Trace --> Eval
+```
 
-Prerequisites: Docker Desktop with Compose, Ollama listening on `127.0.0.1:11434`, and the selected local model already pulled. No real GitHub or model-provider Secret is required for this dry-run profile.
+### State ownership
+
+| Owner | Authoritative state | Explicit boundary |
+| --- | --- | --- |
+| PostgreSQL | Tenants, memberships, RBAC, Runs, approvals, audit, idempotency, repository versions, evaluation facts | Redis cannot become a business fact source. |
+| Temporal | Workflow lifecycle, retries, timeouts, signals, compensation, worker recovery | It does not own the agent's internal computation state. |
+| LangGraph | DeliveryPack node state, routing, checkpoint, resume | It does not duplicate the Temporal lifecycle. |
+| Sandbox / gateways | Ephemeral execution and external API dispatch | Every write must pass policy, approval, idempotency, result validation, and audit. |
+| Human reviewer | Final approval and merge decision | The LLM and the implementation agent cannot self-approve or auto-merge. |
+
+## Core capabilities
+
+- **Six-agent DeliveryPack** — Intake, Clarifier, Context, Planner, Executor, and Reviewer use typed contracts and conditional routing inside one fixed delivery workflow.
+- **Durable Human-in-the-Loop** — clarification and approval are persisted workflow interrupts, not browser-only prompts.
+- **Governed tool execution** — MCP/tool schemas, deterministic Policy Gates, tenant/repository scope, idempotency, and a side-effect ledger protect write operations.
+- **Isolated verification** — the Docker Sandbox Broker applies resource, filesystem, network, timeout, and output limits before evidence is accepted.
+- **Local-first model path** — the default MVP uses Ollama through the model gateway; hosted providers remain configuration-driven and separately validated.
+- **Full-stack operator experience** — a Next.js App Router console exposes Run creation, step timelines, clarification, evidence, and approval through a server-only BFF.
+- **Evidence over claims** — audit events, traces, token/cost records, test outputs, diffs, and approval receipts make each Run reviewable.
+
+## Delivery status
+
+| Scope | Status | Evidence / boundary |
+| --- | --- | --- |
+| Phase 0, M1–M5, Gate 4 | Accepted | Architecture, policy, runtime, sandbox, evaluation baseline, and local deployment gates are recorded in the repository. |
+| AF-R04–AF-R08 local full-stack MVP | Merged | [PR #118](https://github.com/KinguYume-G/AegisFlow/pull/118) closes the loopback-only Ollama, FastAPI, Temporal, LangGraph, PostgreSQL, Redis, sandbox, and Next.js flow. |
+| AF-R09 production OIDC sessions | In review | [Issue #119](https://github.com/KinguYume-G/AegisFlow/issues/119) and [PR #127](https://github.com/KinguYume-G/AegisFlow/pull/127); not complete until checks, review, and Human Merge pass. |
+| AF-R10–AF-R16 production-readiness roadmap | Planned / open | Hardened persistence, Helm, real canary, replay, SLOs, evaluation release gates, staging, and controlled production deployment. |
+
+See the [production-readiness plan](docs/26_PRODUCTION_READINESS_PLAN.md) for owner inputs, acceptance gates, and the exact difference between a local MVP and a production-certified release.
+
+## Technology stack
+
+| Layer | Technologies |
+| --- | --- |
+| Console | Next.js 16, React 19, TypeScript 5, Zod, Vitest, Playwright |
+| Control plane | Python 3.12, FastAPI, Pydantic 2, SQLAlchemy 2, Alembic |
+| Agent runtime | LangGraph, typed DeliveryPack contracts, PostgreSQL checkpoints |
+| Durable workflow | Temporal workflows, activities, signals, retries, timeouts, compensation |
+| Models and retrieval | LiteLLM, Ollama local profile, pgvector repository context |
+| Tools and isolation | MCP adapters, GitHub App gateway, Docker Sandbox Broker |
+| Data | PostgreSQL, pgvector, Redis projections, versioned migrations |
+| Evidence | OpenTelemetry, Langfuse, Prometheus metrics, evaluation reports, audit ledger |
+| Delivery | Docker Compose, Helm/k3d assets, GitHub Actions |
+
+## Quick start: verified local MVP
+
+### Prerequisites
+
+- Docker Desktop with Docker Compose
+- Ollama reachable from Docker and the configured model pulled (default: `qwen3:8b`)
+- Ports `3000`, `3001`, `8000`, `8088`, `55432`, `56379`, and `57233` available, or overridden in the local environment file
+
+### 1. Configure the local-only profile
 
 ```powershell
 Copy-Item .env.local-mvp.example .env.local-mvp
-# Change the local-only database password and the two persona tokens.
+```
+
+Replace every `change-me-*` value in `.env.local-mvp`. These values are for development only and must never be reused in production.
+
+### 2. Start the stack
+
+```powershell
 docker compose --env-file .env.local-mvp -f compose.yaml -f compose.local-mvp.yaml up -d --build
 ```
 
-After the health checks pass:
+### 3. Open the services
 
-- Developer Console: <http://127.0.0.1:3000>
-- Reviewer Console: <http://127.0.0.1:3001>
-- Core API: <http://127.0.0.1:8000>
+- Developer Console: `http://127.0.0.1:3000`
+- Reviewer Console: `http://127.0.0.1:3001`
+- FastAPI: `http://127.0.0.1:8000`
+- Temporal Web: `http://127.0.0.1:8088`
 
-The demonstrated path is:
+Follow the reproducible acceptance path in [`docs/reports/LOCAL_MVP_RUNBOOK.md`](docs/reports/LOCAL_MVP_RUNBOOK.md). The local profile is deliberately loopback-only, uses development personas, and keeps GitHub in dry-run mode.
 
-```text
-PRD / Issue → Run → Temporal → LangGraph
-→ Intake → Clarifier → Context → Planner → Policy
-→ Executor → Sandbox Build/Test → Reviewer
-→ separate Human Approval → dry-run Draft PR candidate
-→ Evaluation + Trace + Cost + Audit
-```
-
-Stop the local stack without deleting its volumes:
+### 4. Stop the stack
 
 ```powershell
 docker compose --env-file .env.local-mvp -f compose.yaml -f compose.local-mvp.yaml down
 ```
 
-See [`docs/26_PRODUCTION_READINESS_PLAN.md`](docs/26_PRODUCTION_READINESS_PLAN.md) for the truthful current-state matrix, owner preparation checklist, repository cleanup boundaries and production roadmap.
+## Repository layout
 
-## Truthfulness Rule / 真实性规则
+```text
+AegisFlow/
+├── src/aegisflow_core/       FastAPI modular monolith and application core
+│   ├── control_plane/        Identity, tenancy, RBAC, Runs, approvals, audit
+│   ├── runtime/              Temporal workflows and LangGraph checkpoints
+│   ├── gateway/              Policy, MCP, GitHub, sandbox, side-effect controls
+│   ├── models/               LiteLLM routing, budgets, circuit breakers
+│   ├── evaluation/           Datasets, metrics, regression evidence
+│   └── packs/delivery/       Six fixed DeliveryPack agents
+├── web/console/              Next.js management console and server-only BFF
+├── tests/                    Unit, component, integration, security, E2E, load
+├── deploy/                   Helm, k3d, Keycloak, dashboards, deployment assets
+├── scripts/                  Reproducible smoke, fault, evaluation, and ops tools
+├── docs/                     Architecture, ADRs, plans, runbooks, reports
+├── project/                  Canonical GitHub bootstrap data
+└── archive/                  Historical material; never an active fact source
+```
 
-尚未实现或测量的能力不得写成已达成事实。CI fixture、短时临时环境压测与单路 provider smoke 不得表述为生产质量、容量承诺或完整在线降级证明。
+## Verification
+
+```powershell
+# Backend and architecture contracts
+uv run pytest -q -p no:cacheprovider
+
+# Frontend quality gates
+npm.cmd --prefix web/console run test:run
+npm.cmd --prefix web/console run typecheck
+npm.cmd --prefix web/console run lint
+npm.cmd --prefix web/console run build
+
+# Compose and patch hygiene
+docker compose --env-file .env.local-mvp.example -f compose.yaml -f compose.local-mvp.yaml config --quiet
+docker compose --env-file .env.oidc-dev.example -f compose.yaml -f compose.oidc-dev.yaml config --quiet
+git diff --check
+```
+
+Protected database, Temporal, Docker, browser, hosted-model, and real-GitHub tests require their documented services and authorization. CI and PR evidence—not README claims—are the source of truth for a particular revision.
+
+## Engineering governance
+
+AegisFlow intentionally uses a modular monolith and one governed delivery workflow. It does not introduce Kafka, Terraform, CrewAI, generic ABAC, automatic merge, automatic production deployment, a visual Workflow Builder, or autonomous policy decisions.
+
+Start with [`START_HERE.md`](START_HERE.md), then read:
+
+- [`docs/DESIGN_BLUEPRINT.md`](docs/DESIGN_BLUEPRINT.md) — authoritative product and architecture blueprint
+- [`docs/02_ARCHITECTURE.md`](docs/02_ARCHITECTURE.md) — containers, modules, state ownership, and trust boundaries
+- [`docs/adr/`](docs/adr/) — accepted architecture decisions
+- [`docs/21_TRACEABILITY_MATRIX.md`](docs/21_TRACEABILITY_MATRIX.md) — requirement-to-evidence mapping
+- [`AGENTS.md`](AGENTS.md) — mandatory human/AI development protocol
+- [`SECURITY.md`](SECURITY.md) — vulnerability reporting and security expectations
+
+## License
+
+No open-source license has been declared. All rights are reserved by the repository owner unless a license is added later.

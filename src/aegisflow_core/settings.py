@@ -62,6 +62,12 @@ class Settings:
     oidc_cache_ttl_seconds: int = 300
     oidc_max_cached_keys: int = 16
     oidc_http_timeout_seconds: float = 5.0
+    oidc_allow_insecure_local: bool = False
+    oidc_development_bootstrap_enabled: bool = False
+    oidc_development_developer_subject: str | None = None
+    oidc_development_reviewer_subject: str | None = None
+    oidc_development_admin_subject: str | None = None
+    console_session_ttl_seconds: int = 900
     otel_exporter_otlp_endpoint: str | None = None
     otel_service_name: str = "aegisflow-core"
     local_mvp_profile_enabled: bool = False
@@ -121,12 +127,23 @@ class Settings:
             cache_ttl_seconds=self.oidc_cache_ttl_seconds,
             max_cached_keys=self.oidc_max_cached_keys,
             http_timeout_seconds=self.oidc_http_timeout_seconds,
+            allow_insecure_http=self.oidc_allow_insecure_local,
         )
 
     @property
     def local_mvp_identity_configured(self) -> bool:
         return self.local_mvp_profile_enabled and all(
             (self.local_mvp_developer_token, self.local_mvp_reviewer_token)
+        )
+
+    @property
+    def oidc_development_bootstrap_configured(self) -> bool:
+        return self.oidc_development_bootstrap_enabled and all(
+            (
+                self.oidc_development_developer_subject,
+                self.oidc_development_reviewer_subject,
+                self.oidc_development_admin_subject,
+            )
         )
 
     @property
@@ -326,10 +343,58 @@ def get_settings() -> Settings:
         raise ConfigurationError(
             "OIDC configuration must provide issuer, audience, JWKS URL, and algorithm or none"
         )
+    oidc_allow_insecure_local = _boolean_env("OIDC_ALLOW_INSECURE_LOCAL", False)
+    if oidc_allow_insecure_local and (
+        app_env != "development" or oidc_configured_count != len(oidc_values)
+    ):
+        raise ConfigurationError(
+            "OIDC insecure local HTTP requires complete development configuration"
+        )
+    oidc_development_bootstrap_enabled = _boolean_env(
+        "OIDC_DEVELOPMENT_BOOTSTRAP_ENABLED", False
+    )
+    oidc_development_subjects = {
+        "oidc_development_developer_subject": os.environ.get(
+            "OIDC_DEVELOPMENT_DEVELOPER_SUBJECT"
+        )
+        or None,
+        "oidc_development_reviewer_subject": os.environ.get(
+            "OIDC_DEVELOPMENT_REVIEWER_SUBJECT"
+        )
+        or None,
+        "oidc_development_admin_subject": os.environ.get(
+            "OIDC_DEVELOPMENT_ADMIN_SUBJECT"
+        )
+        or None,
+    }
+    development_subject_values = [
+        value for value in oidc_development_subjects.values() if value is not None
+    ]
+    if oidc_development_bootstrap_enabled:
+        if (
+            app_env != "development"
+            or local_mvp_enabled
+            or oidc_configured_count != len(oidc_values)
+            or len(development_subject_values) != len(oidc_development_subjects)
+            or len(set(development_subject_values)) != 3
+            or any(len(value) > 255 for value in development_subject_values)
+        ):
+            raise ConfigurationError(
+                "OIDC development bootstrap requires three distinct development-only subjects"
+            )
+    elif development_subject_values:
+        raise ConfigurationError(
+            "OIDC development bootstrap subjects require explicit enablement"
+        )
     try:
         oidc_cache_ttl_seconds = int(os.environ.get("OIDC_CACHE_TTL_SECONDS") or "300")
         oidc_max_cached_keys = int(os.environ.get("OIDC_MAX_CACHED_KEYS") or "16")
         oidc_http_timeout_seconds = float(os.environ.get("OIDC_HTTP_TIMEOUT_SECONDS") or "5")
+        console_session_ttl_seconds = int(
+            os.environ.get("CONSOLE_SESSION_TTL_SECONDS") or "900"
+        )
+        if not 60 <= console_session_ttl_seconds <= 3600:
+            raise ValueError("Console session TTL is outside the approved range")
         if oidc_configured_count:
             OidcConfig(
                 issuer=oidc_values["oidc_issuer"] or "",
@@ -339,6 +404,7 @@ def get_settings() -> Settings:
                 cache_ttl_seconds=oidc_cache_ttl_seconds,
                 max_cached_keys=oidc_max_cached_keys,
                 http_timeout_seconds=oidc_http_timeout_seconds,
+                allow_insecure_http=oidc_allow_insecure_local,
             )
     except (TypeError, ValueError) as exc:
         raise ConfigurationError("OIDC configuration is invalid") from exc
@@ -385,6 +451,10 @@ def get_settings() -> Settings:
         oidc_cache_ttl_seconds=oidc_cache_ttl_seconds,
         oidc_max_cached_keys=oidc_max_cached_keys,
         oidc_http_timeout_seconds=oidc_http_timeout_seconds,
+        oidc_allow_insecure_local=oidc_allow_insecure_local,
+        oidc_development_bootstrap_enabled=oidc_development_bootstrap_enabled,
+        **oidc_development_subjects,
+        console_session_ttl_seconds=console_session_ttl_seconds,
         github_api_timeout_seconds=github_api_timeout_seconds,
         aegisflow_bootstrap_tenant_slug=(
             os.environ.get("AEGISFLOW_BOOTSTRAP_TENANT_SLUG") or "gate1b-default"

@@ -9,7 +9,7 @@ vi.mock("next/navigation", () => ({
 
 describe("CreateRunForm", () => {
   it("emits repository patterns that compile under the HTML UnicodeSets mode", () => {
-    render(<CreateRunForm />);
+    render(<CreateRunForm csrf={null} />);
 
     for (const name of ["Owner", "Repository"]) {
       const pattern = screen.getByLabelText(name).getAttribute("pattern");

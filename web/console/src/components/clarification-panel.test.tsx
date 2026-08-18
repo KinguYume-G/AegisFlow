@@ -17,7 +17,7 @@ describe("ClarificationPanel", () => {
             schema_version: 1,
           },
         ]}
-        persona="developer"
+        canClarify
         onSubmit={onSubmit}
       />,
     );
@@ -31,7 +31,7 @@ describe("ClarificationPanel", () => {
     render(
       <ClarificationPanel
         questions={[{ field: "missing", question: "What is missing?", schema_version: 1 }]}
-        persona="reviewer"
+        canClarify={false}
         onSubmit={vi.fn()}
       />,
     );

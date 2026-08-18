@@ -2,21 +2,19 @@
 
 import { useState } from "react";
 
-import type { ConsolePersona } from "@/lib/environment";
 import type { PendingApproval } from "@/lib/contracts";
 
 interface ApprovalPanelProps {
   pending: PendingApproval;
-  persona: ConsolePersona;
+  canDecide: boolean;
   onDecision: (decision: "approved" | "rejected", reason?: string) => void | Promise<void>;
   submitting?: boolean;
 }
 
-export function ApprovalPanel({ pending, persona, onDecision, submitting = false }: ApprovalPanelProps) {
+export function ApprovalPanel({ pending, canDecide, onDecision, submitting = false }: ApprovalPanelProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [reason, setReason] = useState("");
   const preview = pending.action_preview;
-  const isReviewer = persona === "reviewer";
 
   return (
     <section className="approval-card" aria-labelledby="approval-title">
@@ -43,9 +41,9 @@ export function ApprovalPanel({ pending, persona, onDecision, submitting = false
         <div className="scope-grid__wide"><dt>Content digest</dt><dd className="mono digest">{preview.content_digest}</dd></div>
       </dl>
 
-      {!isReviewer ? (
+      {!canDecide ? (
         <div className="notice notice--neutral" role="note">
-          This console is the Developer actor. Approval controls are available only in the isolated Reviewer console.
+          Your current tenant role cannot decide this approval. A separate authorized Human must review it.
         </div>
       ) : (
         <div className="decision-area">

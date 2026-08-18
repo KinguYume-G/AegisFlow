@@ -1,8 +1,8 @@
 # AegisFlow 文档总入口
 
-> **Current execution state / 当前执行状态（2026-08-18）**: M5 Gate 4 has been accepted by the Project Owner. AF-R01–AF-R03 are completed extensions. The active approved batch is AF-R04–AF-R08, which closes a loopback-only Ollama, FastAPI, Temporal, LangGraph and Next.js local MVP without changing DeliveryPack or the six fixed Agents. / M5 Gate 4 已由 Project Owner 验收；AF-R01–AF-R03 已完成。当前获批批次为 AF-R04–AF-R08，用于收口回环限定的 Ollama、FastAPI、Temporal、LangGraph 与 Next.js 本地 MVP，不改变 DeliveryPack 与六个固定 Agent。
+> **Current execution state / 当前执行状态（2026-08-18）**: M5 Gate 4 and AF-R01–AF-R08 are Human-Merged. AF-R09 is the active approved production-readiness slice for provider-neutral OIDC sessions and server-side Console authorization; Draft PR #127 is not complete until checks, Human Review and Human Merge pass. / M5 Gate 4 与 AF-R01–AF-R08 已由 Human 合并；当前获批的生产就绪切片为 AF-R09，用于实现提供商中立的 OIDC 会话与服务端 Console 授权；Draft PR #127 只有在检查、Human Review 与 Human Merge 通过后才算完成。
 
-> 当前批次：GitHub Issues #113–#117（AF-R04–AF-R08）；Project Owner 已批准作为依赖闭合批次开发，但最终结论仍必须由 Human Review/Merge 与 Project Owner 确认。
+> 当前工作：GitHub Issue #119（AF-R09），分支 `feat/AF-R09-oidc-console-auth`，Draft PR #127；不得自行批准或合并，AF-R10–AF-R16 仍是未完成路线图。
 
 本页是 AegisFlow 的文档导航与当前状态入口。首次进入仓库时必须先阅读根目录的 [`START_HERE.md`](../START_HERE.md)，再依次阅读 `README.md`、`AGENTS.md` 和本页；开始具体任务前，再按本页加载当前 Issue、相关 ADR、测试策略与最近 Handoff。
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { assertTrustedMutation } from "./mutation-guard";
+import { createCsrfToken } from "./auth-session";
 
 function request(headers: Record<string, string>) {
   return new Request("http://localhost:3000/api/runs", {
@@ -60,5 +61,30 @@ describe("BFF mutation guard", () => {
         }),
       ),
     ).toThrow("json_content_type_required");
+  });
+
+  it("requires a CSRF value bound to the opaque OIDC session", () => {
+    const session = `afs_cs_${"S".repeat(43)}`;
+    const key = "A".repeat(43);
+    const config = {
+      authMode: "oidc" as const,
+      sessionEncryptionKey: key,
+      sessionCookieName: "aegisflow_session",
+    };
+    const trusted = {
+      origin: "http://localhost:3000",
+      "content-type": "application/json",
+      "sec-fetch-site": "same-origin",
+      cookie: `aegisflow_session=${session}`,
+      "x-aegisflow-csrf": createCsrfToken(session, key),
+    };
+
+    expect(() => assertTrustedMutation(request(trusted), config)).not.toThrow();
+    expect(() =>
+      assertTrustedMutation(request({ ...trusted, "x-aegisflow-csrf": "forged" }), config),
+    ).toThrow("csrf_validation_failed");
+    expect(() =>
+      assertTrustedMutation(request({ ...trusted, cookie: "" }), config),
+    ).toThrow("authentication_required");
   });
 });

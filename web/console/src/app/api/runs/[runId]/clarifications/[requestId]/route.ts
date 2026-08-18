@@ -4,6 +4,7 @@ import { z } from "zod";
 import { idempotencyKey, routeError } from "@/lib/bff-response";
 import { submitClarification } from "@/lib/core-client";
 import { assertTrustedMutation } from "@/lib/mutation-guard";
+import { loadConsoleEnvironment } from "@/lib/environment";
 
 const idSchema = z.string().uuid();
 
@@ -12,7 +13,7 @@ export async function POST(
   context: { params: Promise<{ runId: string; requestId: string }> },
 ) {
   try {
-    assertTrustedMutation(request);
+    assertTrustedMutation(request, loadConsoleEnvironment());
     const { runId, requestId } = await context.params;
     const result = await submitClarification(
       idSchema.parse(runId),

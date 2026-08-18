@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from time import time
 
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -16,6 +17,7 @@ from aegisflow_core.control_plane.identity import (
     OidcConfig,
     OidcVerifier,
     Principal,
+    VerifiedIdentity,
     parse_bearer_token,
 )
 
@@ -82,6 +84,25 @@ async def test_valid_token_authenticates_and_rotation_refreshes_once() -> None:
     assert old.actor_reference == "https://issuer.example.test|subject-123"
     assert resolver.calls == 2
     assert verifier.cached_key_count == 2
+
+
+@pytest.mark.anyio
+async def test_verified_identity_exposes_only_verified_expiry() -> None:
+    private, jwk = key_pair("key")
+    expires_at = datetime.now(timezone.utc).replace(microsecond=0)
+    expires_at = expires_at.replace(second=(expires_at.second + 30) % 60)
+    expected_timestamp = int(time()) + 300
+    verifier = OidcVerifier(config(), RotatingResolver({"key": jwk}))
+
+    identity = await verifier.verify_identity(
+        token(private, "key", exp=expected_timestamp)
+    )
+
+    assert identity == VerifiedIdentity(
+        principal=Principal("https://issuer.example.test", "subject-123"),
+        expires_at=datetime.fromtimestamp(expected_timestamp, timezone.utc),
+    )
+    assert not hasattr(identity, "claims")
 
 
 @pytest.mark.anyio
@@ -164,6 +185,28 @@ def test_oidc_config_rejects_unsafe_or_unbounded_values() -> None:
         config(http_timeout_seconds=0)
     with pytest.raises(AuthenticationError, match="token_too_large"):
         parse_bearer_token("Bearer " + "x" * 16_385)
+
+
+def test_oidc_config_allows_only_explicit_local_development_http() -> None:
+    local = config(
+        issuer="http://localhost:8080/realms/aegisflow",
+        jwks_url="http://host.docker.internal:8080/realms/aegisflow/certs",
+        allow_insecure_http=True,
+    )
+
+    assert local.allow_insecure_http is True
+    with pytest.raises(ValueError):
+        config(
+            issuer="http://identity.example.test/realms/aegisflow",
+            jwks_url="http://identity.example.test/certs",
+            allow_insecure_http=True,
+        )
+    with pytest.raises(ValueError):
+        config(
+            issuer="http://localhost:8080/realms/aegisflow",
+            jwks_url="http://user:secret@localhost:8080/certs",
+            allow_insecure_http=True,
+        )
 
 
 @pytest.mark.anyio

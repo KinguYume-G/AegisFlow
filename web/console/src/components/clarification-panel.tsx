@@ -2,22 +2,20 @@
 
 import { useState, type FormEvent } from "react";
 
-import type { ConsolePersona } from "@/lib/environment";
-
 interface ClarificationPanelProps {
   questions: Array<{
     field: string;
     question: string;
     schema_version: number;
   }>;
-  persona: ConsolePersona;
+  canClarify: boolean;
   onSubmit: (answers: Record<string, string>) => void | Promise<void>;
   submitting?: boolean;
 }
 
 export function ClarificationPanel({
   questions,
-  persona,
+  canClarify,
   onSubmit,
   submitting = false,
 }: ClarificationPanelProps) {
@@ -33,9 +31,9 @@ export function ClarificationPanel({
       <p className="eyebrow">Human context checkpoint</p>
       <h2 id="clarification-title">Clarification required</h2>
       <p className="muted">The Agent paused rather than inventing missing delivery requirements.</p>
-      {persona !== "developer" ? (
+      {!canClarify ? (
         <div className="notice notice--neutral" role="note">
-          The original Developer must answer these questions. This Reviewer view is read-only.
+          Your current tenant role cannot answer this Run&apos;s clarification request.
         </div>
       ) : (
         <form className="clarification-form" onSubmit={submit}>
