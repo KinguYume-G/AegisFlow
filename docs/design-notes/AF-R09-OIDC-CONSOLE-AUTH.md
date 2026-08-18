@@ -239,6 +239,16 @@ AF-R09 performs no GitHub, model, MCP, sandbox or deployment write.
   is recorded.
 - Clock skew: bounded configuration only; no disabled expiry validation.
 
+### Deployment integrity boundary
+
+The authenticated local Compose profile supplies the DeliveryPack Worker with its
+complete development-only Ollama, governed Sandbox Broker, workspace and GitHub
+dry-run contract. The historical M5 k3s chart does not package that execution plane:
+its Worker therefore remains disabled by default until AF-R11 owns the complete
+Kubernetes packaging. This prevents a crash-looping partial deployment from being
+reported as a successful Agent runtime and does not claim production deployment in
+AF-R09.
+
 ## Security Impact
 
 High. The implementation must preserve least privilege, short-lived identity,

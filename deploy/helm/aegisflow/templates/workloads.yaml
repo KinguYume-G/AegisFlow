@@ -90,6 +90,7 @@ spec:
           resources: {{- toYaml .Values.core.resources | nindent 12 }}
           volumeMounts: [{name: tmp, mountPath: /tmp}]
       volumes: [{name: tmp, emptyDir: {}}]
+{{- if .Values.worker.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -132,6 +133,7 @@ spec:
           resources: {{- toYaml .Values.worker.resources | nindent 12 }}
           volumeMounts: [{name: tmp, mountPath: /tmp}]
       volumes: [{name: tmp, emptyDir: {}}]
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment

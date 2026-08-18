@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 
-import { revokeCoreSession } from "@/lib/core-auth-client";
+import {
+  AuthenticationExchangeError,
+  revokeCoreSession,
+} from "@/lib/core-auth-client";
 import { loadConsoleEnvironment } from "@/lib/environment";
-import { assertTrustedMutation } from "@/lib/mutation-guard";
+import {
+  assertTrustedMutation,
+  MutationGuardError,
+} from "@/lib/mutation-guard";
 
 export async function POST(request: Request) {
   const config = loadConsoleEnvironment();
@@ -25,7 +31,16 @@ export async function POST(request: Request) {
     response.headers.set("cache-control", "no-store");
     return response;
   } catch (error) {
-    const code = error instanceof Error ? error.message : "logout_failed";
-    return NextResponse.json({ error: { code } }, { status: 403 });
+    const code =
+      error instanceof AuthenticationExchangeError
+        ? error.code
+        : error instanceof MutationGuardError
+          ? error.code
+          : "logout_failed";
+    const status = error instanceof AuthenticationExchangeError ? 503 : 403;
+    return NextResponse.json(
+      { error: { code } },
+      { status, headers: { "cache-control": "no-store" } },
+    );
   }
 }

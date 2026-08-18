@@ -19,7 +19,7 @@ export class AuthenticationExchangeError extends Error {
   }
 }
 
-function errorCode(value: unknown): string {
+function errorCode(value: unknown, fallback = "session_exchange_failed"): string {
   if (
     typeof value === "object" &&
     value !== null &&
@@ -31,7 +31,7 @@ function errorCode(value: unknown): string {
   ) {
     return value.error.code.slice(0, 128);
   }
-  return "session_exchange_failed";
+  return fallback;
 }
 
 export async function exchangeProviderAccessToken(
@@ -65,14 +65,21 @@ export async function revokeCoreSession(
   config: OidcConsoleEnvironment,
   sessionToken: string,
 ): Promise<void> {
+  let response: Response;
   try {
-    await fetch(`${config.coreUrl}/v1/auth/session`, {
+    response = await fetch(`${config.coreUrl}/v1/auth/session`, {
       method: "DELETE",
       cache: "no-store",
       headers: { authorization: `AegisSession ${sessionToken}` },
       signal: AbortSignal.timeout(10_000),
     });
   } catch {
-    // The browser session is still cleared. The short Core TTL bounds exposure.
+    throw new AuthenticationExchangeError("core_unavailable");
+  }
+  const body: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new AuthenticationExchangeError(
+      errorCode(body, "session_revocation_failed"),
+    );
   }
 }

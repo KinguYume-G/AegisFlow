@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { sealLoginTransaction } from "@/lib/auth-session";
+import { safeReturnPath, sealLoginTransaction } from "@/lib/auth-session";
 import { loadConsoleEnvironment } from "@/lib/environment";
 import { beginAuthorization } from "@/lib/oidc-client";
 
 export const dynamic = "force-dynamic";
 
 function returnPath(request: NextRequest): string {
-  const value = request.nextUrl.searchParams.get("return_to") ?? "/";
-  if (!value.startsWith("/") || value.startsWith("//") || value.length > 2048) {
-    return "/";
-  }
-  return value;
+  return safeReturnPath(request.nextUrl.searchParams.get("return_to"));
 }
 
 export async function GET(request: NextRequest) {

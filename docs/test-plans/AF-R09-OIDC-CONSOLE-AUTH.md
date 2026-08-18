@@ -40,6 +40,10 @@ regression path and the repository 90% backend coverage gate.
    props, HTML, JavaScript bundles, browser storage and error bodies.
 6. The server-only Core client sends only `AegisSession` after login and removes the
    local Persona headers from the authenticated profile.
+7. A rejected OIDC discovery promise is evicted so a transient provider outage can
+   recover on the next bounded request; successful discovery remains cached.
+8. Failed Core session revocation returns a sanitized failure and retains the
+   browser cookie so the user cannot be told that an active server session ended.
 
 ## Component Tests
 
@@ -70,6 +74,8 @@ regression path and the repository 90% backend coverage gate.
    valid until expiry/revocation.
 6. Stop Keycloak after login: existing Core session behavior is explicit, new login
    fails boundedly, and logout still revokes locally.
+7. Render the merged OIDC Compose profile and verify the Worker receives the
+   Ollama, Sandbox Broker, workspace, Temporal and dry-run DeliveryPack contract.
 
 ## Negative / Security Tests
 

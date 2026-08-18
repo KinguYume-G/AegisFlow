@@ -9,9 +9,9 @@ This is the onboarding entry point, not a replacement for the project’s author
 
 - **AegisFlow** targets a production-grade Agent Control Plane for reliable execution, tool governance, human approval, evaluation, audit, observability, and cost control. The current repository has a verified local full-stack MVP but is not yet production certified. / AegisFlow 的目标是生产级 Agent Control Plane，覆盖可靠执行、工具治理、人工审批、评测、审计、可观测性与成本控制。当前仓库已具备经过验证的本地全栈 MVP，但尚未完成生产认证。
 - **DeliveryPack** is the only initial application pack. Its six fixed Agents are Intake, Clarifier, Context, Planner, Executor, and Reviewer. / DeliveryPack 是唯一首发应用包，固定包含 Intake、Clarifier、Context、Planner、Executor、Reviewer 六个 Agent。
-- M1–M5 and Gate 4 are accepted. AF-R01–AF-R03 are completed. The active approved work is AF-R04–AF-R08 (#113–#117) under ADR-0014. / M1–M5 与 Gate 4 已验收；AF-R01–AF-R03 已完成；当前获批工作为 ADR-0014 约束下的 AF-R04–AF-R08（#113–#117）。
+- M1–M5 and Gate 4 are accepted. AF-R01–AF-R08 are completed and Human-Merged. The active approved work is AF-R09 (#119, Draft PR #127): production OIDC sessions and server-side Console authorization. / M1–M5 与 Gate 4 已验收；AF-R01–AF-R08 已完成并由 Human 合并；当前获批工作为 AF-R09（#119，Draft PR #127）：生产 OIDC 会话与服务端 Console 授权。
 - The canonical planning baseline contains 75 Issues in [`docs/05_GITHUB_ISSUE_BACKLOG.md`](docs/05_GITHUB_ISSUE_BACKLOG.md) and [`project/GITHUB_ISSUE_IMPORT.csv`](project/GITHUB_ISSUE_IMPORT.csv). `archive/` is not a current source of truth. / 正式规划基线为 75 条 Issue；`archive/` 不是当前事实源。
-- AF-R04–AF-R08 are an explicitly approved dependency-closed batch and do not alter the canonical 75-Issue baseline. / AF-R04–AF-R08 是明确获批的依赖闭合批次，不改变 canonical 75 条 Issue 基线。
+- AF-R04–AF-R08 were an explicitly approved dependency-closed batch and do not alter the canonical 75-Issue baseline. / AF-R04–AF-R08 是已完成的依赖闭合批次，不改变 canonical 75 条 Issue 基线。
 
 ## Authoritative Reading Order / 权威阅读顺序
 
@@ -100,13 +100,13 @@ Required External Inputs / 所需外部输入:
 
 ## Current Phase / 当前阶段
 
-Phase 0, M1–M5, and Gate 4 are complete and accepted. AF-R04–AF-R08 are the active local full-stack MVP batch; final review and merge still require a Human. / Phase 0、M1–M5 与 Gate 4 已完成并验收；AF-R04–AF-R08 是当前本地全栈 MVP 批次，最终审查与合并仍必须由 Human 完成。
+Phase 0, M1–M5, Gate 4 and AF-R01–AF-R08 are complete and accepted. AF-R09 is the active production-readiness slice; its Draft PR still requires passing checks, Human Review and Human Merge. / Phase 0、M1–M5、Gate 4 与 AF-R01–AF-R08 已完成并验收；AF-R09 是当前生产就绪切片，其 Draft PR 仍须通过检查、Human Review 与 Human Merge。
 
 Current work / 当前工作：
 
-- Close the AF-R04–AF-R08 test, documentation, traceability and cleanup acceptance criteria / 收口 AF-R04–AF-R08 的测试、文档、追踪与清理验收条件；
-- Reproduce [`docs/reports/LOCAL_MVP_RUNBOOK.md`](docs/reports/LOCAL_MVP_RUNBOOK.md) and retain every stated limitation / 按本地 MVP Runbook 复现并保留全部限制；
-- Human-review and human-merge the batch PR before any production or real external-write Issue starts / 在任何生产化或真实外部写入 Issue 开始前，由 Human 审查并合并本批次 PR。
+- Close AF-R09 authentication, authorization, failure-path, documentation and traceability acceptance evidence / 收口 AF-R09 的认证、授权、失败路径、文档与追踪验收证据；
+- Reproduce the local Keycloak/OIDC profile while retaining GitHub dry-run and all stated local limitations / 复现本地 Keycloak/OIDC 配置，同时保持 GitHub dry-run 与全部本地限制；
+- Human-review and human-merge Draft PR #127 before AF-R10 or any real external-write Issue starts / 在 AF-R10 或任何真实外部写入 Issue 开始前，由 Human 审查并合并 Draft PR #127。
 
 The local profile is development/test only: GitHub remains dry-run and local Persona tokens are never production authentication. The production roadmap and owner inputs are tracked in [`docs/26_PRODUCTION_READINESS_PLAN.md`](docs/26_PRODUCTION_READINESS_PLAN.md). / 本地配置仅用于开发/测试：GitHub 保持 dry-run，本地 Persona Token 绝不是生产认证。生产路线与 Owner 输入见生产就绪计划。
 

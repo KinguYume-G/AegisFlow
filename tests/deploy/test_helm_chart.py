@@ -41,6 +41,7 @@ def test_runtime_image_contains_alembic_assets_required_by_init_container() -> N
 
 
 def test_application_workloads_are_bounded_and_non_privileged() -> None:
+    values = (CHART / "values.yaml").read_text(encoding="utf-8")
     workloads = (CHART / "templates" / "workloads.yaml").read_text(encoding="utf-8")
     service_accounts = (CHART / "templates" / "serviceaccounts.yaml").read_text(
         encoding="utf-8"
@@ -58,6 +59,9 @@ def test_application_workloads_are_bounded_and_non_privileged() -> None:
     assert "resources:" in workloads
     assert "automountServiceAccountToken: false" in service_accounts
     assert "sandbox-broker" not in workloads
+    assert "worker:\n  enabled: false" in values
+    assert "{{- if .Values.worker.enabled }}" in workloads
+    assert "{{- if .Values.worker.enabled }}" in service_accounts
 
 
 def test_network_policy_is_default_deny_with_explicit_flows() -> None:
@@ -116,6 +120,7 @@ def test_k3d_workflow_is_pinned_and_always_tears_down() -> None:
     assert "helm rollback" in script
     assert "k3d cluster delete" in script
     assert "rollout status statefulset" in script
+    assert 'rollout_if_present deployment "${FULLNAME}-worker"' in script
     assert "kind: Secret" not in script
     assert "--from-literal" in script
     assert "sha256sum --check" in workflow

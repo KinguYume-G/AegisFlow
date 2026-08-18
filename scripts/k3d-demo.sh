@@ -46,6 +46,15 @@ create_runtime_secret() {
     --dry-run=client -o yaml | kubectl apply -f -
 }
 
+rollout_if_present() {
+  local resource_type="$1"
+  local resource_name="$2"
+  local timeout="$3"
+  if kubectl -n "${NAMESPACE}" get "${resource_type}/${resource_name}" >/dev/null 2>&1; then
+    kubectl -n "${NAMESPACE}" rollout status "${resource_type}/${resource_name}" --timeout="${timeout}"
+  fi
+}
+
 up() {
   require_commands
   if ! cluster_exists; then
@@ -68,7 +77,7 @@ verify() {
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-redis" --timeout=120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-temporal" --timeout=180s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-core" --timeout=120s
-  kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-worker" --timeout=120s
+  rollout_if_present deployment "${FULLNAME}-worker" 120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-prometheus" --timeout=120s
   kubectl -n "${NAMESPACE}" rollout status deployment/"${FULLNAME}-grafana" --timeout=120s
   kubectl -n "${NAMESPACE}" run "aegisflow-smoke-${RANDOM}" \

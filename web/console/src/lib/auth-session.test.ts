@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createCsrfToken,
   openLoginTransaction,
+  safeReturnPath,
   sealLoginTransaction,
   verifyCsrfToken,
 } from "./auth-session";
@@ -57,6 +58,30 @@ describe("server-only authentication envelopes", () => {
         key,
       ),
     ).toThrow("return_path_invalid");
+
+    for (const unsafe of [
+      "//evil.example",
+      "/\\evil.example",
+      "/runs\r\nlocation:https://evil.example",
+      "https://evil.example",
+    ]) {
+      expect(safeReturnPath(unsafe)).toBe("/");
+      expect(() =>
+        sealLoginTransaction(
+          {
+            state: "state",
+            nonce: "nonce",
+            codeVerifier: "verifier",
+            returnPath: unsafe,
+            expiresAt: 2_000,
+          },
+          key,
+        ),
+      ).toThrow("return_path_invalid");
+    }
+    expect(safeReturnPath("/runs/new?from=login")).toBe(
+      "/runs/new?from=login",
+    );
   });
 
   it("derives a session-bound CSRF value and compares it safely", () => {

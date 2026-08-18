@@ -12,9 +12,13 @@ let cached:
 function configuration(config: OidcConsoleEnvironment) {
   const fingerprint = `${config.issuer}\0${config.discoveryUrl}\0${config.clientId}`;
   if (cached?.fingerprint === fingerprint) return cached.value;
-  const value = loadConfiguration(config);
-  cached = { fingerprint, value };
-  return value;
+  const entry = { fingerprint, value: loadConfiguration(config) };
+  entry.value = entry.value.catch((error: unknown) => {
+    if (cached === entry) cached = undefined;
+    throw error;
+  });
+  cached = entry;
+  return entry.value;
 }
 
 async function loadConfiguration(config: OidcConsoleEnvironment) {

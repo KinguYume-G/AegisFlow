@@ -16,6 +16,21 @@ export interface LoginTransaction {
 
 const OPAQUE_SESSION = /^afs_cs_[A-Za-z0-9_-]{43}$/;
 const CSRF = /^[A-Za-z0-9_-]{43}$/;
+const CONTROL_CHARACTER = /[\u0000-\u001f\u007f]/;
+
+export function safeReturnPath(value: string | null | undefined): string {
+  if (
+    !value ||
+    value.length > 2048 ||
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.includes("\\") ||
+    CONTROL_CHARACTER.test(value)
+  ) {
+    return "/";
+  }
+  return value;
+}
 
 function encryptionKey(encoded: string): Buffer {
   const key = Buffer.from(encoded, "base64url");
@@ -24,9 +39,9 @@ function encryptionKey(encoded: string): Buffer {
 }
 
 function validateTransaction(value: LoginTransaction): LoginTransaction {
-  const invalidReturnPath =
-    !value.returnPath.startsWith("/") || value.returnPath.startsWith("//");
-  if (invalidReturnPath) throw new Error("return_path_invalid");
+  if (safeReturnPath(value.returnPath) !== value.returnPath) {
+    throw new Error("return_path_invalid");
+  }
   if (
     !value.state ||
     value.state.length > 512 ||
@@ -34,8 +49,7 @@ function validateTransaction(value: LoginTransaction): LoginTransaction {
     value.nonce.length > 512 ||
     !value.codeVerifier ||
     value.codeVerifier.length > 512 ||
-    !Number.isSafeInteger(value.expiresAt) ||
-    value.returnPath.length > 2048
+    !Number.isSafeInteger(value.expiresAt)
   ) {
     throw new Error("login_transaction_invalid");
   }
